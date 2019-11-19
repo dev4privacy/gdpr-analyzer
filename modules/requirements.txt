@@ -1,5 +1,4 @@
-certifi==2019.9.11
-chardet==3.0.4
-idna==2.8
-requests==2.22.0
+selenium==3.141.0
+six==1.13.0
+splinter==0.11.0
 urllib3==1.25.7
