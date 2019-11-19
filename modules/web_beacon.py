@@ -2,6 +2,7 @@ import mimetypes
 import requests
 from bs4 import BeautifulSoup
 from css2json import css2json
+from splinter.browser import Browser
 import json
 import re
 
@@ -10,7 +11,8 @@ MD_DOMAIN_URl = "http://www.malware-domains.com/files/justdomains.zip"
 BL_DOMAIN_URL = "https://sebsauvage.net/hosts/hosts"
 
 def find_beacon(url):
-    """find suspicious fields in beacon <img/>, return the suspicious sources with its fields"""
+    """find suspicious fields in beacon <img/>, return the dict with how many factors there are"""
+    web_beacon = []
     beacon_factors = {}
     style_css = []
     BL_matches = []
@@ -22,29 +24,23 @@ def find_beacon(url):
     BL_list = BL_website()
     if BL_list == False:
         print("No response from the BL website\n")
-    # header to simulate a browser
-    headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0',
-               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-               'Accept-Language': 'en-US,en;q=0.5',
-               'Accept-Encoding': 'gzip, deflate'}
-
-    proxies = {'https' : 'localhost:8080'}
     # get request
-    site = requests.get(url,headers=headers)
-    if site.status_code is 200:
-        content = site.content
+    browser = Browser('firefox')
+    visit = browser.visit(url)
+    content = browser.html
+    browser.quit()
+    if content != "":
         # return all the CSS sources present in the <link/> beacon
         cssSRCS = find_css(content)
         # parse the html content
         soup = BeautifulSoup(content, features="html.parser")
         # find all the <img/> beacons
-        Im = [img for img in soup.find_all('img')]
+        image_element = [img for img in soup.find_all('img')]
+        style_element = [style for style in soup.find_all('style')]
 
-        if Im == []:
-            return Im
-        else:
+        if image_element != []:
             # check all the <img/>
-            for i in Im:
+            for i in image_element:
 
                 images = str(i)
                 soup = BeautifulSoup(images, features="html.parser")
@@ -66,7 +62,7 @@ def find_beacon(url):
                 except KeyError:
                     height = 999
                 try:
-                    style = image["style"]
+                    style = iage["style"]
                 except KeyError:
                     style = ""
                 try:
@@ -82,6 +78,7 @@ def find_beacon(url):
                     BL_matches = check_domains(src, BL_list)
                     if BL_matches != []:
                         blacklist_nb = blacklist_nb+1
+                        web_beacon.append(src)
                 # check if there are so suspicious words on the fields
                 # check the style field
                 if style != "":
@@ -89,12 +86,14 @@ def find_beacon(url):
                     for i in range(len(find_style)):
                         if find_style[i] == "hidden":
                             hidden_nb=hidden_nb+1
+                            web_beacon.append(src)
                         if find_style[i] == "position":
                             position_nb=position_nb+1
+                            web_beacon.append(src)
                 # check width/height fields
                 if width < 3 or height < 3:
-                    if image["src"] not in beacon:
-                        size_nb=size_nb+1
+                    size_nb=size_nb+1
+                    web_beacon.append(src)
                 # check the content of the CSS pages
                 else:
                     if id != "" and src != "":
@@ -103,8 +102,11 @@ def find_beacon(url):
                             for i in range(len(find_hidden)):
                                 if find_hidden[i] == "hidden":
                                     hidden_nb=hidden_nb+1
+                                    web_beacon.append(src)
                                 if find_hidden[i] == "position":
                                     position_nb=position_nb+1
+                                    web_beacon.append(src)
+
     else:
         print("No answer from the web site")
 
@@ -112,6 +114,7 @@ def find_beacon(url):
     beacon_factors["size"]=size_nb
     beacon_factors["blacklist"]=blacklist_nb
     beacon_factors["hidden"]=hidden_nb
+    # print(web_beacon)
     return beacon_factors
 
 def cutURL(srcs):
@@ -128,7 +131,7 @@ def guess_image(file):
         mime = mimetypes.guess_type(i)
         ext = mime[0].split('/')[0]
         if ext == "image":
-            print(" {} : Image detected".format(i))
+            print(" {} : image_elementage detected".format(i))
         else:
             print("{} This is not a image, maybe a tracker".format(i))
 
@@ -152,7 +155,7 @@ def find_css(content):
     return cssSrcs
 
 def check_style(style):
-    """parse the Sryle ety check the content"""
+    """parse the Style and check the content"""
     result = []
     if "hidden" in style or "none" in style:
         result.append("hidden")
@@ -239,3 +242,5 @@ def choose_url():
     if url == "":
         url = default_url
     return url
+
+print(find_beacon("https://www.privatesportshop.fr/"))
