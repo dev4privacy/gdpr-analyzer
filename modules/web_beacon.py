@@ -5,7 +5,7 @@ import mimetypes
 import requests
 import json
 import re
-import cssutils
+import tinycss
 
 MDL_URL = "http://www.malwaredomainlist.com/mdlcsv.php"
 MD_DOMAIN_URl = "http://www.malware-domains.com/files/justdomains.zip"
@@ -207,8 +207,19 @@ def find_hidden_element(url, element):
     result = []
     hidden = []
     tmp = requests.get(url).content.decode("utf-8")
-    tmp_json = css2json(tmp)
-    json_data = json.loads(tmp_json)
+    dct = {}
+    stylesheet = tinycss.make_parser().parse_stylesheet(content_without_style)
+
+    for rule in stylesheet.rules:
+        selector = rule.selector.as_css()
+        dct_style = {}
+        for d in rule.declarations:
+            value = ""
+            for v in d.value:
+                value = value+v.as_css()
+            dct_style[d.name] = value
+        dct[selector] = dct_style
+    json_data = json.loads(dct)
     for json_key, json_val in json_data.items():
         if element in json_key:
             for element_key, element_val in visibility.items():
@@ -254,20 +265,18 @@ def find_hidden_style_element(content, element):
     end = content.find(b)
     content_without_style = content[begin:end]
     # print(content_without_style)
-    sheet = cssutils.parseString(content_without_style)
-    style_tmp = {}
-    for rule in sheet:
-        print(rule)
-        selector = rule.selectorText
-        styles = rule.style.cssText
-        sep_semicolon = styles.split(";\n")
-        for i in sep_semicolon:
-            sep_2dots = i.split(":")
-            style_tmp[sep_2dots[0]] = sep_2dots[1].strip(" ")
-            css_dct[selector] = style_tmp
+    stylesheet = tinycss.make_parser().parse_stylesheet(content_without_style)
+    for rule in stylesheet.rules:
+        selector = rule.selector.as_css()
+        dct_style = {}
+        for d in rule.declarations:
+            value = ""
+            for v in d.value:
+                value = value+v.as_css()
+            dct_style[d.name] = value
+        css_dct[selector] = dct_style
     j = json.dumps(css_dct)
     json_data = json.loads(j)
-
     for json_key, json_val in json_data.items():
         json_keys.append(json_key)
         if element in json_key:
@@ -329,4 +338,5 @@ def choose_url():
     return url
 
 
-print(find_beacon("http://localhost:8000/pageNoScript.html"))
+print(find_beacon("https://www.privatesportshop.fr/"))
+# print(find_beacon("http://localhost:8000/pageNoScript.html"))
