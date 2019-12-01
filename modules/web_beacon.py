@@ -120,7 +120,7 @@ def find_beacon(url):
                                         hidden_nb = hidden_nb + 1
                                         web_beacon.append(src)
                                     if find_hidden_style[l] == "position":
-                                        position_nb=position_nb + 1
+                                        position_nb = position_nb + 1
                                 # TODO size in CSS
 
     else:
@@ -206,10 +206,9 @@ def find_hidden_element(url, element):
     pos = False
     result = []
     hidden = []
-    tmp = requests.get(url).content.decode("utf-8")
-    dct = {}
-    stylesheet = tinycss.make_parser().parse_stylesheet(content_without_style)
-
+    css_dct = {}
+    request = requests.get(url).content.decode("utf-8")
+    stylesheet = tinycss.make_parser().parse_stylesheet(request)
     for rule in stylesheet.rules:
         selector = rule.selector.as_css()
         dct_style = {}
@@ -218,8 +217,9 @@ def find_hidden_element(url, element):
             for v in d.value:
                 value = value+v.as_css()
             dct_style[d.name] = value
-        dct[selector] = dct_style
-    json_data = json.loads(dct)
+        css_dct[selector] = dct_style
+    j = json.dumps(css_dct)
+    json_data = json.loads(j)
     for json_key, json_val in json_data.items():
         if element in json_key:
             for element_key, element_val in visibility.items():
@@ -338,5 +338,5 @@ def choose_url():
     return url
 
 
-print(find_beacon("https://www.privatesportshop.fr/"))
-# print(find_beacon("http://localhost:8000/pageNoScript.html"))
+# print(find_beacon("https://www.privatesportshop.fr/"))
+print(find_beacon("http://localhost:8000/pageNoScript.html"))
