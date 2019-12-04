@@ -13,7 +13,10 @@ BL_DOMAIN_URL = "https://sebsauvage.net/hosts/hosts"
 
 
 def find_beacon(url):
-    """find suspicious fields in beacon <img/>, return the dict with how many factors there are"""
+    """
+    find suspicious fields in beacon <img/>, return the dict with how many factors there are
+    :param url: url the user wants to test
+    """
     web_beacon = []
     web_beacon_info = {}
     # style_css = []
@@ -161,7 +164,11 @@ def guess_image(file):
 
 
 def find_css(content):
-    """find all the CSS pages in the <link/> beacons"""
+    """
+    find all the CSS pages in the <link/> beacons
+    :param content: the content of the web page
+    :return: css web pages
+    """
     css_src = []
     soup = BeautifulSoup(content, features="html.parser")
     link = [link for link in soup.find_all('link')]
@@ -181,7 +188,11 @@ def find_css(content):
 
 
 def check_style(style):
-    """parse the Style and check the content"""
+    """
+    parse the Style and check the content
+    :param style: the content of the style attribute
+    :return: list of factors elements find
+    """
     result = []
     if "hidden" in style or "none" in style:
         result.append("hidden")
@@ -198,7 +209,12 @@ def check_style(style):
 
 
 def find_hidden_element(url, element):
-    """parse the CSS page"""
+    """
+    parse the CSS page
+    :param url: url of the css page
+    :param element: element need to find in the page
+    :return: list of factors elements find
+    """
     visibility = {
         "display": "none",
         "visibility": "hidden",
@@ -248,7 +264,12 @@ def find_hidden_element(url, element):
 
 
 def find_hidden_style_element(content, element):
-    """parse the CSS in style beacons """
+    """
+    parse the CSS in style beacons
+    :param content: the content of the style beacon
+    :param element:  element need to find in the page
+    :return: list of factors elements find
+    """
     visibility = {
         "display": "none",
         "visibility": "hidden",
@@ -307,7 +328,10 @@ def find_hidden_style_element(content, element):
 
 
 def bl_website():
-    """request BL website et return list of domains"""
+    """
+    Request BL website et return list of domains
+    :return: blacklist domains or None
+    """
     site = requests.get(BL_DOMAIN_URL)
     if site.status_code is 200:
         html = site.text
@@ -323,7 +347,12 @@ def bl_website():
 
 
 def check_domains(url, bl_list):
-    """Check suspicious url if it's present on blacklists"""
+    """
+    Check suspicious url if it's present on blacklists
+    :param url: url need to check
+    :param bl_list: blacklist domains
+    :return: list of factors elements find
+    """
     result = []
     re_domain = re.search(r"(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]", url)
     url_domain = re_domain.group()
@@ -351,6 +380,7 @@ def json_parser(web_beacon_score, web_beacon_info):
     return json_web_beacon
 
 
+# TODO delete at the END
 # the user enter the URL he wants to test, return the URL
 def choose_url():
     default_url = "https://www.privatesportshop.fr/"
@@ -363,7 +393,10 @@ def choose_url():
     return url
 
 
-beacon_score, beacon_info = find_beacon("https://www.lexpress.fr/")
-# print(find_beacon("http://localhost:8000/pageNoScript.html"))
-json_beacon = json_parser(beacon_score, beacon_info)
-print(json_beacon)
+# TODO integrate this main into the principal main
+if __name__ == '__main__':
+
+    beacon_score, beacon_info = find_beacon("https://www.dealabs.com/")
+    # beacon_score, beacon_info = find_beacon("https://localhost:8000/page_test.html")
+    json_beacon = json_parser(beacon_score, beacon_info)
+    print(json_beacon)
