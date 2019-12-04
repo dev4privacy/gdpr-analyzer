@@ -4,114 +4,216 @@
 import time
 from datetime import datetime, timedelta
 from splinter import Browser
+import json
 
 
 def cookie_expiration(cookies):
     """
-    calculate the cookie expiry time for 'url_website'
-    and define the number of cookies per duration step
-    :param website_url: URL of target to audit
-    :return: cookie dictionnary
+    calculate the cookies expiry time and define
+    the number of cookies per duration step in
+    order to give a score
+    :param cookies: list of session cookies
+    :return: expiry_score, expiry_info
     """
 
-    tracker_dict = {}
+    expiry_score = 0
+    expiry_info = {}
+
     unlimited_nb = 0
     thirty_month_nb = 0
     eight_month_nb = 0
     six_month_nb = 0
     three_month_nb = 0
+    one_month_nb = 0
 
-    # print(cookies)
+    # print(cookies)  # debug
 
     for cookie in cookies:
 
-        # print(cookie)
-        # name = cookie["name"]
+        # print(cookie)  # debug
 
         try:
             expiry = cookie["expiry"]
-            # print(expiry)
+            # print(expiry)  # debug
 
             # calculate the expiry time of cookies
             expiration_delay = timedelta(seconds=expiry - now)
-            # print(f"Cookie '{name}' expire in : {expiration_delay}")
 
             # count the number of cookies in each expiry time range
-            if expiration_delay.days > 394:  # 13 month
+            if expiration_delay.days > 394:  # + 13 month
                 thirty_month_nb += 1
+                expiry_score += 17  # TODO replace by config file value
 
-            elif expiration_delay.days > 240:  # 8 month
+            elif expiration_delay.days > 240:  # + 8 month
                 eight_month_nb += 1
+                expiry_score += 13  # TODO replace by config file value
 
-            elif expiration_delay.days > 180:  # 6 month
+            elif expiration_delay.days > 180:  # + 6 month
                 six_month_nb += 1
+                expiry_score += 8  # TODO replace by config file value
 
-            elif expiration_delay.days > 90:  # 3 month
+            elif expiration_delay.days > 90:  # + 3 month
                 three_month_nb += 1
+                expiry_score += 6  # TODO replace by config file value
+
+            elif expiration_delay.days > 30:  # + 1 month
+                one_month_nb += 1
+                expiry_score += 3  # TODO replace by config file value
 
         except KeyError:
             unlimited_nb += 1  # no expiration
-            # print(f"Cookie '{name}' does not expire")
+            expiry_score += 17  # TODO replace by config file value
 
     # put the counters in the dictionary
-    tracker_dict["unlimited"] = unlimited_nb
-    tracker_dict["thirty_month"] = thirty_month_nb
-    tracker_dict["eight_month"] = eight_month_nb
-    tracker_dict["six_month"] = six_month_nb
-    tracker_dict["three_month"] = three_month_nb
+    expiry_info["unlimited"] = unlimited_nb
+    expiry_info["thirty_month"] = thirty_month_nb
+    expiry_info["eight_month"] = eight_month_nb
+    expiry_info["six_month"] = six_month_nb
+    expiry_info["three_month"] = three_month_nb
+    expiry_info["one_month"] = one_month_nb
 
-    return tracker_dict
+    return expiry_score, expiry_info
 
 
 def third_party_cookies(cookies, website_url):
+    """
+    calculate the number of third party cookies and
+    define a score
+    :param cookies: list of session cookies
+    :param website_url: website url to test
+    :return: third_party_score, third_party_info
+    """
 
-    tracker_dict = {}
+    third_party_score = 0
+    third_party_info = {}
+
     third_party_nb = 0
 
     # compute all possible domains for the targeted website
     # and adapt its URL
+    # TODO consider all possible cases (with www. / website.domain / http: / https:)
     if website_url[:5] == "https":
         website_url = website_url[8:]
     else:
         website_url = website_url[7:]
 
-    # print(website_url)
+    # print(website_url)  # debug
 
     for cookie in cookies:
+        # print(cookie)  # debug
 
         domain = cookie["domain"]
 
         # count the number of domains which correspond to third parties
         if website_url.find(domain) is False:  # is false useless but better understanding
             third_party_nb += 1
+            third_party_score += 17  # TODO replace by config file value
 
     # put the counter in the dictionary
-    tracker_dict["third_party"] = third_party_nb
+    third_party_info["number"] = third_party_nb
 
-    return tracker_dict
+    return third_party_score, third_party_info
 
 
 def cookie_storage(cookies):
+    """
+    function about the unintentional storage of cookies
+    :param cookies: list of session cookies
+    :return: storage_score, storage_info
+    """
 
-    tracker_dict = {}
+    storage_score = 0
+    storage_info = {}
 
-    return tracker_dict
+    # TODO how is it possible to store cookie in another browser repo ?
+
+    return storage_score, storage_info
 
 
+def cookie_score_calculation(expiry_score, third_party_score, storage_score):
+    """
+    calculate global score for cookies
+    :param expiry_score: score for expiry time of cookies
+    :param third_party_score: score for third party cookies
+    :param storage_score: score for unintentional storage of cookies
+    :return: score
+    """
+
+    score = expiry_score + third_party_score + storage_score
+
+    return score
+
+
+def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score, storage_info, cookie_score):
+    """
+    parse the results into json object
+    :param expiry_score: score for expiry time of cookies
+    :param expiry_info: info for expiry time of cookies
+    :param third_party_score: score for third party cookies
+    :param third_party_info: info for third party cookies
+    :param storage_score: score for unintentional storage of cookies
+    :param storage_info: info for unintentional storage of cookies
+    :param cookie_score: global score for cookies
+    :return: json_cookie
+    """
+
+    expiry_dict = {
+        'score': expiry_score,
+        'info': expiry_info
+    }
+
+    third_party_dict = {
+        'score': third_party_score,
+        'info': third_party_info
+    }
+
+    storage_dict = {
+        'score': storage_score,
+        'info': storage_info
+    }
+
+    cookie_dict = {
+        'score': cookie_score,
+        'expiry': expiry_dict,
+        'third_party': third_party_dict,
+        'storage': storage_dict,
+    }
+
+    json_cookie = json.dumps(cookie_dict, indent=4)
+
+    return json_cookie
+
+
+# TODO integrate this main into the principal main
 if __name__ == '__main__':
 
-    website_url = 'https://www.dealabs.com'
-    browser = Browser('firefox')  # create temporary profile for the use of our tool
-                                    # in order to check the third party cookies
+    # TODO place a 'website_url' argument rather than doing this way
+    website_url = 'https://privatesportshop.fr'
+
+    # TODO with browser rather than following to use clean session and quit automatically
+    browser = Browser('firefox', timeout=200, wait_time=200, profile_preferences={"network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
 
     now = int(time.time())
     print("Current date:", datetime.fromtimestamp(now))
 
     browser.visit(website_url)
+
+    # TODO we must return also third party cookies even if they are in firefox cookies...
     cookies = browser.cookies.all(verbose=True)
-    tracker_dict = cookie_expiration(cookies)
-    third_party_cookies = third_party_cookies(cookies, website_url)
+    # to bypass this problem link to splinter, possibility to get all cookies from firefox but we can have cookies from
+    # user navigation...
+
+    expiry_score, expiry_info = cookie_expiration(cookies)
+    third_party_score, third_party_info = third_party_cookies(cookies, website_url)
+
+    # TODO make storage function ?
+    storage_score = 0
+    storage_info = {}
+
     browser.quit()
 
-    print(tracker_dict)
-    print(third_party_cookies)
+    cookie_score = cookie_score_calculation(expiry_score, third_party_score, storage_score)
+
+    json_cookie = json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score, storage_info, cookie_score)
+
+    print(json_cookie)
