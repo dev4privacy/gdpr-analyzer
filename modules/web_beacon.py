@@ -15,7 +15,7 @@ BL_DOMAIN_URL = "https://sebsauvage.net/hosts/hosts"
 def find_beacon(url):
     """find suspicious fields in beacon <img/>, return the dict with how many factors there are"""
     web_beacon = []
-    beacon_factors = {}
+    web_beacon_info = {}
     # style_css = []
     # bl_matches = []
     blacklist_nb = 0
@@ -28,7 +28,7 @@ def find_beacon(url):
         print("No response from the BL website\n")
     # get request
     browser = Browser('firefox')
-    visit = browser.visit(url)
+    browser.visit(url)
     content = browser.html
     browser.quit()
     if content != "":
@@ -126,12 +126,19 @@ def find_beacon(url):
     else:
         print("No answer from the web site")
 
-    beacon_factors["position"] = position_nb
-    beacon_factors["size"] = size_nb
-    beacon_factors["blacklist"] = blacklist_nb
-    beacon_factors["hidden"] = hidden_nb
-    # print(web_beacon)
-    return beacon_factors
+    # calculate web beacon score
+    position_score = position_nb * 2
+    size_score = size_nb * 4
+    blacklist_score = blacklist_nb * 10
+    hidden_score = hidden_nb * 6
+    web_beacon_score = position_score + size_score + blacklist_score + hidden_score
+    # add info to the beacon_info dict
+    web_beacon_info["position"] = position_nb
+    web_beacon_info["size"] = size_nb
+    web_beacon_info["blacklist"] = blacklist_nb
+    web_beacon_info["hidden"] = hidden_nb
+
+    return web_beacon_score, web_beacon_info
 
 
 def cut_url(srcs):
@@ -326,6 +333,24 @@ def check_domains(url, bl_list):
     return result
 
 
+def json_parser(web_beacon_score, web_beacon_info):
+    """
+    parse the results into json object
+    :param web_beacon_score: score for expiry time of cookies
+    :param web_beacon_info: info for expiry time of cookies
+    :return: json_beacon
+    """
+
+    beacon_dict = {
+        'score': web_beacon_score,
+        'info': web_beacon_info
+    }
+
+    json_web_beacon = json.dumps(beacon_dict, indent=4)
+
+    return json_web_beacon
+
+
 # the user enter the URL he wants to test, return the URL
 def choose_url():
     default_url = "https://www.privatesportshop.fr/"
@@ -338,5 +363,7 @@ def choose_url():
     return url
 
 
-# print(find_beacon("https://www.privatesportshop.fr/"))
-print(find_beacon("http://localhost:8000/pageNoScript.html"))
+beacon_score, beacon_info = find_beacon("https://www.lexpress.fr/")
+# print(find_beacon("http://localhost:8000/pageNoScript.html"))
+json_beacon = json_parser(beacon_score, beacon_info)
+print(json_beacon)
