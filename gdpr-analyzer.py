@@ -5,6 +5,7 @@ import sys
 import argparse
 import json
 from modules.crypto.crypto import TransmissionSecurity
+from modules.report.generate_report import generate_report
 
 def cookie(target):
     result = ""
@@ -18,9 +19,6 @@ def crypto(target):
     crypto = TransmissionSecurity(target)
     crypto.evaluate()
     return crypto.json_parser()
-
-def report(target, name, result):
-    print()
 
 def full(target):
     result_cookie = None
@@ -68,7 +66,8 @@ def start():
         if result is None:
             print("no result available")
         else:
-            report(target, name, result)
+            print("coucou")
+            generate_report(target, name, result)
             
     if args.json:
         if result is None:
@@ -87,7 +86,7 @@ def entry_point():
         print(error_entry_point)
 
 if __name__ == '__main__':
-    if python_version()[0:3] < '3.7':
+    if python_version()[0:3] < '3.5':
         print('\033[93m[!] Make sure you have Python 3.7+ installed, quitting.\033[0m')
         sys.exit(1)
 

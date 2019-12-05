@@ -152,6 +152,8 @@ class TransmissionSecurity:
         result["key"]["score"] = self.key_score
         result["key"]["size"] = self.key_size
 
+        result["cipher"] = {}
+
         result["certificate"] = {}
         result["certificate"]["score"] = self.certificate_score
         result["certificate"]["type"] = self.certificate_type
