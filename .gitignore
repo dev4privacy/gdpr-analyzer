@@ -1,3 +1,6 @@
 venv/
 *.log
 .idea
+
+ __pycache__/
+ *.pyc
