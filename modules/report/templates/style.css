@@ -1,0 +1,29 @@
+#gras {
+    color: red;
+}
+
+div.jump {
+    page-break-before: always;
+}
+
+th {
+    text-align: center;
+    border:1px solid black;
+}
+
+.landscape {
+    page: landorientation;
+}
+
+table {
+    border:1px solid black;
+    border-collapse:collapse
+}
+
+td { 
+    border-width:1px;
+    border-style:solid; 
+    border-color:black;
+}
+
+@page landorientation { size: A4 landscape; margin: 2cm; } 
