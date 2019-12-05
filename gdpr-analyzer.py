@@ -4,21 +4,20 @@ from platform import python_version
 import sys
 import argparse
 import json
+from modules.crypto.crypto import TransmissionSecurity
 
 def cookie(target):
     result = ""
-    print("cookie")
     return result
 
 def webbeacon(target):
     result = ""
-    print("webbeacon")
     return result
 
 def crypto(target):
-    result = ""
-    print("crypto")
-    return result
+    crypto = TransmissionSecurity(target)
+    crypto.evaluate()
+    return crypto.json_parser()
 
 def report(target, name, result):
     print()
@@ -31,6 +30,7 @@ def full(target):
     result_cookie = cookie(target)
     result_webbeacon = webbeacon(target)
     result_crypto = crypto(target)
+    print(result_crypto)
 
     #return merge all result 
     
@@ -57,9 +57,9 @@ def start():
         result = cookie(target)
     if args.webbeacon : 
         result = webbeacon(target)  
-    if args.crypto : 
-        result += crypto(target)  
     '''
+    if args.crypto : 
+        result = crypto(target)
 
     if args.full or (not args.cookie and not args.webbeacon and not args.crypto):
         result = full(target)
@@ -69,7 +69,7 @@ def start():
             print("no result available")
         else:
             report(target, name, result)
-    
+            
     if args.json:
         if result is None:
             print("no result available")
