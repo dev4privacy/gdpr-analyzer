@@ -58,3 +58,6 @@ To analyse the security of the connection with the website and export the result
 ## License
 Gdpr-analyzer is licensed under the GNU GPL v3.0. ??
 cc : https://www.gnu.org/licenses/gpl-3.0.en.html
+
+## Version
+**Current version is 0.1**
