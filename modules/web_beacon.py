@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-from css2json import css2json
 from splinter.browser import Browser
 import mimetypes
 import requests
@@ -144,6 +143,7 @@ def find_beacon(url):
     return web_beacon_score, web_beacon_info
 
 
+# TODO delete if not use at the END
 def cut_url(srcs):
     """cut URL and return the last part"""
     file = []
@@ -152,6 +152,7 @@ def cut_url(srcs):
     return file
 
 
+# TODO delete if not use at the END
 def guess_image(file):
     """guess image"""
     for i in file:
