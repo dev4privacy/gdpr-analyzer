@@ -15,7 +15,8 @@ Gdpr-analyzer currently supports *Python 3*:
 * The recommended version for Python 3 is 3.7.x
 
 ## Dependencies:
-Gdpr-analyzer depends on the ```bs4```, ```argparse```, ```mimetypes```, ```requests```, ```splinter```, ```tinycss```, ```platform```, ```Jinja2``` python modules.
+Gdpr-analyzer depends on the `bs4`, `argparse`, `mimetypes`, `requests`, `splinter`, `tinycss`, `platform`, `Jinja2` python modules.
+
 These dependencies can be installed using the requirements file:
 * Installation on Windows :
 ```
@@ -40,12 +41,15 @@ Short Form    | Long Form     | Description
 
 ## Examples
 To use all analysis options :
+
 `python gdpr-analyser.py -f example.com`
 
 To search the presence of web beacon and generate a pdf report :
+
 `python gdpr-analyser.py -w -r example.com`
 
 To analyse the security of the connection with the website and export the result in json :
+
 `python gdpr-analyser.py -t -j example.com`
 
 ## Disclaimer
