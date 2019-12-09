@@ -26,7 +26,7 @@ c:\python27\python.exe -m pip install -r requirements.txt
 sudo pip install -r requirements.txt
 ```
 
-Alternatively, each module can be installed independently as shown below.
+Alternatively, each module can be installed independently.
 ## Usage
 
 Short Form    | Long Form     | Description
@@ -40,11 +40,13 @@ Short Form    | Long Form     | Description
 
 ## Examples
 To use all analysis options :
-```python gdpr-analyser.py -f example.com```
+`python gdpr-analyser.py -f example.com`
+
 To search the presence of web beacon and generate a pdf report :
-```python gdpr-analyser.py -w -r example.com```
+`python gdpr-analyser.py -w -r example.com`
+
 To analyse the security of the connection with the website and export the result in json :
-```python gdpr-analyser.py -t -j example.com```
+`python gdpr-analyser.py -t -j example.com`
 
 ## Disclaimer
 
