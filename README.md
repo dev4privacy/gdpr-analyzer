@@ -10,6 +10,7 @@ The tool is not intended to cover the entire GDPR. As stated above, only publicl
 ```bash
 git clone https://git.scyde.fr/major-g9/gdpr-analyzer.git
 ```
+
 ## Recommended Python version
 Gdpr-analyzer currently supports *Python 3*:
 * The recommended version for Python 3 is 3.7.x
