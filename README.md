@@ -54,6 +54,10 @@ To analyse the security of the connection with the website and export the result
 `python gdpr-analyser.py -t -j example.com`
 
 ## Disclaimer
+Accept any responsability or liability for the use of this anlysis tool. The usage of the product dot not imply the responsibility of the **gdpr-analyzer project**.
+The purpose of this tool is to provide an evaluation grid defined with our own criteria. However, if errors are brought to our attention it will be our care to correct them. Anyhow, the **gdpr-analyzer** project engage  any  responsibility  for the usage of the generated report.
+It is not necessarily  complete,  accurate  and  updated.
+It is our goal to minimise disruption caused by technical errors and we invite, therefore, the consumers to take all the possible preventive actions to avoid the problem. This disclaimer is not intended to avoid the obligations of the national laws, nor to exclude its liability for matters that may not be excluded under that law.
 
 ## License
 Gdpr-analyzer is licensed under the GNU GPL v3.0. ??
