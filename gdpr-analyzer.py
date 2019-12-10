@@ -30,20 +30,20 @@ def full(target):
     result_crypto = crypto(target)
     print(result_crypto)
 
-    #return merge all result 
-    
-def start(): 
+    #return merge all result
+
+def start():
     parser = argparse.ArgumentParser(description='Description')
 
     parser.add_argument('url', help='Target URL')
     parser.add_argument('name', help='Name')
     parser.add_argument('-f', '--full', help='Get Full Analysis, Test All Available Options', action='store_true')
     parser.add_argument('-c', '--cookie', help='lorem ipsum', action='store_true')
-    parser.add_argument('-w', '--webbeacon', help='lorem ipsum', action='store_true')
+    parser.add_argument('-w', '--webbeacon', help='Check for the presence of web beacon', action='store_true')
     parser.add_argument('-t', '--crypto', help='Evaluate the transmision security', action='store_true')
     parser.add_argument('-r', '--report', help='lorem ipsum', action='store_true')
     parser.add_argument('-j', '--json', help='lorem ipsum', action='store_true')
-    
+
     args = parser.parse_args()
     target = args.url
     name = args.name
@@ -51,12 +51,12 @@ def start():
 
     '''
     # gerer la fusion de plusieurs resultat pour un export (rapport ou json)
-    if args.cookie : 
+    if args.cookie :
         result = cookie(target)
-    if args.webbeacon : 
-        result = webbeacon(target)  
+    if args.webbeacon :
+        result = webbeacon(target)
     '''
-    if args.crypto : 
+    if args.crypto :
         result = crypto(target)
 
     if args.full or (not args.cookie and not args.webbeacon and not args.crypto):
@@ -68,7 +68,7 @@ def start():
         else:
             print("coucou")
             generate_report(target, name, result)
-            
+
     if args.json:
         if result is None:
             print("no result available")

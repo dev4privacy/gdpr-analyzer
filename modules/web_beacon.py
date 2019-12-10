@@ -15,6 +15,7 @@ def find_beacon(url):
     """
     find suspicious fields in beacon <img/>, return the dict with how many factors there are
     :param url: url the user wants to test
+    :return: info and score for web beacon
     """
     web_beacon = []
     web_beacon_info = {}
