@@ -54,7 +54,7 @@ To analyse the security of the connection with the website and export the result
 `python gdpr-analyser.py -t -j example.com`
 
 ## Disclaimer
-Accept any responsability or liability for the use of this anlysis tool. The usage of the product do not imply the responsibility of the **gdpr-analyzer project**.
+Accept any responsability or liability for the use of this anlysis tool. The usage of the product do not imply the responsibility of the **gdpr-analyzer** project.
 
 The purpose of this tool is to provide an evaluation grid defined with our own criteria. However, if errors are brought to our attention it will be our care to correct them. Anyhow, the **gdpr-analyzer** project engage  any  responsibility  for the usage of the generated report.
 
