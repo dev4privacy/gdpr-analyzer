@@ -15,13 +15,24 @@ def generate_report(target, name, result):
 
     resultDict = json.loads(result)
     
-    scMod = resultDict['security_transmission']
-    #cookiesMod = resultDict['cookies']
-    #wbMod = resultDict['webBeacons']
+    if 'security_transmission' in resultDict:
+        scMod = resultDict['security_transmission']
+    else:
+        scMod = {}
+    
+    if 'cookies' in resultDict:
+        cookiesMod = resultDict['cookies']
+    else:
+        cookiesMod = {}
+
+    if 'web_beacons' in resultDict:
+        wbMod = resultDict['web_beacons']
+    else:
+        wbMod = {}
 
     generated_date = date.today().strftime("%d/%m/%Y")
 
-    output = tm.render(client_name=name, target=target, generated_date=generated_date, cookies="", scMod = scMod, wbMod = "")
+    output = tm.render(client_name=name, target=target, generated_date=generated_date, cookies=cookiesMod, scMod = scMod, wbMod = wbMod)
 
     #TODO check if report folder exist
-    HTML(string=output).write_pdf("reports/gdpranalyzer-"+target+"-"+name+".pdf", stylesheets=[os.path.dirname(__file__)+"/templates/style.css"])
+    HTML(string=output).write_pdf("reports/gdpranalyzer"+name+".pdf", stylesheets=[os.path.dirname(__file__)+"/templates/style.css"])

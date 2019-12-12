@@ -37,6 +37,7 @@ def cookie_expiration(cookies):
             # print(expiry)  # debug
 
             # calculate the expiry time of cookies
+            now = int(time.time())
             expiration_delay = timedelta(seconds=expiry - now)
 
             # count the number of cookies in each expiry time range
@@ -172,31 +173,24 @@ def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, 
         'info': storage_info
     }
 
-    cookie_dict = {
+    result = {
         'score': cookie_score,
         'expiry': expiry_dict,
         'third_party': third_party_dict,
         'storage': storage_dict,
     }
 
-    json_cookie = json.dumps(cookie_dict, indent=4)
+    cookie_result = {}
+    cookie_result["cookies"] = result
+    json_cookie = json.dumps(cookie_result, indent=4)
 
     return json_cookie
 
-
-# TODO integrate this main into the principal main
-if __name__ == '__main__':
-
-    # TODO place a 'website_url' argument rather than doing this way
-    website_url = 'https://privatesportshop.fr'
-
+def cookie_evaluate(target):
     # TODO with browser rather than following to use clean session and quit automatically
     browser = Browser('firefox', timeout=200, wait_time=200, profile_preferences={"network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
 
-    now = int(time.time())
-    print("Current date:", datetime.fromtimestamp(now))
-
-    browser.visit(website_url)
+    browser.visit(target)
 
     # TODO we must return also third party cookies even if they are in firefox cookies...
     cookies = browser.cookies.all(verbose=True)
@@ -204,7 +198,7 @@ if __name__ == '__main__':
     # user navigation...
 
     expiry_score, expiry_info = cookie_expiration(cookies)
-    third_party_score, third_party_info = third_party_cookies(cookies, website_url)
+    third_party_score, third_party_info = third_party_cookies(cookies, target)
 
     # TODO make storage function ?
     storage_score = 0
@@ -216,4 +210,4 @@ if __name__ == '__main__':
 
     json_cookie = json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score, storage_info, cookie_score)
 
-    print(json_cookie)
+    return json_cookie
