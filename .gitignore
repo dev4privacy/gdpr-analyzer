@@ -134,3 +134,5 @@ dmypy.json
 #Report
 reports/*.pdf
 
+# Pycharm
+.idea/
