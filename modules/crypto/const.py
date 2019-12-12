@@ -1,12 +1,3 @@
-
-SSLTLS_VERSION = [
-    "SSLv2",
-    "SSLv3",
-    "TLSv1",
-    "TLSv1_1",
-    "TLSv1_2",
-    "TLSv1_3",
-]
 TLS_OPENSSL_TO_RFC_NAMES_MAPPING = {
     "NULL-MD5": "TLS_RSA_WITH_NULL_MD5",
     "NULL-SHA": "TLS_RSA_WITH_NULL_SHA",

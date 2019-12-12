@@ -131,3 +131,6 @@ dmypy.json
 #MACOS
 .DS_Store
 
+#Report
+reports/*.pdf
+

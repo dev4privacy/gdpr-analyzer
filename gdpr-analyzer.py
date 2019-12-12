@@ -13,8 +13,8 @@ def cookie(target):
     return result
 
 def webbeacon(target):
-    beacon_score, beacon_info = find_beacon(target)
-    result = json_parser(beacon_score, beacon_info)
+    #beacon_score, beacon_info = find_beacon(target)
+    #result = json_parser(beacon_score, beacon_info)
     return result
 
 def crypto(target):

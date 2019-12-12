@@ -7,8 +7,8 @@ import cryptography
 from cryptography.hazmat.primitives import asymmetric
 from cryptography.hazmat.backends import default_backend
 import ssl
-
-import const
+import os
+from modules.crypto import const
 
 config = configparser.ConfigParser()
 config.optionxform = lambda option: option
@@ -188,9 +188,16 @@ class TransmissionSecurity:
 
         self.cert_data = CertData(url)
         self.__load_config()
-
     
     def __load_config(self):
+
+        try:
+            config = configparser.ConfigParser()
+            config.optionxform=str
+            config.read(os.path.dirname(__file__) + '/config.ini')
+        except configparser.Error:
+            return
+
         self.protocol_point = config['protocol_point']
         self.key_point = config['key_point']
         self.cipher_point = config['cipher_point']
@@ -273,7 +280,3 @@ class TransmissionSecurity:
 
         security_transmission["security_transmission"] = result
         return json.dumps(security_transmission)
-
-myobject = TransmissionSecurity("www.cdn77.com")
-myobject.evaluate()
-print(myobject.json_parser())
