@@ -6,16 +6,16 @@ import argparse
 import json
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
-#from modules.web_beacon import find_beacon, json_parser
+from modules.web_beacon import find_beacon, json_parser
 from modules.cookies import cookie_evaluate
 
 def cookie(target):
-    result = cookie_evaluate(target)
+    result = cookie_evaluate("https://"+target)
     return result
 
 def webbeacon(target):
-    #beacon_score, beacon_info = find_beacon(target)
-    #result = json_parser(beacon_score, beacon_info)
+    beacon_score, beacon_info = find_beacon("https://"+target)
+    result = json_parser(beacon_score, beacon_info)
     return result
 
 def crypto(target):
@@ -36,7 +36,7 @@ def full(target):
     full_result = json.loads(result_cookie)
     full_result.update(json.loads(result_webbeacon))
     full_result.update(json.loads(result_crypto))
-    return json.dumps(full_result, indent=4)
+    return full_result
 
 def start():
     parser = argparse.ArgumentParser(description='Description')
@@ -53,22 +53,26 @@ def start():
     args = parser.parse_args()
     target = args.url
     name = args.name
-    result = None
+    result = {}
 
     if args.full or (not args.cookie and not args.webbeacon and not args.crypto):
         result = full(target)
     else:
-        if args.crypto:
-            result = crypto(target)
+        if args.webbeacon:
+            result_webbeacon = webbeacon(target)
+            result.update(json.loads(result_webbeacon))
         if args.cookie:
-            result = cookie(target)
+            result_cookie = cookie(target)
+            result.update(json.loads(result_cookie))
+        if args.cookie:
+            result_crypto = crypto(target)
+            result.update(json.loads(result_crypto))
 
     if args.report:
         if result is None:
             print("no result available")
         else:
-            print(result)
-            generate_report(target, name, result)
+            generate_report(target, name, json.dumps(result))
 
     if args.json:
         if result is None:

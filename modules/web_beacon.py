@@ -371,34 +371,12 @@ def json_parser(web_beacon_score, web_beacon_info):
     :param web_beacon_info: info for expiry time of cookies
     :return: json_beacon
     """
+    web_beacon = {}
+    result = {}
 
-    beacon_dict = {
-        'score': web_beacon_score,
-        'info': web_beacon_info
-    }
+    result['score'] = web_beacon_score,
+    result['info']=  web_beacon_info
 
-    json_web_beacon = json.dumps(beacon_dict, indent=4)
+    web_beacon['web_beacons'] = result
 
-    return json_web_beacon
-
-
-# TODO delete at the END
-# the user enter the URL he wants to test, return the URL
-def choose_url():
-    default_url = "https://www.privatesportshop.fr/"
-    # default_url = "https://www.foxnews.com/"
-    # default_url = "https://www.facebook.com/"
-    url = input("Default URL is {}\nChoose URL : ".format(default_url))
-
-    if url == "":
-        url = default_url
-    return url
-
-
-# TODO integrate this main into the principal main
-if __name__ == '__main__':
-
-    beacon_score, beacon_info = find_beacon("https://www.dealabs.com/")
-    # beacon_score, beacon_info = find_beacon("https://localhost:8000/page_test.html")
-    json_beacon = json_parser(beacon_score, beacon_info)
-    print(json_beacon)
+    return json.dumps(web_beacon)
