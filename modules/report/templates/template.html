@@ -25,21 +25,27 @@
             <th>Score</th>
         </thead>
 
+        {% if scMod|length %}
         <tr>
             <td>Security of connection</td>
             <td>{{scMod.note}}</td>
         </tr>
+        {% endif %}
+        {% if cookies|length %}
         <tr>
             <td>Cookies</td>
-            <td>XXX</td>
+            <td>{{cookies.score}}</td>
         </tr>
+        {% endif %}
+        {% if wbMod|length %}
         <tr>
             <td>Web beacons</td>
             <td>XXX</td>
         </tr>
+        {% endif %}
     </table>
 
-
+    {% if scMod|length %}
     <div class="jump">
         <h2> Security of connection </h2>
         <h3> Grade {{scMod.grade}} with a score of {{scMod.note}}</h3>
@@ -77,78 +83,74 @@
 
             <table>
                 <thead>
-                    <thead>
-					    <tr>
-						    <th rowspan="2">Name</th>
-						    <th rowspan="2">Key Exchange</th>
-						    <th rowspan="2">Authentication</th>
-						    <th colspan="3">Cipher</th>
-						    <th colspan="2">MAC</th>
-					    </tr>
-					    <tr>
-						    <th>Type</th>
-						    <th>Key size</th>
-						    <th>Mode</th>
-						    <th>Type</th>
-						    <th>Size</th>
-					    </tr>
-				    </thead>
-                    </thead>
-                    {% for protocol in scMod.cipher|sort(case_sensitive = False) %}
-                    {% if protocol != 'score' %}
-                    <tr>
-                        <td colspan="9">{{protocol}}</td>
-                    </tr>
+				    <tr>
+					    <th rowspan="2">Name</th>
+					    <th rowspan="2">Key Exchange</th>
+					    <th rowspan="2">Authentication</th>
+					    <th colspan="3">Cipher</th>
+					    <th colspan="2">MAC</th>
+				    </tr>
+				    <tr>
+					    <th>Type</th>
+					    <th>Key size</th>
+					    <th>Mode</th>
+					    <th>Type</th>
+					    <th>Size</th>
+				    </tr>
+			    </thead>
+                {% for protocol in scMod.cipher|sort(case_sensitive = False) %}
+                {% if protocol != 'score' %}
+                <tr>
+                    <td colspan="9">{{protocol}}</td>
+                </tr>
 
-                    {% for cipherSuite in scMod.cipher[protocol] %}
-                    <tr>                           
-                        <td>{{cipherSuite.suiteName}}</td>
-                        <td>{{cipherSuite.kxType}}</td>
-                        <td>{{cipherSuite.keyAlg}}</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    <tr>
-                    {% endfor %}
-                    {% endif %}
-                    {% endfor %}
+                {% for cipherSuite in scMod.cipher[protocol] %}
+                <tr>                           
+                    <td>{{cipherSuite.suiteName}}</td>
+                    <td>{{cipherSuite.kxType}}</td>
+                    <td>{{cipherSuite.keyAlg}}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                <tr>
+                {% endfor %}
+                {% endif %}
+                {% endfor %}
             </table>     
         </div>
     </div>
-
+    {% endif %}
+    
+    {% if cookies|length %}
     <div class="jump">
         <h2> Cookies </h2>
+            Cookie score : {{cookies.score}}
+            <h3>Expiration</h3>
+            Expiration score : {{cookies.expiry.score}}
             <table>
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Expiration</th>
-                        <th>Score</th>
-                        <th>Comment</th>
+                        {% for expiry_info, number in cookies.expiry.info.items() %}
+                        <th>{{expiry_info}}</th>   
+                        {% endfor %}                     
                     </tr>
                 </thead>
-                {% for cookie in cookies -%}
-                <tr style="background: {{cookie.color}}">                            
-                    <td> {{cookie.name}} </td>
-                    <td> {{cookie.expiration}} </td>
-                    <td> {{cookie.score}} </td>
-                    <td> {{cookie.comment}} </td>
                 <tr>
-                {% endfor %}
-                <tr>
-                    <td></td>
-                    <td> Cookie score </td>
-                    <td> {{ cookies | sum(attribute='score') }} </td>
-                    <td></td>
+                    {% for expiry_info, number in cookies.expiry.info.items() %}
+                    <th>{{number}}</th>   
+                    {% endfor %}  
                 </tr>
-            <table>
+            </table>
     </div>
+    {% endif %}
 
+    {% if wbMod|length %}
     <div class="jump">
         <h2> Web beacons </h2>    
     </div>
+    {% endif %}
 
 </body>
 </html>

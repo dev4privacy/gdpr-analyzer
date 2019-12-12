@@ -6,10 +6,11 @@ import argparse
 import json
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
-from modules.web_beacon import find_beacon, json_parser
+#from modules.web_beacon import find_beacon, json_parser
+from modules.cookies import cookie_evaluate
 
 def cookie(target):
-    result = []
+    result = cookie_evaluate(target)
     return result
 
 def webbeacon(target):
@@ -59,6 +60,8 @@ def start():
     else:
         if args.crypto:
             result = crypto(target)
+        if args.cookie:
+            result = cookie(target)
 
     if args.report:
         if result is None:
