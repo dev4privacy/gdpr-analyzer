@@ -15,8 +15,14 @@ git clone https://git.scyde.fr/major-g9/gdpr-analyzer.git
 Gdpr-analyzer currently supports *Python 3*:
 * The recommended version for Python 3 is 3.7.x
 
-## Dependencies:
-Gdpr-analyzer depends on the `bs4`, `argparse`, `mimetypes`, `requests`, `splinter`, `tinycss`, `platform`, `Jinja2` python modules.
+## Dependencies
+
+Gdpr-analyzer requires the following tools :
+* OpenSSL ≥ 1.1.1 (https://www.openssl.org)
+* Firefox ≥ 60 (https://www.mozilla.org/en/firefox/new/)
+* geckodriver ≥ v0.26.0 (https://github.com/mozilla/geckodriver)
+
+Also depends on the following python modules `bs4`, `argparse`, `mimetypes`, `requests`, `splinter`, `tinycss`, `platform`, `Jinja2` 
 
 These dependencies can be installed using the requirements file:
 * Installation on Windows :
@@ -43,15 +49,15 @@ Short Form    | Long Form     | Description
 ## Examples
 To use all analysis options :
 
-`python gdpr-analyzer.py -f example.com`
+`python gdpr-analyzer.py -f example.com username` 
 
 To search the presence of web beacon and generate a pdf report :
 
-`python gdpr-analyzer.py -w -r example.com`
+`python gdpr-analyzer.py -w -r example.com username`
 
 To analyse the security of the connection with the website and export the result in json :
 
-`python gdpr-analyzer.py -t -j example.com`
+`python gdpr-analyzer.py -t -j example.com username`
 
 ## Disclaimer
 Accept any responsability or liability for the use of this anlysis tool. The usage of the product do not imply the responsibility of the **gdpr-analyzer** project.
