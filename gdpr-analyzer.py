@@ -6,13 +6,15 @@ import argparse
 import json
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
+from modules.web_beacon import find_beacon, json_parser
 
 def cookie(target):
-    result = ""
+    result = []
     return result
 
 def webbeacon(target):
-    result = ""
+    beacon_score, beacon_info = find_beacon(target)
+    result = json_parser(beacon_score, beacon_info)
     return result
 
 def crypto(target):
@@ -24,13 +26,16 @@ def full(target):
     result_cookie = None
     result_webbeacon = None
     result_crypto = None
+    full_result = []
 
     result_cookie = cookie(target)
     result_webbeacon = webbeacon(target)
     result_crypto = crypto(target)
-    print(result_crypto)
 
-    #return merge all result
+    full_result = json.loads(result_cookie)
+    full_result.update(json.loads(result_webbeacon))
+    full_result.update(json.loads(result_crypto))
+    return json.dumps(full_result, indent=4)
 
 def start():
     parser = argparse.ArgumentParser(description='Description')
@@ -49,24 +54,17 @@ def start():
     name = args.name
     result = None
 
-    '''
-    # gerer la fusion de plusieurs resultat pour un export (rapport ou json)
-    if args.cookie :
-        result = cookie(target)
-    if args.webbeacon :
-        result = webbeacon(target)
-    '''
-    if args.crypto :
-        result = crypto(target)
-
     if args.full or (not args.cookie and not args.webbeacon and not args.crypto):
         result = full(target)
+    else:
+        if args.crypto:
+            result = crypto(target)
 
     if args.report:
         if result is None:
             print("no result available")
         else:
-            print("coucou")
+            print(result)
             generate_report(target, name, result)
 
     if args.json:
