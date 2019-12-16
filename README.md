@@ -4,7 +4,12 @@ This tool allows the analysis of a website's compliance with the GDPR.
 The purpose of the project is to use publicly available site data (source code) to write a nominal report and assign a compliance score. A scoring grid can be generated to understand the score obtained.
 
 The tool is not intended to cover the entire GDPR. As stated above, only publicly available information will be analysed. As a result, not all information can be studied and the report can only rarely be exhaustive as to the use of data and the storage and protection methods put in place by the website owner
-## Screnshot ??
+## Screenshot
+### Gdpr-analyzer help
+![help](utils/gpdr-analyzer-help.png "help")
+
+### Gdpr-analyzer report
+![report](utils/gpdr-analyzer-report-resume.png "report resume")
 
 ## Installation
 ```bash
@@ -22,7 +27,7 @@ Gdpr-analyzer requires the following tools :
 * Firefox ≥ 60 (https://www.mozilla.org/en/firefox/new/)
 * geckodriver ≥ v0.26.0 (https://github.com/mozilla/geckodriver)
 
-Also depends on the following python modules `bs4`, `argparse`, `mimetypes`, `requests`, `splinter`, `tinycss`, `platform`, `Jinja2` 
+Also depends on the following python modules `bs4`, `argparse`, `mimetypes`, `requests`, `splinter`, `tinycss`, `platform`, `Jinja2`
 
 These dependencies can be installed using the requirements file:
 * Installation on Windows :
@@ -49,7 +54,7 @@ Short Form    | Long Form     | Description
 ## Examples
 To use all analysis options :
 
-`python gdpr-analyzer.py -f example.com username` 
+`python gdpr-analyzer.py -f example.com username`
 
 To search the presence of web beacon and generate a pdf report :
 
@@ -69,9 +74,7 @@ It is not necessarily  complete,  accurate  and  updated.
 It is our goal to minimise disruption caused by technical errors and we invite, therefore, the consumers to take all the possible preventive actions to avoid the problem. This disclaimer is not intended to avoid the obligations of the national laws, nor to exclude its liability for matters that may not be excluded under that law.
 
 ## License
-Gdpr-analyzer is licensed under the GNU GPL v3.0. ??
-
-cc : https://www.gnu.org/licenses/gpl-3.0.en.html
+Gdpr-analyzer is licensed under the GNU GPL v3.0.
 
 ## Version
 **Current version is 0.1**
