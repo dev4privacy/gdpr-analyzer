@@ -33,6 +33,5 @@ def generate_report(target, name, result):
     generated_date = date.today().strftime("%d/%m/%Y")
 
     output = tm.render(client_name=name, target=target, generated_date=generated_date, cookies=cookiesMod, scMod = scMod, wbMod = wbMod)
-
     #TODO check if report folder exist
-    HTML(string=output).write_pdf("reports/gdpranalyzer"+name+".pdf", stylesheets=[os.path.dirname(__file__)+"/templates/style.css"])
+    HTML(string=output).write_pdf("reports/gdpranalyzer"+name+".pdf", stylesheets=[os.path.dirname(__file__)+"/templates/style.css",os.path.dirname(__file__)+"/templates/bootstrap-grid.min.css"])

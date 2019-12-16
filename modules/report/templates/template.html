@@ -4,81 +4,125 @@
     <meta charset="utf-8">
     <style>
         @page {
-        @bottom-center{
-            content: "Generate only for personal purpose. Do not publish this report. Generated for {{client_name}}.";
-            font-size: 10px;
+            @bottom-center{
+                content: "Generate only for personal purpose. Do not publish this report. Generated for {{client_name}}.";
+                font-size: 10px;
+            
             }
+        }
+        @page{ background: rgb(253, 253, 255) } /* Third page */
+        @font-face {
+            font-family: Montserrat-Regular;
+            src: url(modules/report/templates/Montserrat-Regular.ttf);
         }
     </style>
 
 </head>
 <body>
-    <h1>GDPR Compliance report</h1>
-    <h4>{{target}}</h4>
-    <h4>{{generated_date}}</h4>
-    <h3>Site score XXXX</h3>
+    <div class="header">
+        <h1>gdpr-analyser</h1>
+        <div class="header_report">.report</div>
+        <div class="header_target">{{target}}</div>
+        <div class="header_date">{{generated_date}}</div>
+        <div class="header_score">Score : <span class="bad_score">B</span></div>
+    </div>
     
-    <h2>Resume</h2>
-    <table>
-        <thead>
-            <th>Category</th>
-            <th>Score</th>
-        </thead>
+    <div class="container">
+        <div class="row">
+            <div class="col section section_cookie {% if cookies|length < 1 %}notanalyzed{% endif %}">
+                <div class="section_title">Cookie</div>
+                <div class="section_note section_grade">
+                    <span class="section_note_title">Grade</span>
+                    <span class="section_note_data">{% if cookies|length %}{{cookies.grade}}{% endif %}</span>
+                </div>
+                <div class="section_note section_score">
+                    <span class="section_note_title">Score</span>
+                    <span class="section_note_data">{% if cookies|length %}{{cookies.score}}{% endif %}</span>
+                </div>
+            </div>
+            <div class="col section section_webbeacon {% if wbMod|length < 1 %}notanalyzed{% endif %}">
+                <div class="section_title">Web beacon</div>
+                <div class="section_note section_grade">
+                    <span class="section_note_title">Grade</span>
+                    <span class="section_note_data">{% if scMod|length %}{{wbMod.grade}}{% endif %}</span>
+                </div>
+                <div class="section_note section_score">
+                    <span class="section_note_title">Score</span>
+                    <span class="section_note_data">{% if scMod|length %}{{wbMod.note}}{% endif %}</span>
+                </div>
+            </div>
+            <div class="col section section_crypto {% if scMod|length < 1 %}notanalyzed{% endif %}">
+                <div class="section_title">Transmission security</div>
+                <div class="section_note section_grade">
+                    <span class="section_note_title">Grade</span>
+                    <span class="section_note_data">{% if scMod|length %}{{scMod.grade}}{% endif %}</span>
+                </div>
+                <div class="section_note section_score">
+                    <span class="section_note_title">Score</span>
+                    <span class="section_note_data">{% if scMod|length %}{{scMod.note}}{% endif %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        {% if scMod|length %}
-        <tr>
-            <td>Security of connection</td>
-            <td>{{scMod.note}}</td>
-        </tr>
-        {% endif %}
-        {% if cookies|length %}
-        <tr>
-            <td>Cookies</td>
-            <td>{{cookies.score}}</td>
-        </tr>
-        {% endif %}
-        {% if wbMod|length %}
-        <tr>
-            <td>Web beacons</td>
-            <td>XXX</td>
-        </tr>
-        {% endif %}
-    </table>
 
     {% if scMod|length %}
     <div class="jump">
-        <h2> Security of connection </h2>
-        <h3> Grade {{scMod.grade}} with a score of {{scMod.note}}</h3>
-        <h2> Protocol used </h2>
-        Score : {{scMod.protocol.score}}
-        <table>
-                <thead>
-                    <tr>
-                        <th>Protocol</th>
-
+        <h2>Security transmission</h2>
+        <div class="description">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+        </div>
+        <div class="flex-container">
+            <div class="grade">
+                <p>Grade</p>
+                <div class="bd-callout red">
+                    {{scMod.grade}}
+                </div>
+            </div>
+            <div class="note">
+                <p>Note</p>
+                <div class="bd-callout green">
+                    {{scMod.note}}
+                </div>
+            </div>
+        </div>
+        
+        <h3>Enabled SSL/TLS protocol versions</h3>
+        <div class="container protocol">
+            <div class="row">
+                <div class="col protocol_table">
+                    <table>
                         {% for protocol, state in scMod.protocol.items()|sort(case_sensitive = False) %}
-                        {% if protocol != 'score' %}
-                        <th>{{protocol}}</th>
-                        {% endif %}
+                            {% if protocol != 'score' %}
+                            <tr>
+                                <td>{{protocol}}</td>
+                                <td  
+                                    {% if protocol == 'SSLv2' and state == 'NO'%} class="green"{% endif %}
+                                    {% if protocol == 'SSLv2' and state == 'YES'%} class="red"{% endif %}
+                                    {% if protocol == 'SSLv3' and state == 'NO'%} class="green"{% endif %}
+                                    {% if protocol == 'SSLv3' and state == 'YES'%} class="red"{% endif %}
+                                    {% if protocol == 'TLSv1_2' and state == 'YES'%} class="green"{% endif %}
+                                    {% if protocol == 'TLSv1_2' and state == 'NO'%} class="red"{% endif %}
+                                    {% if protocol == 'TLSv1_3' and state == 'NO'%} class="red"{% endif %}
+                                    >{{state}}</td>
+                            </tr>
+                            {% endif %}
                         {% endfor %}
-                    </tr>
-                </thead>
-                <tr>
-                    <td><b>State</b></td>                            
-                    {% for protocol, state in scMod.protocol.items()|sort(case_sensitive = False) %}
-                    {% if protocol != 'score' %}
-                    <td>{{state}}</td>
-                    {% endif %}
-                    {% endfor %}
-                <tr>
-        </table>
+                    </table>
+                </div>
+                <div class="col">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                </div>
+            </div>
+        </div>
+        
 
-        <h2> Quality of Key </h2>
+        <h3> Quality of Key </h3>
         Score : {{scMod.key.score}}</br>
         Size : {{scMod.key.size}}
 
         <div class="landscape">
-            <h2> Cipher details </h2>
+            <h3> Cipher details </h3>
             Score : {{scMod.cipher.score}}
 
             <table>
@@ -107,8 +151,8 @@
                 {% for cipherSuite in scMod.cipher[protocol] %}
                 <tr>                           
                     <td>{{cipherSuite.suiteName}}</td>
-                    <td>{{cipherSuite.kxType}}</td>
-                    <td>{{cipherSuite.keyAlg}}</td>
+                    <td></td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
