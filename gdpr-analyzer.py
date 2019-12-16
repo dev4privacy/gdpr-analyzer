@@ -58,13 +58,13 @@ def start():
     parser = argparse.ArgumentParser(description='Description')
 
     parser.add_argument('url', help='Target URL')
-    parser.add_argument('name', help='Name')
+    parser.add_argument('name', help='Report generate\'s name')
     parser.add_argument('-f', '--full', help='Get Full Analysis, Test All Available Options', action='store_true')
-    parser.add_argument('-c', '--cookie', help='lorem ipsum', action='store_true')
+    parser.add_argument('-c', '--cookie', help=' Analyse the cookies and generate the score', action='store_true')
     parser.add_argument('-w', '--webbeacon', help='Check for the presence of web beacon', action='store_true')
     parser.add_argument('-t', '--crypto', help='Evaluate the transmision security', action='store_true')
-    parser.add_argument('-r', '--report', help='lorem ipsum', action='store_true')
-    parser.add_argument('-j', '--json', help='lorem ipsum', action='store_true')
+    parser.add_argument('-r', '--report', help=' Generate a pdf report', action='store_true')
+    parser.add_argument('-j', '--json', help='Export the result in json', action='store_true')
 
     args = parser.parse_args()
     target = args.url
