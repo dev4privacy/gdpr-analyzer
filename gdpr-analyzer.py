@@ -4,17 +4,33 @@ from platform import python_version
 import sys
 import argparse
 import json
+from splinter import Browser
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
 from modules.web_beacon import find_beacon, json_parser
 from modules.cookies import cookie_evaluate
 
-def cookie(target):
-    result = cookie_evaluate("https://"+target)
+def get_content(target):
+    target = "https://"+target
+    # TODO with browser rather than following to use clean session and quit automatically
+    browser = Browser('firefox', timeout=200, wait_time=200, profile_preferences={"network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
+
+    browser.visit(target)
+
+    # TODO we must return also third party cookies even if they are in firefox cookies...
+    content_cookies = browser.cookies.all(verbose=True)
+    # to bypass this problem link to splinter, possibility to get all cookies from firefox but we can have cookies from
+    # user navigation...
+    content_html = browser.html
+    browser.quit()
+    return content_cookies, content_html
+
+def cookie(content_cookies, target):
+    result = cookie_evaluate(content_cookies, target)
     return result
 
-def webbeacon(target):
-    beacon_score, beacon_info = find_beacon("https://"+target)
+def webbeacon(content_html):
+    beacon_score, beacon_info = find_beacon(content_html)
     result = json_parser(beacon_score, beacon_info)
     return result
 
@@ -23,14 +39,14 @@ def crypto(target):
     crypto.evaluate()
     return crypto.json_parser()
 
-def full(target):
+def full(content_cookies, content_html, target):
     result_cookie = None
     result_webbeacon = None
     result_crypto = None
     full_result = []
 
-    result_cookie = cookie(target)
-    result_webbeacon = webbeacon(target)
+    result_cookie = cookie(content_cookies, target)
+    result_webbeacon = webbeacon(content_html)
     result_crypto = crypto(target)
 
     full_result = json.loads(result_cookie)
@@ -54,15 +70,16 @@ def start():
     target = args.url
     name = args.name
     result = {}
+    content_cookies, content_html = get_content(target)
 
     if args.full or (not args.cookie and not args.webbeacon and not args.crypto):
-        result = full(target)
+        result = full(content_cookies, content_html, target)
     else:
         if args.webbeacon:
-            result_webbeacon = webbeacon(target)
+            result_webbeacon = webbeacon(content_html)
             result.update(json.loads(result_webbeacon))
         if args.cookie:
-            result_cookie = cookie(target)
+            result_cookie = cookie(content_cookies, target)
             result.update(json.loads(result_cookie))
         if args.cookie:
             result_crypto = crypto(target)
