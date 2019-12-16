@@ -3,7 +3,6 @@
 
 import time
 from datetime import datetime, timedelta
-from splinter import Browser
 import json
 
 
@@ -145,7 +144,8 @@ def cookie_score_calculation(expiry_score, third_party_score, storage_score):
     return score
 
 
-def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score, storage_info, cookie_score):
+def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score, storage_info,
+                cookie_score):
     """
     parse the results into json object
     :param expiry_score: score for expiry time of cookies
@@ -186,28 +186,19 @@ def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, 
 
     return json_cookie
 
-def cookie_evaluate(target):
-    # TODO with browser rather than following to use clean session and quit automatically
-    browser = Browser('firefox', timeout=200, wait_time=200, profile_preferences={"network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
 
-    browser.visit(target)
-
-    # TODO we must return also third party cookies even if they are in firefox cookies...
-    cookies = browser.cookies.all(verbose=True)
-    # to bypass this problem link to splinter, possibility to get all cookies from firefox but we can have cookies from
-    # user navigation...
-
-    expiry_score, expiry_info = cookie_expiration(cookies)
-    third_party_score, third_party_info = third_party_cookies(cookies, target)
+def cookie_evaluate(content_cookies, target):
+    expiry_score, expiry_info = cookie_expiration(content_cookies)
+    # TODO third party
+    third_party_score, third_party_info = third_party_cookies(content_cookies, target)
 
     # TODO make storage function ?
     storage_score = 0
     storage_info = {}
 
-    browser.quit()
-
     cookie_score = cookie_score_calculation(expiry_score, third_party_score, storage_score)
 
-    json_cookie = json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score, storage_info, cookie_score)
+    json_cookie = json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score,
+                              storage_info, cookie_score)
 
     return json_cookie

@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-from splinter.browser import Browser
 import mimetypes
 import requests
 import json
@@ -11,7 +10,7 @@ MD_DOMAIN_URl = "http://www.malware-domains.com/files/justdomains.zip"
 BL_DOMAIN_URL = "https://sebsauvage.net/hosts/hosts"
 
 
-def find_beacon(url):
+def find_beacon(content_html):
     """
     find suspicious fields in beacon <img/>, return the dict with how many factors there are
     :param url: url the user wants to test
@@ -29,16 +28,12 @@ def find_beacon(url):
     bl_list = bl_website()
     if bl_list is False:
         print("No response from the BL website\n")
-    # get request
-    browser = Browser('firefox')
-    browser.visit(url)
-    content = browser.html
-    browser.quit()
-    if content != "":
+
+    if content_html != "":
         # return all the CSS sources present in the <link/> beacon
-        css_src = find_css(content)
+        css_src = find_css(content_html)
         # parse the html content
-        soup = BeautifulSoup(content, features="html.parser")
+        soup = BeautifulSoup(content_html, features="html.parser")
         # find all the <img/> beacons
         image_element = [img for img in soup.find_all('img')]
         style_element = [style for style in soup.find_all('style')]
