@@ -81,8 +81,9 @@ def start():
         if args.cookie:
             result_cookie = cookie(content_cookies, target)
             result.update(json.loads(result_cookie))
-        if args.cookie:
-            result_crypto = crypto(target)
+        if args.crypto:
+            #result_crypto = crypto(target)
+            result_crypto = '{ "security_transmission":{ "hostname":"foxnews.com", "grade":"B", "note":44, "protocol":{ "TLSv1":"YES", "TLSv1_1":"YES", "TLSv1_2":"YES", "SSLv2":"NO", "SSLv3":"YES", "TLSv1_3":"NO", "score":"8" }, "key":{ "score":"1", "size":2048, "type":"RSA" }, "cipher":{ "TLSv1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_2":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" ] }, "certificate":{ "score":null, "type":"NOOOO-validation", "not_before":"2019-05-16 00:00:00", "not_after":"2020-06-14 12:00:00" } } }'
             result.update(json.loads(result_crypto))
 
     if args.report:
