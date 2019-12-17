@@ -27,12 +27,7 @@ h3{
     font-size: 1.2rem;
     text-transform: uppercase;
 }
-.green{
-    color:#2ecc71;
-}
-.red{
-    color:#e74c3c;
-}
+
 /* HEADER */
 .header{
     margin-bottom: 5rem;
@@ -205,4 +200,36 @@ h3{
 }
 
 
+/*cipher suite*/
+.ciphersuite_protocol{
+    background-color: #ddd;
+    padding: .3em;
+}
+/*
+.ciphersuite_protocol span{
+    display: inline;
+    background-color: #777777;
+    color:#fff;
+    font-size: 0.75em;
+    margin-top:-4px;
+    border-radius: .25em;
+    padding: .3em;
+}
+.ciphersuite tr{
+    border: 1px solid #ebebeb;
+}
+*/
 
+/* ALWAYS END */
+.green{
+    color:#2ecc71;
+}
+.red{
+    color:#e74c3c;
+}
+.bg_green{
+    background-color:#2ecc71 !important;
+}
+.bg_red{
+    background-color:#e74c3c !important;
+}
