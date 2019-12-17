@@ -58,7 +58,7 @@ def start():
     parser = argparse.ArgumentParser(description='Description')
 
     parser.add_argument('url', help='Target URL')
-    parser.add_argument('name', help='Report generate\'s name')
+    parser.add_argument('name', help='Owner name')
     parser.add_argument('-f', '--full', help='Get Full Analysis, Test All Available Options', action='store_true')
     parser.add_argument('-c', '--cookie', help=' Analyse the cookies and generate the score', action='store_true')
     parser.add_argument('-w', '--webbeacon', help='Check for the presence of web beacon', action='store_true')
@@ -70,10 +70,11 @@ def start():
     target = args.url
     name = args.name
     result = {}
-    if args.webbeacon or args.cookie or args.full:
+    if args.webbeacon or args.cookie :
         content_cookies, content_html = get_content(target)
 
     if args.full or (not args.cookie and not args.webbeacon and not args.crypto):
+        content_cookies, content_html = get_content(target)
         result = full(content_cookies, content_html, target)
     else:
         if args.webbeacon:
@@ -100,18 +101,19 @@ def start():
             file_name = "gdpr_analyser-" + target + ".json"
             with open(file_name, 'w') as outfile:
                 json.dump(result, outfile)
-
+'''
 def entry_point():
     try:
         start()
     except KeyboardInterrupt:
         print('\n\n\033[93m[!] ctrl+c detected from user, quitting.\n\n \033[0m')
-    except Exception as error_entry_point:
-        print(error_entry_point)
+    except Exception as e:
+        print(e)
+'''
 
 if __name__ == '__main__':
-    if python_version()[0:3] < '3.5':
+    if python_version()[0:3] < '3.7':
         print('\033[93m[!] Make sure you have Python 3.7+ installed, quitting.\033[0m')
         sys.exit(1)
 
-    entry_point()
+    start()

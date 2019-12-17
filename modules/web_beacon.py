@@ -53,13 +53,13 @@ def find_beacon(content_html):
                     # extract only digits
                     width = re.match(r'^[0-9]+', image["width"])
                     width = int(width.group())
-                except KeyError:
+                except (KeyError, AttributeError):
                     width = 999
                 try:
                     # extract only digits
                     height = re.match(r'^[0-9]+', image["height"])
                     height = int(height.group())
-                except KeyError:
+                except (KeyError, AttributeError):
                     height = 999
                 try:
                     style = image["style"]
