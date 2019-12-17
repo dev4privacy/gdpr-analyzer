@@ -48,7 +48,7 @@
                 </div>
                 <div class="section_note section_score">
                     <span class="section_note_title">Score</span>
-                    <span class="section_note_data">{% if scMod|length %}{{wbMod.note}}{% endif %}</span>
+                    <span class="section_note_data">{% if scMod|length %}{{wbMod.score}}{% endif %}</span>
                 </div>
             </div>
             <div class="col section section_crypto {% if scMod|length < 1 %}notanalyzed{% endif %}">
@@ -220,7 +220,42 @@
 
     {% if wbMod|length %}
     <div class="jump">
-        <h2> Web beacons </h2>    
+        <h2> Web beacons </h2>
+        <div class="description">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+        </div>
+        <div class="flex-container">
+            <div class="grade">
+                <p>Grade</p>
+                <div class="bd-callout red">
+                    XX
+                </div>
+            </div>
+            <div class="note">
+                <p>Note</p>
+                <div class="bd-callout green">
+                    {{wbMod.score}}
+                </div>
+            </div>
+        </div>
+
+        <div class="container protocol">
+            <div class="row">
+                <div class="col protocol_table">
+                    <table>
+                        {% for web_beacon_type, number in wbMod.info.items() %}
+                            <tr>
+                                <td>{{web_beacon_type}}</td>
+                                <td>{{number}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="col">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                </div>
+            </div>
+        </div>
     </div>
     {% endif %}
 
