@@ -9,7 +9,7 @@ The tool is not intended to cover the entire GDPR. As stated above, only publicl
 ![help](utils/gpdr-analyzer-help.png "help")
 
 ### Gdpr-analyzer report
-![report](utils/gpdr-analyzer-report-resume.png "report resume")
+![report](utils/gpdr-analyzer-report.png "report resume")
 
 ## Installation
 ```bash
@@ -54,15 +54,15 @@ Short Form    | Long Form     | Description
 ## Examples
 To use all analysis options :
 
-`python gdpr-analyzer.py -f example.com filename`
+`python gdpr-analyzer.py -f example.com ownername`
 
 To search the presence of web beacon and generate a pdf report :
 
-`python gdpr-analyzer.py -w -r example.com filename`
+`python gdpr-analyzer.py -w -r example.com ownername`
 
 To analyse the security of the connection with the website and export the result in json :
 
-`python gdpr-analyzer.py -t -j example.com filename`
+`python gdpr-analyzer.py -t -j example.com ownername`
 
 ## Disclaimer
 Accept any responsability or liability for the use of this anlysis tool. The usage of the product do not imply the responsibility of the **gdpr-analyzer** project.
