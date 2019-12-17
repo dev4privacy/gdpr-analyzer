@@ -32,6 +32,7 @@ def cookie(content_cookies, target):
 def webbeacon(content_html):
     beacon_score, beacon_info = find_beacon(content_html)
     result = json_parser(beacon_score, beacon_info)
+    print(result)
     return result
 
 def crypto(target):
