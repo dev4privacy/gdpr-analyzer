@@ -54,15 +54,15 @@ Short Form    | Long Form     | Description
 ## Examples
 To use all analysis options :
 
-`python gdpr-analyzer.py -f example.com username`
+`python gdpr-analyzer.py -f example.com filename`
 
 To search the presence of web beacon and generate a pdf report :
 
-`python gdpr-analyzer.py -w -r example.com username`
+`python gdpr-analyzer.py -w -r example.com filername`
 
 To analyse the security of the connection with the website and export the result in json :
 
-`python gdpr-analyzer.py -t -j example.com username`
+`python gdpr-analyzer.py -t -j example.com filename`
 
 ## Disclaimer
 Accept any responsability or liability for the use of this anlysis tool. The usage of the product do not imply the responsibility of the **gdpr-analyzer** project.
