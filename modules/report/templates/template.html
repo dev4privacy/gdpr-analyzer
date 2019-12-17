@@ -44,11 +44,11 @@
                 <div class="section_title">Web beacon</div>
                 <div class="section_note section_grade">
                     <span class="section_note_title">Grade</span>
-                    <span class="section_note_data">{% if scMod|length %}{{wbMod.grade}}{% endif %}</span>
+                    <span class="section_note_data">{% if wbMod|length %}{{wbMod.grade}}{% endif %}</span>
                 </div>
                 <div class="section_note section_score">
                     <span class="section_note_title">Score</span>
-                    <span class="section_note_data">{% if scMod|length %}{{wbMod.score}}{% endif %}</span>
+                    <span class="section_note_data">{% if wbMod|length %}{{wbMod.score}}{% endif %}</span>
                 </div>
             </div>
             <div class="col section section_crypto {% if scMod|length < 1 %}notanalyzed{% endif %}">
