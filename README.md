@@ -58,7 +58,7 @@ To use all analysis options :
 
 To search the presence of web beacon and generate a pdf report :
 
-`python gdpr-analyzer.py -w -r example.com filername`
+`python gdpr-analyzer.py -w -r example.com filename`
 
 To analyse the security of the connection with the website and export the result in json :
 
