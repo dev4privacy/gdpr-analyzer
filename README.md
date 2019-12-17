@@ -17,8 +17,7 @@ git clone https://git.scyde.fr/major-g9/gdpr-analyzer.git
 ```
 
 ## Recommended Python version
-Gdpr-analyzer currently supports *Python 3*:
-* The recommended version for Python 3 is 3.7.x
+Gdpr-analyzer currently supports *Python 3.7+*
 
 ## Dependencies
 
