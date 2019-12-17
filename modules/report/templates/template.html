@@ -24,7 +24,7 @@
         <div class="header_report">.report</div>
         <div class="header_target">{{target}}</div>
         <div class="header_date">{{generated_date}}</div>
-        <div class="header_score">Score : <span class="bad_score">B</span></div>
+        <div class="header_score">Score : <span class="bad_score">X</span></div>
     </div>
     
     <div class="container">
@@ -173,7 +173,7 @@
             <h3> Cipher details </h3>
             Score : {{scMod.cipher.score}}
 
-            <table>
+            <table class="ciphersuite">
                 <thead>
 				    <tr>
 					    <th rowspan="2">Name</th>
@@ -193,7 +193,10 @@
                 {% for protocol in scMod.cipher|sort(case_sensitive = False) %}
                 {% if protocol != 'score' %}
                 <tr>
-                    <td colspan="9">{{protocol}}</td>
+                    <td colspan="9" class="ciphersuite_protocol"><span class="{% if protocol == 'SSLv2'%} class="bg_red"{% endif %}
+                        {% if protocol == 'SSLv3'%} class="bg_red"{% endif %}
+                        {% if protocol == 'TLSv1_2'%} class="bg_green"{% endif %}
+                        {% if protocol == 'TLSv1_3'%} class="bg_green"{% endif %}">{{protocol}}</span></td>
                 </tr>
 
                 {% for cipherSuite in scMod.cipher[protocol] %}
