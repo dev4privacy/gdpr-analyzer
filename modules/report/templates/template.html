@@ -20,7 +20,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>gdpr-analyser</h1>
+        <h1>gdpr-analyzer</h1>
         <div class="header_report">.report</div>
         <div class="header_target">{{target}}</div>
         <div class="header_date">{{generated_date}}</div>
@@ -65,6 +65,52 @@
         </div>
     </div>
 
+        
+    {% if cookies|length %}
+    <div class="jump">
+        <h2>Cookie</h2>
+        <div class="description">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+        </div>
+        <div class="flex-container">
+            <div class="grade">
+                <p>Grade</p>
+                <div class="bd-callout red">
+                    XX
+                </div>
+            </div>
+            <div class="note">
+                <p>Note</p>
+                <div class="bd-callout green">
+                    {{cookies.score}}
+                </div>
+            </div>
+        </div>
+        
+
+
+        <h3>Expiration date</h3>
+        Score : {{cookies.expiry.score}}</br>
+        <div class="container protocol">
+            <div class="row">
+                <div class="col protocol_table">
+                    <table>
+                        {% for expiry_info, number in cookies.expiry.info.items() %}
+                            <tr>
+                                <td>{{expiry_info}}</td>
+                                <td>{{number}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="col">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    {% endif %}
 
     {% if scMod|length %}
     <div class="jump">
@@ -88,6 +134,7 @@
         </div>
         
         <h3>Enabled SSL/TLS protocol versions</h3>
+        Score : {{scMod.protocol.score}}</br>
         <div class="container protocol">
             <div class="row">
                 <div class="col protocol_table">
@@ -119,7 +166,8 @@
 
         <h3> Quality of Key </h3>
         Score : {{scMod.key.score}}</br>
-        Size : {{scMod.key.size}}
+        Size : {{scMod.key.size}}</br>
+        Type : {{scMod.key.type}}
 
         <div class="landscape">
             <h3> Cipher details </h3>
@@ -150,7 +198,7 @@
 
                 {% for cipherSuite in scMod.cipher[protocol] %}
                 <tr>                           
-                    <td>{{cipherSuite.suiteName}}</td>
+                    <td>{{cipherSuite}}</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -164,29 +212,6 @@
                 {% endfor %}
             </table>     
         </div>
-    </div>
-    {% endif %}
-    
-    {% if cookies|length %}
-    <div class="jump">
-        <h2> Cookies </h2>
-            Cookie score : {{cookies.score}}
-            <h3>Expiration</h3>
-            Expiration score : {{cookies.expiry.score}}
-            <table>
-                <thead>
-                    <tr>
-                        {% for expiry_info, number in cookies.expiry.info.items() %}
-                        <th>{{expiry_info}}</th>   
-                        {% endfor %}                     
-                    </tr>
-                </thead>
-                <tr>
-                    {% for expiry_info, number in cookies.expiry.info.items() %}
-                    <th>{{number}}</th>   
-                    {% endfor %}  
-                </tr>
-            </table>
     </div>
     {% endif %}
 

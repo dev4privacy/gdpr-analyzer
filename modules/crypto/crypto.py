@@ -83,7 +83,7 @@ class CertData:
                 context.set_ciphers(key)
                 sock = context.wrap_socket(conn, server_hostname=self.hostname)
                 sock.do_handshake()
-                cipher_enable.append(value)
+                cipher_enable.append(key)
             except:
                 pass
         return cipher_enable
