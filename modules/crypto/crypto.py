@@ -164,7 +164,7 @@ class CertData:
         elif any(x in str(self.certificate.issuer) for x in strings):
             self.policie = "extended-validation"
         else:
-            self.policie = "NOOOO-validation"
+            self.policie = "UNKNOW"
 
     def __verify(self):
         if self.certificate.not_valid_after < datetime.today():
@@ -213,23 +213,26 @@ class TransmissionSecurity:
     def __key_score(self):
         for item in self.key_point:
             if int(self.cert_data.key_size < int(item)):
-                self.key_score = self.key_point[item]
+                self.key_score = int(self.key_point[item])
                 break
         
     def __protocol_score(self):
         for key, value in self.protocol_point.items():
             if self.cert_data.protocol_enabled[key] == "YES" and self.weakest_protocol is None:
                 self.weakest_protocol = key
-                self.protocol_score = self.protocol_point[self.weakest_protocol]
+                self.protocol_score = int(self.protocol_point[self.weakest_protocol])
 
     def __cipher_score(self):
-        self.cipher_score = 99
+        self.cipher_score = int("0")
     
     def __certificate_score(self):
         if self.cert_data.has_expired : 
-            self.certificate_score = self.certificate_point["expired"]
+            self.certificate_score = int(self.certificate_point["expired"])
         elif self.cert_data.policie == "extended-validation":
-            self.certificate_score = self.certificate_point[self.cert_data.policie]
+            self.certificate_score = int(self.certificate_point[self.cert_data.policie])
+        elif self.cert_data.policie == "UNKNOW":
+            self.certificate_score = int(self.certificate_point["domain-validated"])
+
 
     def __assess_rank(self):
         #TO DO calculate global grade
@@ -237,13 +240,11 @@ class TransmissionSecurity:
             self.global_grade = "B"
 
     def __assess_score(self):
-        self.global_score = 44
-        '''
+        self.global_score = None
         self.global_score = int(self.coefficient_protocol) * int(self.protocol_score) + \
-                            int(self.coefficient_key) * int(self.key_score) + \
-                            int(self.coefficient_cipher) * int(self.cipher_score) + \
-                            int(self.coefficient_certificate) * int(self.certificate_score)
-        '''
+                            int(self.coefficient_key) * self.key_score + \
+                            int(self.coefficient_cipher) * self.cipher_score + \
+                            int(self.coefficient_certificate) * self.certificate_score
 
     def evaluate(self):
         self.__protocol_score()
