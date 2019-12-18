@@ -21,7 +21,7 @@ requests==2.22.0
 selenium==3.141.0
 six==1.13.0
 soupsieve==1.9.5
-splinter==0.11.0
+splinter==0.13.0
 tinycss==0.4
 tinycss2==1.0.2
 urllib3==1.25.7
