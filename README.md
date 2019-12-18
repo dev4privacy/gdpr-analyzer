@@ -6,7 +6,7 @@ The purpose of the project is to use publicly available site data (source code) 
 The tool is not intended to cover the entire GDPR. As stated above, only publicly available information will be analysed. As a result, not all information can be studied and the report can only rarely be exhaustive as to the use of data and the storage and protection methods put in place by the website owner
 ## Screenshot
 ### Gdpr-analyzer help
-![help](utils/gdpr-analyzer-help2.png "help")
+![help](utils/gdpr-analyzer-help.png "help")
 
 ### Gdpr-analyzer report
 ![report](utils/gdpr-analyzer-report.png "report resume")
