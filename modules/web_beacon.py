@@ -125,10 +125,10 @@ def find_beacon(content_html):
         print("No answer from the web site")
 
     # calculate web beacon score
-    position_score = position_nb * 2
-    size_score = size_nb * 4
-    blacklist_score = blacklist_nb * 10
-    hidden_score = hidden_nb * 6
+    position_score = position_nb * 4
+    size_score = size_nb * 17
+    blacklist_score = blacklist_nb * 40
+    hidden_score = hidden_nb * 8
     web_beacon_score = position_score + size_score + blacklist_score + hidden_score
     # add info to the beacon_info dict
     web_beacon_info["position"] = position_nb
@@ -359,6 +359,21 @@ def check_domains(url, bl_list):
     return result
 
 
+def calculate_rank(web_beacon_score):
+    if web_beacon_score == 0:
+        web_beacon_rank = "A"
+    elif web_beacon_score < 8:
+        web_beacon_rank == "B"
+    elif web_beacon_score < 17:
+        web_beacon_rank = "C"
+    elif web_beacon_score < 25:
+        web_beacon_rank = "D"
+    elif web_beacon_score < 41:
+        web_beacon_rank = "E"
+    elif web_beacon_score >= 60:
+        web_beacon_rank = "F"
+
+
 def json_parser(web_beacon_score, web_beacon_info):
     """
     parse the results into json object
@@ -368,10 +383,9 @@ def json_parser(web_beacon_score, web_beacon_info):
     """
     web_beacon = {}
     result = {}
-
-    result['score'] = web_beacon_score,
-    result['info']=  web_beacon_info
-
+    web_beacon_rank = calculate_rank(web_beacon_score)
+    result['score'] = web_beacon_score
+    result['info'] =  web_beacon_info
+    result['rank'] = web_beacon_rank
     web_beacon['web_beacons'] = result
-
     return json.dumps(web_beacon)
