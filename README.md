@@ -73,7 +73,7 @@ It is not necessarily  complete,  accurate  and  updated.
 It is our goal to minimise disruption caused by technical errors and we invite, therefore, the consumers to take all the possible preventive actions to avoid the problem. This disclaimer is not intended to avoid the obligations of the national laws, nor to exclude its liability for matters that may not be excluded under that law.
 
 ## License
-Gdpr-analyzer is licensed under the GNU GPL v3.0.
+Gdpr-analyzer is licensed under the [GNU GPL v3.0](LICENSE.md).
 
 ## Version
 **Current version is 0.1**
