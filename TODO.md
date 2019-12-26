@@ -19,6 +19,7 @@
 
 * Third-party cookies detection
 * Unintentional storage in another browser
+* Check that the website requests authorisation to deposit cookies and that it allows the user to manage what he accepts or does not accept
 
 ## Web beacon
 
