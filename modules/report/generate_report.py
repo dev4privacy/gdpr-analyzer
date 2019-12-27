@@ -14,12 +14,12 @@ def generate_report(target, name, result):
     tm = env.get_template('template.html')
 
     resultDict = json.loads(result)
-    
+
     if 'security_transmission' in resultDict:
         scMod = resultDict['security_transmission']
     else:
         scMod = {}
-    
+
     if 'cookies' in resultDict:
         cookiesMod = resultDict['cookies']
     else:
@@ -34,4 +34,4 @@ def generate_report(target, name, result):
 
     output = tm.render(client_name=name, target=target, generated_date=generated_date, cookies=cookiesMod, scMod = scMod, wbMod = wbMod)
     #TODO check if report folder exist
-    HTML(string=output).write_pdf("reports/gdpranalyzer"+name+".pdf", stylesheets=[os.path.dirname(__file__)+"/templates/style.css",os.path.dirname(__file__)+"/templates/bootstrap-grid.min.css"])
+    HTML(string=output).write_pdf("reports/gdpranalyzer_"+name+".pdf", stylesheets=[os.path.dirname(__file__)+"/templates/style.css",os.path.dirname(__file__)+"/templates/bootstrap-grid.min.css"])
