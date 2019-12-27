@@ -359,19 +359,19 @@ def check_domains(url, bl_list):
     return result
 
 
-def calculate_rank(web_beacon_score):
+def calculate_grade(web_beacon_score):
     if web_beacon_score == 0:
-        web_beacon_rank = "A"
+        web_beacon_grade = "A"
     elif web_beacon_score < 8:
-        web_beacon_rank == "B"
+        web_beacon_grade == "B"
     elif web_beacon_score < 17:
-        web_beacon_rank = "C"
+        web_beacon_grade = "C"
     elif web_beacon_score < 25:
-        web_beacon_rank = "D"
+        web_beacon_grade = "D"
     elif web_beacon_score < 41:
-        web_beacon_rank = "E"
+        web_beacon_grade = "E"
     elif web_beacon_score >= 60:
-        web_beacon_rank = "F"
+        web_beacon_grade = "F"
 
 
 def json_parser(web_beacon_score, web_beacon_info):
@@ -383,9 +383,10 @@ def json_parser(web_beacon_score, web_beacon_info):
     """
     web_beacon = {}
     result = {}
-    web_beacon_rank = calculate_rank(web_beacon_score)
+    web_beacon_grade = calculate_grade(web_beacon_score)
     result['score'] = web_beacon_score
     result['info'] =  web_beacon_info
-    result['rank'] = web_beacon_rank
+    result['grade'] = web_beacon_grade
     web_beacon['web_beacons'] = result
+    print("pixel ",web_beacon)
     return json.dumps(web_beacon)
