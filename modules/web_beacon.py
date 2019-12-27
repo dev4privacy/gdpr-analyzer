@@ -372,6 +372,7 @@ def calculate_grade(web_beacon_score):
         web_beacon_grade = "E"
     elif web_beacon_score >= 60:
         web_beacon_grade = "F"
+    return web_beacon_grade
 
 
 def json_parser(web_beacon_score, web_beacon_info):
@@ -388,5 +389,4 @@ def json_parser(web_beacon_score, web_beacon_info):
     result['info'] =  web_beacon_info
     result['grade'] = web_beacon_grade
     web_beacon['web_beacons'] = result
-    print("pixel ",web_beacon)
     return json.dumps(web_beacon)
