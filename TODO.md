@@ -22,7 +22,8 @@
 * Check that the website requests authorisation to deposit cookies and that it allows the user to manage what he accepts or does not accept
 
 ## Web beacon
-
+* DL picture and check if the size and the value match
+* size in CSS pages like in <style/>
 
 ## Transmission security
 
