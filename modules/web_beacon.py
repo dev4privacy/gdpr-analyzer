@@ -360,6 +360,11 @@ def check_domains(url, bl_list):
 
 
 def calculate_grade(web_beacon_score):
+    """
+    calculate the grade for the website
+    :param web_beacon_score: score forweb beacon
+    :return: web_beacon_grade
+    """
     if web_beacon_score == 0:
         web_beacon_grade = "A"
     elif web_beacon_score < 8:
@@ -378,8 +383,8 @@ def calculate_grade(web_beacon_score):
 def json_parser(web_beacon_score, web_beacon_info):
     """
     parse the results into json object
-    :param web_beacon_score: score for expiry time of cookies
-    :param web_beacon_info: info for expiry time of cookies
+    :param web_beacon_score: score for web beacon
+    :param web_beacon_info: info of web beacon
     :return: json_beacon
     """
     web_beacon = {}
