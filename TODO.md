@@ -8,7 +8,7 @@
 
 ## Main
 
-
+* Global grade definition
 
 ## Configuration files
 
