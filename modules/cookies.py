@@ -46,19 +46,19 @@ def cookie_expiration(cookies):
 
             elif expiration_delay.days > 240:  # + 8 month
                 eight_month_nb += 1
-                expiry_score += 13  # TODO replace by config file value
+                expiry_score += 12  # TODO replace by config file value
 
             elif expiration_delay.days > 180:  # + 6 month
                 six_month_nb += 1
-                expiry_score += 8  # TODO replace by config file value
+                expiry_score += 7  # TODO replace by config file value
 
             elif expiration_delay.days > 90:  # + 3 month
                 three_month_nb += 1
-                expiry_score += 6  # TODO replace by config file value
+                expiry_score += 5  # TODO replace by config file value
 
             elif expiration_delay.days > 30:  # + 1 month
                 one_month_nb += 1
-                expiry_score += 3  # TODO replace by config file value
+                expiry_score += 2  # TODO replace by config file value
 
         except KeyError:
             unlimited_nb += 1  # no expiration
@@ -107,7 +107,7 @@ def third_party_cookies(cookies, website_url):
         # count the number of domains which correspond to third parties
         if website_url.find(domain) is False:  # is false useless but better understanding
             third_party_nb += 1
-            third_party_score += 17  # TODO replace by config file value
+            third_party_score += 10  # TODO replace by config file value
 
     # put the counter in the dictionary
     third_party_info["number"] = third_party_nb
@@ -144,8 +144,32 @@ def cookie_score_calculation(expiry_score, third_party_score, storage_score):
     return score
 
 
+def calculate_grade(cookie_score):
+    """
+    calculate the cookies grade for the website
+    :param cookie_score: score for cookies
+    :return: cookie_grade
+    """
+    cookie_grade = None
+
+    if cookie_score < 17:
+        cookie_grade = "A"
+    elif cookie_score < 31:
+        cookie_grade = "B"
+    elif cookie_score < 51:
+        cookie_grade = "C"
+    elif cookie_score < 68:
+        cookie_grade = "D"
+    elif cookie_score < 85:
+        cookie_grade = "E"
+    elif cookie_score >= 85:
+        cookie_grade = "F"
+
+    return cookie_grade
+
+
 def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score, storage_info,
-                cookie_score):
+                cookie_grade, cookie_score):
     """
     parse the results into json object
     :param expiry_score: score for expiry time of cookies
@@ -174,6 +198,7 @@ def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, 
     }
 
     result = {
+        'grade': cookie_grade,
         'score': cookie_score,
         'expiry': expiry_dict,
         'third_party': third_party_dict,
@@ -197,8 +222,9 @@ def cookie_evaluate(content_cookies, target):
     storage_info = {}
 
     cookie_score = cookie_score_calculation(expiry_score, third_party_score, storage_score)
+    cookie_grade = calculate_grade(cookie_score)
 
     json_cookie = json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score,
-                              storage_info, cookie_score)
+                              storage_info, cookie_grade, cookie_score)
 
     return json_cookie
