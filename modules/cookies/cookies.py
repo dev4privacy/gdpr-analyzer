@@ -2,8 +2,14 @@
 # coding: utf-8
 
 import time
-from datetime import datetime, timedelta
+from datetime import timedelta
 import json
+
+import configparser
+import os
+
+config = configparser.ConfigParser()
+config.read(os.path.dirname(__file__) + '/config.ini')
 
 
 def cookie_expiration(cookies):
@@ -25,6 +31,13 @@ def cookie_expiration(cookies):
     three_month_nb = 0
     one_month_nb = 0
 
+    thirty_month_pt = int(config['delay_point']['thirty_month'])
+    eight_month_pt = int(config['delay_point']['eight_month'])
+    six_month_pt = int(config['delay_point']['six_month'])
+    three_month_pt = int(config['delay_point']['three_month'])
+    one_month_pt = int(config['delay_point']['one_month'])
+    unlimited_pt = int(config['delay_point']['unlimited'])
+
     # print(cookies)  # debug
 
     for cookie in cookies:
@@ -42,27 +55,27 @@ def cookie_expiration(cookies):
             # count the number of cookies in each expiry time range
             if expiration_delay.days > 394:  # + 13 month
                 thirty_month_nb += 1
-                expiry_score += 17  # TODO replace by config file value
+                expiry_score += thirty_month_pt
 
             elif expiration_delay.days > 240:  # + 8 month
                 eight_month_nb += 1
-                expiry_score += 12  # TODO replace by config file value
+                expiry_score += eight_month_pt
 
             elif expiration_delay.days > 180:  # + 6 month
                 six_month_nb += 1
-                expiry_score += 7  # TODO replace by config file value
+                expiry_score += six_month_pt
 
             elif expiration_delay.days > 90:  # + 3 month
                 three_month_nb += 1
-                expiry_score += 5  # TODO replace by config file value
+                expiry_score += three_month_pt
 
             elif expiration_delay.days > 30:  # + 1 month
                 one_month_nb += 1
-                expiry_score += 2  # TODO replace by config file value
+                expiry_score += one_month_pt
 
         except KeyError:
             unlimited_nb += 1  # no expiration
-            expiry_score += 17  # TODO replace by config file value
+            expiry_score += unlimited_pt
 
     # put the counters in the dictionary
     expiry_info["unlimited"] = unlimited_nb
@@ -152,17 +165,23 @@ def calculate_grade(cookie_score):
     """
     cookie_grade = None
 
-    if cookie_score < 17:
+    a_grade = int(config['grade']['A'])
+    b_grade = int(config['grade']['B'])
+    c_grade = int(config['grade']['C'])
+    d_grade = int(config['grade']['D'])
+    e_grade = int(config['grade']['E'])
+
+    if cookie_score <= a_grade:
         cookie_grade = "A"
-    elif cookie_score < 31:
+    elif cookie_score <= b_grade:
         cookie_grade = "B"
-    elif cookie_score < 51:
+    elif cookie_score <= c_grade:
         cookie_grade = "C"
-    elif cookie_score < 68:
+    elif cookie_score <= d_grade:
         cookie_grade = "D"
-    elif cookie_score < 85:
+    elif cookie_score <= e_grade:
         cookie_grade = "E"
-    elif cookie_score >= 85:
+    elif cookie_score > e_grade:
         cookie_grade = "F"
 
     return cookie_grade
