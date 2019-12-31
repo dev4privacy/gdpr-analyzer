@@ -8,7 +8,10 @@ from cryptography.hazmat.primitives import asymmetric
 from cryptography.hazmat.backends import default_backend
 import ssl
 import os
+
 from modules.crypto import const
+
+from ssl import PROTOCOL_TLSv1_2
 
 config = configparser.ConfigParser()
 config.optionxform = lambda option: option
@@ -68,9 +71,12 @@ class CertData:
 
     def __procotol_is_enable(self, context):
         try:
+            '''
             conn = ssl.create_connection((self.hostname, self.port_number))
             sock = context.wrap_socket(conn, server_hostname=self.hostname)
             sock.do_handshake()
+            '''
+            ssl.get_server_certificate(addr=addr,ssl_version=ssl.PROTOCOL_SSLv2)
             return True
         except:
             return False
@@ -93,7 +99,7 @@ class CertData:
 
         '''
         protocol = "SSLv2"
-        context = ssl.SSLContext(ssl.PROTOCOL_SSLv2 )
+        context = ssl.SSLContext(ssl.PROTOCOL_SSLv2)
         if self.__procotol_is_enable(context):
             self.protocol_enabled[protocol] = "YES"
             self.cipher_available[protocol] = self.__enum_cipher(context)
@@ -241,10 +247,12 @@ class TransmissionSecurity:
 
     def __assess_score(self):
         self.global_score = None
-        self.global_score = int(self.coefficient_protocol) * int(self.protocol_score) + \
+        '''
+        self.global_score = int(self.coefficient_protocol) * self.protocol_score + \
                             int(self.coefficient_key) * self.key_score + \
                             int(self.coefficient_cipher) * self.cipher_score + \
                             int(self.coefficient_certificate) * self.certificate_score
+        '''
 
     def evaluate(self):
         self.__protocol_score()
