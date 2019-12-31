@@ -8,7 +8,7 @@ from splinter import Browser
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
 from modules.web_beacon import find_beacon, json_parser
-from modules.cookies import cookie_evaluate
+from modules.cookies.cookies import cookie_evaluate
 
 def get_content(target):
     target = "https://"+target
