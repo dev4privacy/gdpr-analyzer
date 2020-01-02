@@ -16,13 +16,14 @@ from modules.cookies.cookies import cookie_evaluate
 
 class bcolors:
     HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
+    CYAN  = "\033[36m"
     GREEN = '\033[92m'
-    WARNING = '\033[93m'
+    YELLOW = '\033[93m'
     RED = '\033[91m'
-    WHITE = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    RESET = '\033[0m'    
+    REVERSE = "\033[;7m"
 
 def get_content(target):
     # TODO with browser rather than following to use clean session and quit automatically
@@ -68,21 +69,23 @@ def full(content_cookies, content_html, target):
     return full_result
 
 def check_target(target):
-    print(bcolors.GREEN + "[-] Checking the url" + bcolors.WHITE)
+    print("{}[-] Checking the url{}".format(bcolors.RESET, bcolors.RESET))
     if not (target.startswith('//') or target.startswith('http://') or target.startswith('https://')):
         target_parse = urlparse('//' + target, 'https')
     else: 
         target_parse = urlparse(target, 'https')
     try:
-        r = requests.get(target_parse.geturl())
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+        r = requests.get(target_parse.geturl(), headers=headers)
         r.raise_for_status()
     except ConnectionError as e:
-        print(bcolors.RED + "Error : Failed to establish a connection, verify that the target exists" + bcolors.WHITE)
+        print("{}[X] Error : Failed to establish a connection, verify that the target exists{}".format(bcolors.RED, bcolors.RESET))
         sys.exit(1)
     except HTTPError as e:
-        print(e)
+        print("{}[X] Error : {}{}".format(bcolors.RED, e, bcolors.RESET))
         sys.exit(1)
     else: 
+        print("{}[-] url OK{}".format(bcolors.GREEN, bcolors.RESET))
         return target_parse
 
 def start():
@@ -123,17 +126,20 @@ def start():
 
     if args.report:
         if result is None:
-            print("no result available")
+            print("{}[X] Error : No result available{}".format(bcolors.RED, bcolors.RESET))
         else:
             generate_report(target.netloc, name, json.dumps(result))
 
     if args.json:
+        print("{}[-] Generate the JSON{}".format(bcolors.RESET, bcolors.RESET))
         if result is None:
-            print("no result available")
+            print("{}[X] Error : No result available{}".format(bcolors.RED, bcolors.RESET))
         else:
-            file_name = "gdpr_analyser-" + target + ".json"
-            with open(file_name, 'w') as outfile:
+            folder_target = "reports"
+            recording_target = folder_target+"/gdpranalyzer_"+name+"_"+target.netloc+".pdf"
+            with open(recording_target, 'w') as outfile:
                 json.dump(result, outfile)
+            print("{}[-] JSON generated, it is stored in {}{}".format(bcolors.GREEN, recording_target, bcolors.RESET))
 '''
 def entry_point():
     try:
