@@ -14,6 +14,7 @@ from modules.report.generate_report import generate_report
 from modules.web_beacon import find_beacon, json_parser
 from modules.cookies.cookies import cookie_evaluate
 
+
 class bcolors:
     HEADER = '\033[95m'
     CYAN  = "\033[36m"
@@ -25,6 +26,7 @@ class bcolors:
     RESET = '\033[0m'    
     REVERSE = "\033[;7m"
 
+
 def get_content(target):
     # TODO with browser rather than following to use clean session and quit automatically
     browser = Browser('firefox', timeout=200, wait_time=200, profile_preferences={"network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
@@ -32,26 +34,35 @@ def get_content(target):
     browser.visit(target)
 
     # TODO we must return also third party cookies even if they are in firefox cookies...
+
+    # only gives us first party cookies
     content_cookies = browser.cookies.all(verbose=True)
+
     # to bypass this problem link to splinter, possibility to get all cookies from firefox but we can have cookies from
     # user navigation...
+    # -> use sqlite3 to get all cookies (cf. https://python-forum.io/Thread-Catch-all-cookies-from-any-website)
+
     content_html = browser.html
     browser.quit()
     return content_cookies, content_html
 
+
 def cookie(content_cookies, target):
     result = cookie_evaluate(content_cookies, target)
     return result
+
 
 def webbeacon(content_html):
     beacon_score, beacon_info = find_beacon(content_html)
     result = json_parser(beacon_score, beacon_info)
     return result
 
+
 def crypto(target):
     crypto = TransmissionSecurity(target)
     crypto.evaluate()
     return crypto.json_parser()
+
 
 def full(content_cookies, content_html, target):
     result_cookie = None
@@ -67,6 +78,7 @@ def full(content_cookies, content_html, target):
     full_result.update(json.loads(result_webbeacon))
     full_result.update(json.loads(result_crypto))
     return full_result
+
 
 def check_target(target):
     print("{}[-] Checking the url{}".format(bcolors.RESET, bcolors.RESET))
@@ -88,6 +100,7 @@ def check_target(target):
         print("{}[-] url OK{}".format(bcolors.GREEN, bcolors.RESET))
         return target_parse
 
+
 def start():
     parser = argparse.ArgumentParser(description='Description')
 
@@ -106,7 +119,7 @@ def start():
 
     target = check_target(args.url)
 
-    if args.webbeacon or args.cookie :
+    if args.webbeacon or args.cookie:
         content_cookies, content_html = get_content(target.geturl())
 
     if args.full or (not args.cookie and not args.webbeacon and not args.crypto):
