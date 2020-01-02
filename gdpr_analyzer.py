@@ -152,7 +152,7 @@ def entry_point():
 
 if __name__ == '__main__':
     if python_version()[0:3] < '3.7':
-        print('\033[93m[!] Make sure you have Python 3.7+ installed, quitting.\033[0m')
+        print('{}[!] Make sure you have Python 3.7+ installed, quitting.{}'.format(bcolors.YELLOW, bcolors.RESET))
         sys.exit(1)
 
     start()

@@ -55,7 +55,7 @@ def generate_report(target, name, result):
 
     output = tm.render(client_name=name, target=target, generated_date=generated_date, cookies=cookiesMod, scMod = scMod, wbMod = wbMod)
 
-    HTML(string=output).write_pdf("reports/gdpranalyzer_"+name+".pdf", stylesheets=[os.path.dirname(__file__)+"/templates/style.css",os.path.dirname(__file__)+"/templates/bootstrap-grid.min.css"])
+    HTML(string=output).write_pdf(recording_target, stylesheets=[os.path.dirname(__file__)+"/templates/style.css",os.path.dirname(__file__)+"/templates/bootstrap-grid.min.css"])
 
     print("{}[-] Report generated, it is stored in {}{}".format(bcolors.GREEN, recording_target, bcolors.RESET))
 
