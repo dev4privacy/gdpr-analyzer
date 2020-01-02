@@ -5,13 +5,26 @@ import sys
 import argparse
 import json
 from splinter import Browser
+from urllib.parse import urlparse
+import requests
+from requests.exceptions import ConnectionError, HTTPError
+
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
 from modules.web_beacon import find_beacon, json_parser
 from modules.cookies.cookies import cookie_evaluate
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    GREEN = '\033[92m'
+    WARNING = '\033[93m'
+    RED = '\033[91m'
+    WHITE = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 def get_content(target):
-    target = "https://"+target
     # TODO with browser rather than following to use clean session and quit automatically
     browser = Browser('firefox', timeout=200, wait_time=200, profile_preferences={"network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
 
@@ -54,6 +67,24 @@ def full(content_cookies, content_html, target):
     full_result.update(json.loads(result_crypto))
     return full_result
 
+def check_target(target):
+    print(bcolors.GREEN + "[-] Checking the url" + bcolors.WHITE)
+    if not (target.startswith('//') or target.startswith('http://') or target.startswith('https://')):
+        target_parse = urlparse('//' + target, 'https')
+    else: 
+        target_parse = urlparse(target, 'https')
+    try:
+        r = requests.get(target_parse.geturl())
+        r.raise_for_status()
+    except ConnectionError as e:
+        print(bcolors.RED + "Error : Failed to establish a connection, verify that the target exists" + bcolors.WHITE)
+        sys.exit(1)
+    except HTTPError as e:
+        print(e)
+        sys.exit(1)
+    else: 
+        return target_parse
+
 def start():
     parser = argparse.ArgumentParser(description='Description')
 
@@ -67,24 +98,26 @@ def start():
     parser.add_argument('-j', '--json', help='Export the result in json', action='store_true')
 
     args = parser.parse_args()
-    target = args.url
     name = args.name
     result = {}
+
+    target = check_target(args.url)
+
     if args.webbeacon or args.cookie :
-        content_cookies, content_html = get_content(target)
+        content_cookies, content_html = get_content(target.geturl())
 
     if args.full or (not args.cookie and not args.webbeacon and not args.crypto):
-        content_cookies, content_html = get_content(target)
-        result = full(content_cookies, content_html, target)
+        content_cookies, content_html = get_content(target.geturl())
+        result = full(content_cookies, content_html, target.netloc)
     else:
         if args.webbeacon:
             result_webbeacon = webbeacon(content_html)
             result.update(json.loads(result_webbeacon))
         if args.cookie:
-            result_cookie = cookie(content_cookies, target)
+            result_cookie = cookie(content_cookies, target.netloc)
             result.update(json.loads(result_cookie))
         if args.crypto:
-            result_crypto = crypto(target)
+            result_crypto = crypto(target.netloc)
             #result_crypto = '{ "security_transmission":{ "hostname":"foxnews.com", "grade":"B", "note":44, "protocol":{ "TLSv1":"YES", "TLSv1_1":"YES", "TLSv1_2":"YES", "SSLv2":"NO", "SSLv3":"YES", "TLSv1_3":"NO", "score":"8" }, "key":{ "score":"1", "size":2048, "type":"RSA" }, "cipher":{ "TLSv1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_2":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" ] }, "certificate":{ "score":null, "type":"NOOOO-validation", "not_before":"2019-05-16 00:00:00", "not_after":"2020-06-14 12:00:00" } } }'
             result.update(json.loads(result_crypto))
 
@@ -92,7 +125,7 @@ def start():
         if result is None:
             print("no result available")
         else:
-            generate_report(target, name, json.dumps(result))
+            generate_report(target.netloc, name, json.dumps(result))
 
     if args.json:
         if result is None:
