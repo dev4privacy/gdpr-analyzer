@@ -1,14 +1,16 @@
+# GDPR Analyzer
 
-## About gdpr-analyzer
+## About
 This tool allows the analysis of a website's compliance with the GDPR.
 The purpose of the project is to use publicly available site data (source code) to write a nominal report and assign a compliance score. A scoring grid can be generated to understand the score obtained.
 
-The tool is not intended to cover the entire GDPR. As stated above, only publicly available information will be analysed. As a result, not all information can be studied and the report can only rarely be exhaustive as to the use of data and the storage and protection methods put in place by the website owner
+The tool is not intended to cover the entire GDPR. As stated above, only publicly available information will be analysed. As a result, not all information can be studied and the report can only rarely be exhaustive as to the use of data and the storage and protection methods put in place by the website owner.
+
 ## Screenshot
-### Gdpr-analyzer help
+### Help
 ![help](utils/gdpr-analyzer-help.png "help")
 
-### Gdpr-analyzer report
+### Report
 ![report](utils/gdpr-analyzer-report.png "report resume")
 
 ## Installation
