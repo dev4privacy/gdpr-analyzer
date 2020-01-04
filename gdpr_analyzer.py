@@ -2,6 +2,7 @@
 
 from platform import python_version
 import sys
+import os
 import argparse
 import json
 from splinter import Browser
@@ -79,7 +80,6 @@ def full(content_cookies, content_html, target):
     full_result.update(json.loads(result_crypto))
     return full_result
 
-
 def check_target(target):
     print("{}[-] Checking the url{}".format(bcolors.RESET, bcolors.RESET))
     if not (target.startswith('//') or target.startswith('http://') or target.startswith('https://')):
@@ -137,20 +137,29 @@ def start():
             #result_crypto = '{ "security_transmission":{ "hostname":"foxnews.com", "grade":"B", "note":44, "protocol":{ "TLSv1":"YES", "TLSv1_1":"YES", "TLSv1_2":"YES", "SSLv2":"NO", "SSLv3":"YES", "TLSv1_3":"NO", "score":"8" }, "key":{ "score":"1", "size":2048, "type":"RSA" }, "cipher":{ "TLSv1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_2":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" ] }, "certificate":{ "score":null, "type":"NOOOO-validation", "not_before":"2019-05-16 00:00:00", "not_after":"2020-06-14 12:00:00" } } }'
             result.update(json.loads(result_crypto))
 
+    result_target = "reports"
+
+    if args.report or args.json:
+        try:
+            if not os.path.exists(result_target):
+                os.mkdir(result_target)
+        except OSError:
+            print("{}Error : The folder '{}'(to save result) not exist and failed to create{}".format(bcolors.RED, folder_target,bcolors.RESET))
+    
     if args.report:
         if result is None:
             print("{}[X] Error : No result available{}".format(bcolors.RED, bcolors.RESET))
         else:
-            generate_report(target.netloc, name, json.dumps(result))
-
+            path_report = result_target+"/gdpranalyzer_"+name+"_"+target.netloc+".pdf"
+            generate_report(target.netloc, name, json.dumps(result), path_report)
+           
     if args.json:
         print("{}[-] Generate the JSON{}".format(bcolors.RESET, bcolors.RESET))
         if result is None:
             print("{}[X] Error : No result available{}".format(bcolors.RED, bcolors.RESET))
         else:
-            folder_target = "reports"
-            recording_target = folder_target+"/gdpranalyzer_"+name+"_"+target.netloc+".pdf"
-            with open(recording_target, 'w') as outfile:
+            path_json = result_target+"/gdpranalyzer_"+name+"_"+target.netloc+".pdf"
+            with open(path_json, 'w') as outfile:
                 json.dump(result, outfile)
             print("{}[-] JSON generated, it is stored in {}{}".format(bcolors.GREEN, recording_target, bcolors.RESET))
 '''
