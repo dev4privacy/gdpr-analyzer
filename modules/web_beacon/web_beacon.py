@@ -11,7 +11,7 @@ MDL_URL = "http://www.malwaredomainlist.com/mdlcsv.php"
 MD_DOMAIN_URl = "http://www.malware-domains.com/files/justdomains.zip"
 BL_DOMAIN_URL = "https://sebsauvage.net/hosts/hosts"
 
-
+# take the content of config.ini
 config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + '/config.ini')
 
@@ -24,7 +24,7 @@ def find_beacon(content_html):
     """
     web_beacon = []
     web_beacon_info = {}
-
+    # take the value for eatch category in config.ini
     position_pt = int(config['category']['position'])
     hidden_pt = int(config['category']['hidden'])
     size_pt = int(config['category']['size'])
