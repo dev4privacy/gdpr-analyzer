@@ -8,22 +8,22 @@ The tool is not intended to cover the entire GDPR. As stated above, only publicl
 
 ## Screenshot
 ### Help
-![help](utils/gdpr-analyzer-help.png "help")
+![help](utils/gdpr_analyzer-help.png "help")
 
 ### Report
-![report](utils/gdpr-analyzer-report.png "report resume")
+![report](utils/gdpr_analyzer-report.png "report resume")
 
 ## Installation
 ```bash
-git clone https://git.scyde.fr/major-g9/gdpr-analyzer.git
+git clone https://git.scyde.fr/major-g9/gdpr_analyzer.git
 ```
 
 ## Recommended Python version
-Gdpr-analyzer currently supports *Python 3.7+*
+gdpr_analyzer currently supports *Python 3.7+*
 
 ## Dependencies
 
-Gdpr-analyzer requires the following tools :
+gdpr_analyzer requires the following tools :
 * OpenSSL ≥ 1.1.1 (https://www.openssl.org)
 * Firefox ≥ 60 (https://www.mozilla.org/en/firefox/new/)
 * geckodriver ≥ v0.26.0 (https://github.com/mozilla/geckodriver)
@@ -55,27 +55,27 @@ Short Form    | Long Form     | Description
 ## Examples
 To use all analysis options :
 
-`python gdpr-analyzer.py -f example.com ownername`
+`python gdpr_analyzer.py -f example.com ownername`
 
 To search the presence of web beacon and generate a pdf report :
 
-`python gdpr-analyzer.py -w -r example.com ownername`
+`python gdpr_analyzer.py -w -r example.com ownername`
 
 To analyse the security of the connection with the website and export the result in json :
 
-`python gdpr-analyzer.py -t -j example.com ownername`
+`python gdpr_analyzer.py -t -j example.com ownername`
 
 ## Disclaimer
-Accept any responsability or liability for the use of this anlysis tool. The usage of the product do not imply the responsibility of the **gdpr-analyzer** project.
+Accept any responsability or liability for the use of this anlysis tool. The usage of the product do not imply the responsibility of the **gdpr_analyzer** project.
 
-The purpose of this tool is to provide an evaluation grid defined with our own criteria. However, if errors are brought to our attention it will be our care to correct them. Anyhow, the **gdpr-analyzer** project engage  any  responsibility  for the usage of the generated report.
+The purpose of this tool is to provide an evaluation grid defined with our own criteria. However, if errors are brought to our attention it will be our care to correct them. Anyhow, the **gdpr_analyzer** project engage  any  responsibility  for the usage of the generated report.
 
 It is not necessarily  complete,  accurate  and  updated.
 
 It is our goal to minimise disruption caused by technical errors and we invite, therefore, the consumers to take all the possible preventive actions to avoid the problem. This disclaimer is not intended to avoid the obligations of the national laws, nor to exclude its liability for matters that may not be excluded under that law.
 
 ## License
-Gdpr-analyzer is licensed under the [GNU GPL v3.0](LICENSE.md).
+gdpr_analyzer is licensed under the [GNU GPL v3.0](LICENSE.md).
 
 ## Version
 **Current version is 0.1**
