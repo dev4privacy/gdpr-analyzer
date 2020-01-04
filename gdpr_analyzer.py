@@ -12,7 +12,7 @@ from requests.exceptions import ConnectionError, HTTPError
 
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
-from modules.web_beacon import find_beacon, json_parser
+from modules.web_beacon.web_beacon import find_beacon, json_parser
 from modules.cookies.cookies import cookie_evaluate
 
 

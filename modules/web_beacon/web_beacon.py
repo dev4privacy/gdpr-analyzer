@@ -4,22 +4,31 @@ import requests
 import json
 import re
 import tinycss
+import configparser
+import os
 
 MDL_URL = "http://www.malwaredomainlist.com/mdlcsv.php"
 MD_DOMAIN_URl = "http://www.malware-domains.com/files/justdomains.zip"
 BL_DOMAIN_URL = "https://sebsauvage.net/hosts/hosts"
 
 
+config = configparser.ConfigParser()
+config.read(os.path.dirname(__file__) + '/config.ini')
+
+
 def find_beacon(content_html):
     """
     find suspicious fields in beacon <img/>, return the dict with how many factors there are
-    :param url: url the user wants to test
+    :param content_html: url the user wants to test
     :return: info and score for web beacon
     """
     web_beacon = []
     web_beacon_info = {}
-    # style_css = []
-    # bl_matches = []
+
+    position_pt = int(config['category']['position'])
+    hidden_pt = int(config['category']['hidden'])
+    size_pt = int(config['category']['size'])
+    blacklist_pt = int(config['category']['blacklist'])
     blacklist_nb = 0
     size_nb = 0
     position_nb = 0
@@ -125,10 +134,10 @@ def find_beacon(content_html):
         print("No answer from the web site")
 
     # calculate web beacon score
-    position_score = position_nb * 4
-    size_score = size_nb * 17
-    blacklist_score = blacklist_nb * 40
-    hidden_score = hidden_nb * 8
+    position_score = position_nb * position_pt
+    size_score = size_nb * size_pt
+    blacklist_score = blacklist_nb * blacklist_pt
+    hidden_score = hidden_nb * hidden_pt
     web_beacon_score = position_score + size_score + blacklist_score + hidden_score
     # add info to the beacon_info dict
     web_beacon_info["position"] = position_nb
@@ -362,21 +371,28 @@ def check_domains(url, bl_list):
 def calculate_grade(web_beacon_score):
     """
     calculate the grade for the website
-    :param web_beacon_score: score forweb beacon
+    :param web_beacon_score: score for web beacon
     :return: web_beacon_grade
     """
-    if web_beacon_score == 0:
+    a_grade = int(config['grade']['A'])
+    b_grade = int(config['grade']['B'])
+    c_grade = int(config['grade']['C'])
+    d_grade = int(config['grade']['D'])
+    e_grade = int(config['grade']['E'])
+
+    if web_beacon_score <= a_grade:
         web_beacon_grade = "A"
-    elif web_beacon_score < 8:
-        web_beacon_grade == "B"
-    elif web_beacon_score < 17:
+    elif web_beacon_score <= b_grade:
+        web_beacon_grade = "B"
+    elif web_beacon_score <= c_grade:
         web_beacon_grade = "C"
-    elif web_beacon_score < 25:
+    elif web_beacon_score <= d_grade:
         web_beacon_grade = "D"
-    elif web_beacon_score < 41:
+    elif web_beacon_score <= e_grade:
         web_beacon_grade = "E"
-    elif web_beacon_score >= 60:
+    else:
         web_beacon_grade = "F"
+    
     return web_beacon_grade
 
 
