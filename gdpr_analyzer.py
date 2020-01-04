@@ -18,19 +18,20 @@ from modules.cookies.cookies import cookie_evaluate
 
 class bcolors:
     HEADER = '\033[95m'
-    CYAN  = "\033[36m"
+    CYAN = "\033[36m"
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
     RED = '\033[91m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    RESET = '\033[0m'    
+    RESET = '\033[0m'
     REVERSE = "\033[;7m"
 
 
 def get_content(target):
     # TODO with browser rather than following to use clean session and quit automatically
-    browser = Browser('firefox', timeout=200, wait_time=200, profile_preferences={"network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
+    browser = Browser('firefox', timeout=200, wait_time=200, profile_preferences={
+        "network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
 
     browser.visit(target)
 
@@ -67,36 +68,39 @@ def crypto(target):
 
 def full(content_cookies, content_html, target):
     result_cookie = None
-    result_webbeacon = None
+    result_web_beacon = None
     result_crypto = None
     full_result = []
 
     result_cookie = cookie(content_cookies, target)
-    result_webbeacon = webbeacon(content_html)
+    result_web_beacon = webbeacon(content_html)
     result_crypto = crypto(target)
 
     full_result = json.loads(result_cookie)
-    full_result.update(json.loads(result_webbeacon))
+    full_result.update(json.loads(result_web_beacon))
     full_result.update(json.loads(result_crypto))
     return full_result
+
 
 def check_target(target):
     print("{}[-] Checking the url{}".format(bcolors.RESET, bcolors.RESET))
     if not (target.startswith('//') or target.startswith('http://') or target.startswith('https://')):
         target_parse = urlparse('//' + target, 'https')
-    else: 
+    else:
         target_parse = urlparse(target, 'https')
     try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
         r = requests.get(target_parse.geturl(), headers=headers)
         r.raise_for_status()
     except ConnectionError as e:
-        print("{}[X] Error : Failed to establish a connection, verify that the target exists{}".format(bcolors.RED, bcolors.RESET))
+        print("{}[X] Error : Failed to establish a connection, verify that the target exists{}".format(bcolors.RED,
+                                                                                                       bcolors.RESET))
         sys.exit(1)
     except HTTPError as e:
         print("{}[X] Error : {}{}".format(bcolors.RED, e, bcolors.RESET))
         sys.exit(1)
-    else: 
+    else:
         print("{}[-] url OK{}".format(bcolors.GREEN, bcolors.RESET))
         return target_parse
 
@@ -127,14 +131,14 @@ def start():
         result = full(content_cookies, content_html, target.netloc)
     else:
         if args.webbeacon:
-            result_webbeacon = webbeacon(content_html)
-            result.update(json.loads(result_webbeacon))
+            result_web_beacon = webbeacon(content_html)
+            result.update(json.loads(result_web_beacon))
         if args.cookie:
             result_cookie = cookie(content_cookies, target.netloc)
             result.update(json.loads(result_cookie))
         if args.crypto:
             result_crypto = crypto(target.netloc)
-            #result_crypto = '{ "security_transmission":{ "hostname":"foxnews.com", "grade":"B", "note":44, "protocol":{ "TLSv1":"YES", "TLSv1_1":"YES", "TLSv1_2":"YES", "SSLv2":"NO", "SSLv3":"YES", "TLSv1_3":"NO", "score":"8" }, "key":{ "score":"1", "size":2048, "type":"RSA" }, "cipher":{ "TLSv1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_2":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" ] }, "certificate":{ "score":null, "type":"NOOOO-validation", "not_before":"2019-05-16 00:00:00", "not_after":"2020-06-14 12:00:00" } } }'
+            # result_crypto = '{ "security_transmission":{ "hostname":"foxnews.com", "grade":"B", "note":44, "protocol":{ "TLSv1":"YES", "TLSv1_1":"YES", "TLSv1_2":"YES", "SSLv2":"NO", "SSLv3":"YES", "TLSv1_3":"NO", "score":"8" }, "key":{ "score":"1", "size":2048, "type":"RSA" }, "cipher":{ "TLSv1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_2":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" ] }, "certificate":{ "score":null, "type":"NOOOO-validation", "not_before":"2019-05-16 00:00:00", "not_after":"2020-06-14 12:00:00" } } }'
             result.update(json.loads(result_crypto))
 
     result_target = "reports"
@@ -144,24 +148,28 @@ def start():
             if not os.path.exists(result_target):
                 os.mkdir(result_target)
         except OSError:
-            print("{}Error : The folder '{}'(to save result) not exist and failed to create{}".format(bcolors.RED, folder_target,bcolors.RESET))
-    
+            print("{}Error : The folder '{}'(to save result) not exist and failed to create{}".format(bcolors.RED,
+                                                                                                      folder_target,
+                                                                                                      bcolors.RESET))
+
     if args.report:
         if result is None:
             print("{}[X] Error : No result available{}".format(bcolors.RED, bcolors.RESET))
         else:
-            path_report = result_target+"/gdpranalyzer_"+name+"_"+target.netloc+".pdf"
+            path_report = result_target + "/gdpranalyzer_" + name + "_" + target.netloc + ".pdf"
             generate_report(target.netloc, name, json.dumps(result), path_report)
-           
+
     if args.json:
         print("{}[-] Generate the JSON{}".format(bcolors.RESET, bcolors.RESET))
         if result is None:
             print("{}[X] Error : No result available{}".format(bcolors.RED, bcolors.RESET))
         else:
-            path_json = result_target+"/gdpranalyzer_"+name+"_"+target.netloc+".pdf"
+            path_json = result_target + "/gdpranalyzer_" + name + "_" + target.netloc + ".pdf"
             with open(path_json, 'w') as outfile:
                 json.dump(result, outfile)
             print("{}[-] JSON generated, it is stored in {}{}".format(bcolors.GREEN, recording_target, bcolors.RESET))
+
+
 '''
 def entry_point():
     try:
