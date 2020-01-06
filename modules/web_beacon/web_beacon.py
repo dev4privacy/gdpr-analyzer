@@ -298,7 +298,6 @@ def find_hidden_style_element(content, element):
     begin = content.find(a) + len(a)
     end = content.find(b)
     content_without_style = content[begin:end]
-    # print(content_without_style)
     stylesheet = tinycss.make_parser().parse_stylesheet(content_without_style)
     for rule in stylesheet.rules:
         selector = rule.selector.as_css()
@@ -392,7 +391,7 @@ def calculate_grade(web_beacon_score):
         web_beacon_grade = "E"
     else:
         web_beacon_grade = "F"
-    
+
     return web_beacon_grade
 
 
