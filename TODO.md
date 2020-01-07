@@ -24,6 +24,7 @@
 ## Web beacon
 * DL picture and check if the size and the value match
 * size in CSS pages like in <style/>
+* DL each week the Blacklist and use a timestamp
 
 ## Transmission security
 
