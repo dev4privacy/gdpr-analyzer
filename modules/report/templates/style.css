@@ -17,7 +17,7 @@ html{
 }
 
 h2{
-    border-bottom: 4px solid #FF8078;
+    border-bottom: 4px solid #6f77aa;
     color:#2c3e50;
     font-size: 2rem;
     text-transform: uppercase;
@@ -44,7 +44,7 @@ h3{
     font-size: 2.5rem;
     font-weight: 100;
     text-align: left;
-    color: #FF8078;
+    color: #6f77aa;
 }
 .header_target{
     margin-top:5rem;
@@ -77,6 +77,10 @@ h3{
 .header_score .bad_score{
     background-color: #2c3e50;
 }
+.logo img{
+    width: 150px;
+    height: 150px;
+}
 
 /* RECAP */
 .section{
@@ -88,7 +92,7 @@ h3{
     vertical-align: middle !important;
     padding: 0.5rem 0.25rem;
     height: 3.6rem;
-    background-color: #FF8078;
+    background-color: #6f77aa;
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
     color: #2c3e50;

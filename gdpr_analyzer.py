@@ -30,7 +30,7 @@ class bcolors:
 
 def get_content(target):
     # TODO with browser rather than following to use clean session and quit automatically
-    browser = Browser('firefox', timeout=200, wait_time=200, profile_preferences={
+    browser = Browser('firefox', timeout=1000, wait_time=200, profile_preferences={
         "network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
 
     browser.visit(target)
