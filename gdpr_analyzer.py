@@ -54,7 +54,7 @@ def cookie(content_cookies, target):
     return result
 
 
-def webbeacon(content_html):
+def web_beacon(content_html):
     beacon_score, beacon_info = find_beacon(content_html)
     result = json_parser(beacon_score, beacon_info)
     return result
@@ -73,7 +73,7 @@ def full(content_cookies, content_html, target):
     full_result = []
 
     result_cookie = cookie(content_cookies, target)
-    result_web_beacon = webbeacon(content_html)
+    result_web_beacon = web_beacon(content_html)
     result_crypto = crypto(target)
 
     full_result = json.loads(result_cookie)
@@ -131,7 +131,7 @@ def start():
         result = full(content_cookies, content_html, target.netloc)
     else:
         if args.webbeacon:
-            result_web_beacon = webbeacon(content_html)
+            result_web_beacon = web_beacon(content_html)
             result.update(json.loads(result_web_beacon))
         if args.cookie:
             result_cookie = cookie(content_cookies, target.netloc)
