@@ -26,7 +26,7 @@
 
 * **[P2]** DL picture and check if the size and the value match
 * **[P1]** size in CSS pages like in <style/>
-* **[P1]** DL each week the Blacklist and use a timestamp
+* **[P1]** DL each week the Blacklist and use a timestamp. DO IT but implementable when the server is up
 
 ## Transmission security
 * **[P0]** Establish the scoring grid for the encryption suites + implement.

@@ -22,8 +22,9 @@ def find_beacon(content_html):
     :param content_html: url the user wants to test
     :return: info and score for web beacon
     """
-    web_beacon = []
+    web_beacon_tuple = {}
     web_beacon_info = {}
+    web_beacon_url = []
     # take the value for eatch category in config.ini
     position_pt = int(config['category']['position'])
     hidden_pt = int(config['category']['hidden'])
@@ -48,6 +49,7 @@ def find_beacon(content_html):
         style_element = [style for style in soup.find_all('style')]
 
         if image_element:
+            web_beacon_category = []
             # check all the <img/>
             for i in image_element:
 
@@ -87,7 +89,7 @@ def find_beacon(content_html):
                     bl_matches = check_domains(src, bl_list)
                     if bl_matches:
                         blacklist_nb = blacklist_nb+1
-                        web_beacon.append(src)
+
                 # check if there are so suspicious words on the fields
                 # check the style field
                 if style != "":
@@ -95,14 +97,14 @@ def find_beacon(content_html):
                     for h in range(len(find_style)):
                         if find_style[h] == "hidden":
                             hidden_nb = hidden_nb + 1
-                            web_beacon.append(src)
+
                         if find_style[h] == "position":
                             position_nb = position_nb + 1
-                            web_beacon.append(src)
+
                 # check width/height fields
                 if width < 3 or height < 3:
                     size_nb = size_nb + 1
-                    web_beacon.append(src)
+
                 # check the content of the CSS pages
                 else:
                     if id_img != "" and src != "":
@@ -111,10 +113,10 @@ def find_beacon(content_html):
                             for j in range(len(find_hidden)):
                                 if find_hidden[j] == "hidden":
                                     hidden_nb = hidden_nb+1
-                                    web_beacon.append(src)
+
                                 if find_hidden[j] == "position":
                                     position_nb = position_nb+1
-                                    web_beacon.append(src)
+
                     if id_img != "" or class_img != "" and src != "":
                         if style_element:
                             for k in style_element:
@@ -125,10 +127,24 @@ def find_beacon(content_html):
                                 for l in range(len(find_hidden_style)):
                                     if find_hidden_style[l] == "hidden":
                                         hidden_nb = hidden_nb + 1
-                                        web_beacon.append(src)
+
                                     if find_hidden_style[l] == "position":
                                         position_nb = position_nb + 1
                                 # TODO size in CSS
+                if position_nb != 0:
+                    web_beacon_category.append("position")
+                if size_nb != 0:
+                    web_beacon_category.append("size")
+                if hidden_nb != 0:
+                    web_beacon_category.append("hidden")
+                if blacklist_nb != 0:
+                    web_beacon_category.append("blacklist")
+                if web_beacon_category:
+                    web_beacon_tuple["URL"] = src
+                    comment = generate_comment(web_beacon_category)
+                    web_beacon_tuple["comment"] = comment
+                    web_beacon_url.append(web_beacon_tuple)
+
 
     else:
         print("No answer from the web site")
@@ -144,7 +160,7 @@ def find_beacon(content_html):
     web_beacon_info["size"] = size_nb
     web_beacon_info["blacklist"] = blacklist_nb
     web_beacon_info["hidden"] = hidden_nb
-
+    web_beacon_info["view"] = web_beacon_url
     return web_beacon_score, web_beacon_info
 
 
@@ -338,12 +354,15 @@ def bl_website():
     :return: blacklist domains or None
     """
     site = requests.get(BL_DOMAIN_URL)
+    # TODO replace when the website is up
+    # f = open("hosts.txt", "r") # TODO put absolute path
+    # hosts = f.read()
     if site.status_code is 200:
-        html = site.text
+        hosts = site.text
         a = "# Blocked domains:\n"
-        begin = html.find(a) + len(a)
+        begin = hosts.find(a) + len(a)
         end = -48
-        bl = html[begin:end]
+        bl = hosts[begin:end]
         found = re.sub(r'(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', '', bl)
         bl_domains = found.split("\n ")
         return bl_domains
@@ -395,6 +414,24 @@ def calculate_grade(web_beacon_score):
     return web_beacon_grade
 
 
+def generate_comment(web_beacon_category):
+    comment = ""
+    if "size" in web_beacon_category:
+        comment = comment + "The size of the image is to small to be watch by the user (minus 3 pixels), there's a " \
+                            "high probability that it's a web beacon.\n "
+    if "position" in web_beacon_category:
+        comment = comment + "The picture is placed outside the field (in the left and top negatives), there's a high " \
+                            "probability that it's a web beacon beacause it's uncommon for a developer to use this " \
+                            "kind of practice to insert a legitimate image.\n "
+    if "hidden" in web_beacon_category:
+        comment = comment + "The style of the beacon is set to hide the content of the image, there's a high " \
+                            "probability that it's a web beacon.\n "
+    if "blacklist" in web_beacon_category:
+        comment = comment + "the source of the beacon if blacklisted in Host-block file from " \
+                            "https://sebsauvage.net/hosts/hosts "
+    return comment
+
+
 def json_parser(web_beacon_score, web_beacon_info):
     """
     parse the results into json object
@@ -406,7 +443,7 @@ def json_parser(web_beacon_score, web_beacon_info):
     result = {}
     web_beacon_grade = calculate_grade(web_beacon_score)
     result['score'] = web_beacon_score
-    result['info'] =  web_beacon_info
+    result['info'] = web_beacon_info
     result['grade'] = web_beacon_grade
     web_beacon['web_beacons'] = result
     return json.dumps(web_beacon)
