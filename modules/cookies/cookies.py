@@ -135,31 +135,15 @@ def third_party_cookies(cookies, website_url):
     return third_party_score, third_party_info
 
 
-def cookie_storage(cookies):
-    """
-    function about the unintentional storage of cookies
-    :param cookies: list of session cookies
-    :return: storage_score, storage_info
-    """
-
-    storage_score = 0
-    storage_info = {}
-
-    # TODO how is it possible to store cookie in another browser repo ?
-
-    return storage_score, storage_info
-
-
-def cookie_score_calculation(expiry_score, third_party_score, storage_score):
+def cookie_score_calculation(expiry_score, third_party_score):
     """
     calculate global score for cookies
     :param expiry_score: score for expiry time of cookies
     :param third_party_score: score for third party cookies
-    :param storage_score: score for unintentional storage of cookies
     :return: score
     """
 
-    score = expiry_score + third_party_score + storage_score
+    score = expiry_score + third_party_score
 
     return score
 
@@ -193,7 +177,7 @@ def calculate_grade(cookie_score):
     return cookie_grade
 
 
-def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score, storage_info,
+def json_parser(expiry_score, expiry_info, third_party_score, third_party_info,
                 cookie_grade, cookie_score):
     """
     parse the results into json object
@@ -201,8 +185,6 @@ def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, 
     :param expiry_info: info for expiry time of cookies
     :param third_party_score: score for third party cookies
     :param third_party_info: info for third party cookies
-    :param storage_score: score for unintentional storage of cookies
-    :param storage_info: info for unintentional storage of cookies
     :param cookie_score: global score for cookies
     :return: json_cookie
     """
@@ -217,17 +199,11 @@ def json_parser(expiry_score, expiry_info, third_party_score, third_party_info, 
         'info': third_party_info
     }
 
-    storage_dict = {
-        'score': storage_score,
-        'info': storage_info
-    }
-
     result = {
         'grade': cookie_grade,
         'score': cookie_score,
         'expiry': expiry_dict,
         'third_party': third_party_dict,
-        'storage': storage_dict,
     }
 
     cookie_result = {}
@@ -242,14 +218,10 @@ def cookie_evaluate(content_cookies, target):
     # TODO third party
     third_party_score, third_party_info = third_party_cookies(content_cookies, target)
 
-    # TODO make storage function ?
-    storage_score = 0
-    storage_info = {}
-
-    cookie_score = cookie_score_calculation(expiry_score, third_party_score, storage_score)
+    cookie_score = cookie_score_calculation(expiry_score, third_party_score)
     cookie_grade = calculate_grade(cookie_score)
 
-    json_cookie = json_parser(expiry_score, expiry_info, third_party_score, third_party_info, storage_score,
-                              storage_info, cookie_grade, cookie_score)
+    json_cookie = json_parser(expiry_score, expiry_info, third_party_score, third_party_info,
+                              cookie_grade, cookie_score)
 
     return json_cookie
