@@ -164,10 +164,10 @@ def start():
         if result is None:
             print("{}[X] Error : No result available{}".format(bcolors.RED, bcolors.RESET))
         else:
-            path_json = result_target + "/gdpranalyzer_" + name + "_" + target.netloc + ".pdf"
+            path_json = result_target + "/gdpranalyzer_" + name + "_" + target.netloc + ".json"
             with open(path_json, 'w') as outfile:
                 json.dump(result, outfile)
-            print("{}[-] JSON generated, it is stored in {}{}".format(bcolors.GREEN, recording_target, bcolors.RESET))
+            print("{}[-] JSON generated, it is stored in {}{}".format(bcolors.GREEN, path_json, bcolors.RESET))
 
 
 '''

@@ -165,6 +165,7 @@
                                     {% if protocol == 'SSLv3' and state == 'YES'%} class="red"{% endif %}
                                     {% if protocol == 'TLSv1_2' and state == 'YES'%} class="green"{% endif %}
                                     {% if protocol == 'TLSv1_2' and state == 'NO'%} class="red"{% endif %}
+                                    {% if protocol == 'TLSv1_3' and state == 'YES'%} class="green"{% endif %}
                                     {% if protocol == 'TLSv1_3' and state == 'NO'%} class="red"{% endif %}
                                     >{{state}}</td>
                             </tr>
