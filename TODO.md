@@ -9,6 +9,7 @@
 ## Main
 
 * **[P0]** Global grade definition
+* **[P0]** Run splinter in background (necessary for server)
 
 ## Configuration files
 
