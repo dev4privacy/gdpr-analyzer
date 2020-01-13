@@ -69,20 +69,27 @@ class CertData:
         elif isinstance(self.pubKey, asymmetric.ed448.Ed448PublicKey):
             self.key_type = "ED448"
 
-    def __procotol_is_enable(self, context):
+    def __procotol_is_enable(self, context, protocol):
         try:
             '''
             conn = ssl.create_connection((self.hostname, self.port_number))
             sock = context.wrap_socket(conn, server_hostname=self.hostname)
             sock.do_handshake()
             '''
-            ssl.get_server_certificate(addr=addr,ssl_version=ssl.PROTOCOL_SSLv2)
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            conn = ssl.create_connection((self.hostname, self.port_number))
+            sock = context.wrap_socket(conn, server_hostname=self.hostname)
+            sock.do_handshake()
+            if str(sock.version()).replace(".", "_") != protocol:
+                return False
             return True
         except:
             return False
     
     def __enum_cipher(self, context):
         cipher_enable = []
+        '''
         for key, value in const.TLS_OPENSSL_TO_RFC_NAMES_MAPPING.items():
             try:
                 conn = ssl.create_connection((self.hostname, self.port_number))
@@ -92,23 +99,30 @@ class CertData:
                 cipher_enable.append(key)
             except:
                 pass
+        '''
         return cipher_enable
 
     def __protocol_data(self):
         self.cipher_available = {}
 
         '''
-        protocol = "SSLv2"
-        context = ssl.SSLContext(ssl.PROTOCOL_SSLv2)
-        if self.__procotol_is_enable(context):
+        context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        context.options |= ssl.OP_NO_SSLv3
+        context.options |= ssl.OP_NO_TLSv1
+        context.options |= ssl.OP_NO_TLSv1_1
+        context.options |= ssl.OP_NO_TLSv1_2
+        if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
             self.cipher_available[protocol] = self.__enum_cipher(context)
-        else :
+        else:
             self.protocol_enabled[protocol] = "NO"
         
-        protocol = "SSLv3"
         context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-        if self.__procotol_is_enable(context):
+        context.options |= ssl.OP_NO_SSLv2
+        context.options |= ssl.OP_NO_TLSv1
+        context.options |= ssl.OP_NO_TLSv1_1
+        context.options |= ssl.OP_NO_TLSv1_2
+        if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
             self.cipher_available[protocol] = self.__enum_cipher(context)
         else:
@@ -117,7 +131,7 @@ class CertData:
 
         protocol = "TLSv1"
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        if self.__procotol_is_enable(context):
+        if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
             self.cipher_available[protocol] = self.__enum_cipher(context)
         else:
@@ -125,7 +139,7 @@ class CertData:
         
         protocol = "TLSv1_1"
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_1)
-        if self.__procotol_is_enable(context):
+        if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
             self.cipher_available[protocol] = self.__enum_cipher(context)
         else:
@@ -133,31 +147,25 @@ class CertData:
 
         protocol = "TLSv1_2"
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        if self.__procotol_is_enable(context):
+        if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
             self.cipher_available[protocol] = self.__enum_cipher(context)
         else:
             self.protocol_enabled[protocol] = "NO"
             
-        '''
         protocol = "TLSv1_3"
-        ssl_version = ssl.PROTOCOL_TLS
-        context = ssl.SSLContext(ssl_version)
-        context.options |= ssl.OP_NO_SSLv2
-        context.options |= ssl.OP_NO_SSLv3
-        context.options |= ssl.OP_NO_TLSv1
-        context.options |= ssl.OP_NO_TLSv1_1
-        context.options |= ssl.OP_NO_TLSv1_2
-        if self.__procotol_is_enable(ssl_version):
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        context.options |= ssl.OP_NO_SSLv2 | ssl.OP_NO_SSLv3 | ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1 | ssl.OP_NO_TLSv1_2
+        if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
-            #self.cipher_available[protocol] = self.__enum_cipher(ssl_version)
-        else :
-            self.protocol_enabled[protocol] = "NO"
-        '''
-        self.protocol_enabled["SSLv2"] = "UNKNOW"
-        self.protocol_enabled["SSLv3"] = "UNKNOW"
-        self.protocol_enabled["TLSv1_3"] = "UNKNOW"
+            self.cipher_available[protocol] = self.__enum_cipher(context)
+        else:
+            self.protocol_enabled[protocol] = "NO"    
+
         
+        
+        self.protocol_enabled["SSLv2"] = "UNKNOW"      
+        self.protocol_enabled["SSLv3"] = "UNKNOW"      
     
     def __policie(self):
         strings = ("Extended Validation","Extended Validated","EV SSL","EV CA")
