@@ -9,6 +9,8 @@ from splinter import Browser
 from urllib.parse import urlparse
 import requests
 from requests.exceptions import ConnectionError, HTTPError
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
@@ -91,7 +93,7 @@ def check_target(target):
     try:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-        r = requests.get(target_parse.geturl(), headers=headers)
+        r = requests.get(target_parse.geturl(), headers=headers, verify=False)
         r.raise_for_status()
     except ConnectionError as e:
         print("{}[X] Error : Failed to establish a connection, verify that the target exists{}".format(bcolors.RED,
@@ -138,7 +140,7 @@ def start():
             result.update(json.loads(result_cookie))
         if args.crypto:
             result_crypto = crypto(target.netloc)
-            # result_crypto = '{ "security_transmission":{ "hostname":"foxnews.com", "grade":"B", "note":44, "protocol":{ "TLSv1":"YES", "TLSv1_1":"YES", "TLSv1_2":"YES", "SSLv2":"NO", "SSLv3":"YES", "TLSv1_3":"NO", "score":"8" }, "key":{ "score":"1", "size":2048, "type":"RSA" }, "cipher":{ "TLSv1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_1":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA" ], "TLSv1_2":[ "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" ] }, "certificate":{ "score":null, "type":"NOOOO-validation", "not_before":"2019-05-16 00:00:00", "not_after":"2020-06-14 12:00:00" } } }'
+            #result_crypto = '{"security_transmission": {"hostname": "www.deepl.com", "grade": "B", "note": 23, "protocol": {"TLSv1": "YES", "TLSv1_1": "YES", "TLSv1_2": "YES", "TLSv1_3": "NO", "SSLv2": "UNKNOW", "SSLv3": "UNKNOW", "score": 8}, "key": {"score": 1, "size": 2048, "type": "RSA"}, "cipher": {"TLSv1": ["DHE-RSA-AES256-SHA", "ECDHE-RSA-AES256-SHA"], "TLSv1_1": ["DHE-RSA-AES256-SHA", "ECDHE-RSA-AES256-SHA"], "TLSv1_2": ["DHE-RSA-AES256-SHA", "DHE-RSA-AES128-GCM-SHA256", "DHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES256-SHA", "ECDHE-RSA-AES256-SHA384", "ECDHE-RSA-AES128-GCM-SHA256", "ECDHE-RSA-AES256-GCM-SHA384"]}, "certificate": {"score": 4, "type": "UNKNOW", "not_before": "Mon, 24 Jul 2017 00:00:00 ", "not_after": "Thu, 23 Jul 2020 23:59:59 ", "sign_algo": "sha256WithRSAEncryption", "issued_to": "*.deepl.com", "issued_by": "COMODO RSA Domain Validation Secure Server CA"}}}'
             result.update(json.loads(result_crypto))
 
     result_target = "reports"

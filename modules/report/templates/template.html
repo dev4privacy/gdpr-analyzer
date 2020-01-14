@@ -22,11 +22,6 @@
     <div class="header">
         <h1>gdpr-analyzer</h1>
         <div class="header_report">.report</div>
-        <div class="logo"> 
-            <img src="/images/logo.png" alt="image 1">
-            <img src="images/logo.png" alt="image 2">
-            <img src="../images/logo.png" alt="image 3">
-        </div>
         <div class="header_target">{{target}}</div>
         <div class="header_date">{{generated_date}}</div>
         <div class="header_score">Score : <span class="bad_score">X</span></div>
@@ -165,8 +160,8 @@
                                     {% if protocol == 'SSLv3' and state == 'YES'%} class="red"{% endif %}
                                     {% if protocol == 'TLSv1_2' and state == 'YES'%} class="green"{% endif %}
                                     {% if protocol == 'TLSv1_2' and state == 'NO'%} class="red"{% endif %}
-                                    {% if protocol == 'TLSv1_3' and state == 'YES'%} class="green"{% endif %}
-                                    {% if protocol == 'TLSv1_3' and state == 'NO'%} class="red"{% endif %}
+                                    {% if protocol == 'TLSv1_3' and state == 'YES'%}class="green"{% endif %}
+                                    {% if protocol == 'TLSv1_3' and state == 'NO'%}class="red"{% endif %}
                                     >{{state}}</td>
                             </tr>
                             {% endif %}
@@ -174,7 +169,58 @@
                     </table>
                 </div>
                 <div class="col">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                    <!--
+                    {% if scMod.protocol.score > 0 %}
+                    <h4>Why don’t I have a perfect score?</h4>
+                    <ol>
+                        {% for protocol, state in scMod.protocol.items() %}{% if protocol == 'TLSv1_3' and state == 'NO'%}
+                        <li>Your server doesn’t support TLS 1.3</li>
+                        {% endif %}{% endfor %}
+                    </ol> 
+                    {% endif %}
+                    
+                    {% for protocol, state in scMod.protocol.items() %}
+                        {% if protocol == 'TLSv1_3' and state == 'NO'%}
+                            <h4>What are the benefits of TLS 1.3?</h4>
+                            <p>TLS 1.3 encryption protocol enhances the HTTPS performance and security for all users and provides many improvements in comparison with TLS 1.2 and older. The most prominent one is reduced latency by making the TLS handshake shorter and more efficient before any secure session is established.</p>
+                        {% endif %}
+                    {% endfor %}
+                    -->
+                </div>
+            </div>
+        </div>
+
+        <h3>Certificate</h3>
+        Score : {{scMod.certificate.score}}</br>
+        <div class="container certificate">
+            <div class="row">
+                <div class="col protocol_table">
+                    <table>
+                        <tr>
+                            <td>Issued to</td>
+                            <td>{{scMod.certificate.issued_to}}</td>
+                        </tr>
+                        <tr>
+                            <td>Issued by</td>
+                            <td>{{scMod.certificate.issued_by}}</td>
+                        </tr>
+                        <tr>
+                            <td>Extended Validation</td>
+                            <td {% if scMod.certificate.type == 'extended-validation'%} class="green"> YES {% else %}> NO {% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Signature algorithml</td>
+                            <td>{{scMod.certificate.sign_algo}}</td>
+                        </tr>
+                        <tr>
+                            <td>Valid from</td>
+                            <td>{{scMod.certificate.not_before}}</td>
+                        </tr>
+                        <tr>
+                            <td>Valid until</td>
+                            <td>{{scMod.certificate.not_after}}</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>

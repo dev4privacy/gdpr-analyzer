@@ -36,6 +36,10 @@ class CertData:
         self.certCrypto = None
         self.pubKey = None
 
+        self.sign_algo = None
+        self.issued_to = None
+        self.issued_by = None
+
         self.__load_cert()
         self.__key_data()
         self.__protocol_data()
@@ -55,8 +59,13 @@ class CertData:
 
         self.pubKey = self.certificate.public_key()
 
+        
+
     def __key_data(self):
         self.key_size = self.pubKey.key_size
+        self.sign_algo = self.certOpenSSL.get_signature_algorithm()
+        self.issued_to = self.certOpenSSL.get_subject().CN
+        self.issued_by = self.certOpenSSL.get_issuer().CN
 
         if isinstance(self.pubKey, asymmetric.rsa.RSAPublicKey):
             self.key_type = "RSA"
@@ -68,6 +77,8 @@ class CertData:
             self.key_type = "ED25519"
         elif isinstance(self.pubKey, asymmetric.ed448.Ed448PublicKey):
             self.key_type = "ED448"
+
+        
 
     def __procotol_is_enable(self, context, protocol):
         try:
@@ -89,7 +100,6 @@ class CertData:
     
     def __enum_cipher(self, context):
         cipher_enable = []
-        '''
         for key, value in const.TLS_OPENSSL_TO_RFC_NAMES_MAPPING.items():
             try:
                 conn = ssl.create_connection((self.hostname, self.port_number))
@@ -99,7 +109,6 @@ class CertData:
                 cipher_enable.append(key)
             except:
                 pass
-        '''
         return cipher_enable
 
     def __protocol_data(self):
@@ -255,12 +264,12 @@ class TransmissionSecurity:
 
     def __assess_score(self):
         self.global_score = None
-        '''
+
         self.global_score = int(self.coefficient_protocol) * self.protocol_score + \
                             int(self.coefficient_key) * self.key_score + \
                             int(self.coefficient_cipher) * self.cipher_score + \
                             int(self.coefficient_certificate) * self.certificate_score
-        '''
+
 
     def evaluate(self):
         self.__protocol_score()
@@ -292,8 +301,12 @@ class TransmissionSecurity:
         result["certificate"] = {}
         result["certificate"]["score"] = self.certificate_score
         result["certificate"]["type"] = self.cert_data.policie
-        result["certificate"]["not_before"] = self.cert_data.certificate.not_valid_before.strftime("%Y-%m-%d %H:%M:%S")
-        result["certificate"]["not_after"] = self.cert_data.certificate.not_valid_after.strftime("%Y-%m-%d %H:%M:%S")
+        result["certificate"]["not_before"] = self.cert_data.certificate.not_valid_before.strftime("%a, %d %b %Y %H:%M:%S %Z")
+        result["certificate"]["not_after"] = self.cert_data.certificate.not_valid_after.strftime("%a, %d %b %Y %H:%M:%S %Z")
+
+        result["certificate"]["sign_algo"] = self.cert_data.sign_algo.decode("utf-8") 
+        result["certificate"]["issued_to"] = self.cert_data.issued_to
+        result["certificate"]["issued_by"] = self.cert_data.issued_by
 
         security_transmission["security_transmission"] = result
         return json.dumps(security_transmission)
