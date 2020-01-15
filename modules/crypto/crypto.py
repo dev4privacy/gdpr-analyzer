@@ -10,6 +10,7 @@ import ssl
 import os
 
 from modules.crypto import const
+from modules.crypto import CipherSuite
 
 from ssl import PROTOCOL_TLSv1_2
 
@@ -106,7 +107,8 @@ class CertData:
                 context.set_ciphers(key)
                 sock = context.wrap_socket(conn, server_hostname=self.hostname)
                 sock.do_handshake()
-                cipher_enable.append(key)
+                cipher_suite = CipherSuite.CipherSuite(const.TLS_OPENSSL_TO_RFC_NAMES_MAPPING[key])
+                cipher_enable.append(cipher_suite)
             except:
                 pass
         return cipher_enable
@@ -296,7 +298,12 @@ class TransmissionSecurity:
         result["key"]["size"] = self.cert_data.key_size
         result["key"]["type"] = self.cert_data.key_type
 
-        result["cipher"] = self.cert_data.cipher_available
+        result["cipher"] = {}
+
+        for protocol in self.cert_data.cipher_available :
+            result["cipher"][protocol] = []
+            for cipher_suite in self.cert_data.cipher_available[protocol] :
+                result["cipher"][protocol].append(cipher_suite.json_parser())
 
         result["certificate"] = {}
         result["certificate"]["score"] = self.certificate_score

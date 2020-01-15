@@ -262,16 +262,18 @@
                 </tr>
 
                 {% for cipherSuite in scMod.cipher[protocol] %}
+                {% for cipher, info in cipherSuite.items() %}
                 <tr>                           
-                    <td>{{cipherSuite}}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{{cipher}}</td>
+                    <td>{{info.key_exch_protocol}}</td>
+                    <td>{{info.auth_protocol}}</td>
+                    <td>{{info.cipher_type}}</td>
+                    <td>{{info.cipher_key_size}}</td>
+                    <td>{{info.cipher_mode}}</td>
+                    <td>{{info.mac_type}}</td>
+                    <td>{{info.mac_size}}</td>
                 <tr>
+                {% endfor %}
                 {% endfor %}
                 {% endif %}
                 {% endfor %}
