@@ -8,7 +8,6 @@ MAC_TYPE_LIST = ["SHA", "SHA256", "SHA384", "MD5", "POLY1305", "IMIT"]
 class CipherSuite:
 
     def __init__(self, cipher_suite_string):
-        print(cipher_suite_string)
         self.name = cipher_suite_string.strip().replace("TLS_","").replace("OLD_", "")
         self.key_exch_protocol = None
         self.auth_protocol = None
@@ -126,4 +125,4 @@ class CipherSuite:
 
         result[self.name] = cipher_suite_json
 
-        return json.dumps(result)
+        return result
