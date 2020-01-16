@@ -153,7 +153,6 @@ def start():
             print("{}Error : The folder '{}'(to save result) not exist and failed to create{}".format(bcolors.RED,
                                                                                                       folder_target,
                                                                                                       bcolors.RESET))
-
     if args.report:
         if result is None:
             print("{}[X] Error : No result available{}".format(bcolors.RED, bcolors.RESET))

@@ -7,7 +7,7 @@ MAC_TYPE_LIST = ["SHA", "SHA256", "SHA384", "MD5", "POLY1305", "IMIT"]
 
 class CipherSuite:
 
-    def __init__(self, cipher_suite_string):
+    def __init__(self, cipher_suite_string, security = None):
         self.name = cipher_suite_string.strip().replace("TLS_","").replace("OLD_", "")
         self.key_exch_protocol = None
         self.auth_protocol = None
@@ -16,6 +16,7 @@ class CipherSuite:
         self.cipher_mode = None
         self.mac_type = None
         self.mac_size = None
+        self.security = security
 
         self.__parse_cipher_suite_name()
 
@@ -122,6 +123,7 @@ class CipherSuite:
         cipher_suite_json["cipher_mode"] = self.cipher_mode
         cipher_suite_json["mac_type"] = self.mac_type
         cipher_suite_json["mac_size"] = self.mac_size
+        cipher_suite_json["security"] = self.security
 
         result[self.name] = cipher_suite_json
 
