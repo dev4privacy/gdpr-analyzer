@@ -219,14 +219,18 @@ h3{
     border-radius: .25em;
     padding: .3em;
 }
-.ciphersuite tr{
-    border: 1px solid #ebebeb;
-}
 */
+.ciphersuite tr{
+    text-align: center;
+}
+
 
 /* ALWAYS END */
 .green{
     color:#2ecc71;
+}
+.orange{
+    color:#ff9f43;
 }
 .red{
     color:#e74c3c;

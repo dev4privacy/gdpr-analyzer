@@ -238,9 +238,9 @@
             <table class="ciphersuite">
                 <thead>
 				    <tr>
-					    <th rowspan="2">Name</th>
+                        <th rowspan="2">Name</th>
 					    <th rowspan="2">Key Exchange</th>
-					    <th rowspan="2">Authentication</th>
+					    <th rowspan="2">Auth.</th>
 					    <th colspan="3">Cipher</th>
 					    <th colspan="2">MAC</th>
 				    </tr>
@@ -264,7 +264,11 @@
                 {% for cipherSuite in scMod.cipher[protocol] %}
                 {% for cipher, info in cipherSuite.items() %}
                 <tr>                           
-                    <td>{{cipher}}</td>
+                    {{info.security}}
+                    <td {% if info.security == 'insecure'%} class="red"{% endif %}
+                        {% if info.security == 'weak'%} class="orange"{% endif %}
+                        {% if info.security == 'recommended'%} class="green"{% endif %}
+                    >{{cipher}}</td>
                     <td>{{info.key_exch_protocol}}</td>
                     <td>{{info.auth_protocol}}</td>
                     <td>{{info.cipher_type}}</td>

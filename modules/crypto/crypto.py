@@ -17,6 +17,16 @@ from ssl import PROTOCOL_TLSv1_2
 config = configparser.ConfigParser()
 config.optionxform = lambda option: option
 config.read('config.ini')
+class bcolors:
+    HEADER = '\033[95m'
+    CYAN  = "\033[36m"
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    RESET = '\033[0m'    
+    REVERSE = "\033[;7m"
 
 class CertData:
 
@@ -99,21 +109,52 @@ class CertData:
         except:
             return False
     
-    def __enum_cipher(self, context):
+    def __enum_cipher(self, context, protocol):
+        print("{}{}\t {}: {}".format(bcolors.RESET, bcolors.BOLD, protocol, bcolors.RESET))
         cipher_enable = []
-        for key, value in const.TLS_OPENSSL_TO_RFC_NAMES_MAPPING.items():
+
+        if protocol == "TLSv1_3":
+            with open(os.path.dirname(__file__) + '/cipher_suite_tls_v13.json') as json_file:
+                data = json.load(json_file)
+        elif protocol == "TLSv1_2":
+            with open(os.path.dirname(__file__) + '/cipher_suite_tls_v12.json') as json_file:
+                data = json.load(json_file)
+        elif protocol == "TLSv1_1":
+            with open(os.path.dirname(__file__) + '/cipher_suite_tls_v11.json') as json_file:
+                data = json.load(json_file)
+        elif protocol == "TLSv1":
+            with open(os.path.dirname(__file__) + '/cipher_suite_tls_v10.json') as json_file:
+                data = json.load(json_file)
+
+        for i in data['ciphersuites'] :
+            for key, value in i.items() :
+                try:
+                    conn = ssl.create_connection((self.hostname, self.port_number))
+                    context.set_ciphers(value["openssl_name"])
+                    sock = context.wrap_socket(conn, server_hostname=self.hostname)
+                    sock.do_handshake()
+                    cipher_suite = CipherSuite.CipherSuite(key, value["security"])
+                    cipher_enable.append(cipher_suite)
+                    print("{}\t\t{}{}".format(bcolors.RESET, key, bcolors.RESET))
+                except Exception as e: 
+                    pass
+        '''
+        for key, value in cipher_suites.items() :
             try:
                 conn = ssl.create_connection((self.hostname, self.port_number))
                 context.set_ciphers(key)
                 sock = context.wrap_socket(conn, server_hostname=self.hostname)
                 sock.do_handshake()
-                cipher_suite = CipherSuite.CipherSuite(const.TLS_OPENSSL_TO_RFC_NAMES_MAPPING[key])
+                #cipher_suite = CipherSuite.CipherSuite(cipher_suites[key])
                 cipher_enable.append(cipher_suite)
-            except:
+            except Exception as e: 
                 pass
+        '''
+
         return cipher_enable
 
     def __protocol_data(self):
+        print("{}{}{}Available cipher suite : {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET))
         self.cipher_available = {}
 
         '''
@@ -144,7 +185,7 @@ class CertData:
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
         if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context)
+            self.cipher_available[protocol] = self.__enum_cipher(context, protocol)
         else:
             self.protocol_enabled[protocol] = "NO"
         
@@ -152,7 +193,7 @@ class CertData:
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_1)
         if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context)
+            self.cipher_available[protocol] = self.__enum_cipher(context, protocol)
         else:
             self.protocol_enabled[protocol] = "NO"
 
@@ -160,7 +201,7 @@ class CertData:
         context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context)
+            self.cipher_available[protocol] = self.__enum_cipher(context, protocol)
         else:
             self.protocol_enabled[protocol] = "NO"
             
@@ -169,12 +210,10 @@ class CertData:
         context.options |= ssl.OP_NO_SSLv2 | ssl.OP_NO_SSLv3 | ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1 | ssl.OP_NO_TLSv1_2
         if self.__procotol_is_enable(context, protocol):
             self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context)
+            self.cipher_available[protocol] = self.__enum_cipher(context, protocol)
         else:
             self.protocol_enabled[protocol] = "NO"    
 
-        
-        
         self.protocol_enabled["SSLv2"] = "UNKNOW"      
         self.protocol_enabled["SSLv3"] = "UNKNOW"      
     
@@ -298,6 +337,7 @@ class TransmissionSecurity:
         result["key"]["size"] = self.cert_data.key_size
         result["key"]["type"] = self.cert_data.key_type
 
+        #result["cipher"] = self.cert_data.cipher_available
         result["cipher"] = {}
 
         for protocol in self.cert_data.cipher_available :
