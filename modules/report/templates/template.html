@@ -114,6 +114,26 @@
             </div>
         </div>
 
+        <h3>Third-party cookies</h3>
+        Score : {{cookies.third_party.score}}</br>
+        <div class="container protocol">
+            <div class="row">
+                <div class="col protocol_table">
+                    <table>
+                        {% for third_party_info, number in cookies.third_party.info.items() %}
+                            <tr>
+                                <td>{{third_party_info}}</td>
+                                <td>{{number}}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="col">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                </div>
+            </div>
+        </div>
+
     </div>
     {% endif %}
 

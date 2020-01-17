@@ -12,6 +12,11 @@ from requests.exceptions import ConnectionError, HTTPError
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+from mozprofile import FirefoxProfile  # temporary
+import glob  # temporary
+import sqlite3  # temporary
+import shutil  # temporary
+
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
 from modules.web_beacon.web_beacon import find_beacon, json_parser
@@ -31,23 +36,57 @@ class bcolors:
 
 
 def get_content(target):
-    # TODO with browser rather than following to use clean session and quit automatically
-    browser = Browser('firefox', timeout=1000, wait_time=200, profile_preferences={
+    # TODO "with browser" rather than following to use clean session and quit automatically
+
+    # create new profile to pass to splinter
+    profile_name = "/tmp/gdpr-analyzer/gdpr-analyzer.default"
+    gdpr_analyzer_profile = FirefoxProfile(profile=profile_name)  # TODO define profile_pref here rather than after
+
+    # debug
+    # print(gdpr_analyzer_profile)
+    # print(gdpr_analyzer_profile.profile)
+
+    # TODO !!! get the name of the repo create in /tmp to check the cookie db !!!
+
+    browser = Browser('firefox', profile=profile_name, timeout=1000, wait_time=200, profile_preferences={
         "network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
 
     browser.visit(target)
 
-    # TODO we must return also third party cookies even if they are in firefox cookies...
-
     # only gives us first party cookies
-    content_cookies = browser.cookies.all(verbose=True)
+    # content_cookies = browser.cookies.all(verbose=True)
 
-    # to bypass this problem link to splinter, possibility to get all cookies from firefox but we can have cookies from
-    # user navigation...
-    # -> use sqlite3 to get all cookies (cf. https://python-forum.io/Thread-Catch-all-cookies-from-any-website)
+    # sad trick shot to access cookies database only work for linux because of path
+    profile_files = glob.glob('/tmp/rust_mozprofile*')
+    latest_profile = max(profile_files, key=os.path.getctime)
+
+    # to debug
+    # print(latest_profile)
+
+    # copy database because we can not access to the one which is temporary create
+    db_source = latest_profile + "/cookies.sqlite"
+    db_destination = "/tmp/gdpr-analyzer/cookies.sqlite"
+    shutil.copyfile(db_source, db_destination)
 
     content_html = browser.html
+
     browser.quit()
+
+    # get cookie content from db
+    con = sqlite3.connect(db_destination)
+    cur = con.cursor()
+    cur.execute("SELECT * FROM moz_cookies")
+    rows = cur.fetchall()
+
+    content_cookies = []
+    for cookie in rows:
+        content_cookies.append(cookie)
+
+    con.close()
+
+    # to debug
+    # print(content_cookies)
+
     return content_cookies, content_html
 
 

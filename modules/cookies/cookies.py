@@ -47,12 +47,20 @@ def cookie_expiration(cookies):
         # print(cookie)  # debug
 
         try:
-            expiry = cookie["expiry"]
-            # print(expiry)  # debug
+            #expiry = cookie["expiry"]
+
+            expiry = cookie[7]
+            #print(expiry)  # debug
 
             # calculate the expiry time of cookies
             now = int(time.time())
+
+            # TODO round to the top minute ?
             expiration_delay = timedelta(seconds=expiry - now)
+
+            # to debug
+            # print(expiration_delay)
+            # print(cookie)
 
             # count the number of cookies in each expiry time range
             if expiration_delay.days > 394:  # + 13 month
@@ -104,33 +112,30 @@ def third_party_cookies(cookies, website_url):
     :return: third_party_score, third_party_info
     """
 
+    # https://stackoverflow.com/questions/44764888/how-do-i-get-all-third-party-cookies-with-scrapy-or-other-easier-methods
+
     third_party_score = 0
     third_party_info = {}
 
     third_party_nb = 0
-
-    # compute all possible domains for the targeted website
-    # and adapt its URL
-    # TODO consider all possible cases (with www. / website.domain / http: / https:)
-    if website_url[:5] == "https":
-        website_url = website_url[8:]
-    else:
-        website_url = website_url[7:]
 
     # print(website_url)  # debug
 
     for cookie in cookies:
         # print(cookie)  # debug
 
-        domain = cookie["domain"]
+        domain = cookie[1]
+        # print(domain) # debug
 
         # count the number of domains which correspond to third parties
-        if website_url.find(domain) is False:  # is false useless but better understanding
+        if website_url.find(domain) < 0:  # is false useless but better understanding
             third_party_nb += 1
             third_party_score += 10  # TODO replace by config file value
 
     # put the counter in the dictionary
     third_party_info["number"] = third_party_nb
+
+    print(third_party_score, third_party_info)
 
     return third_party_score, third_party_info
 
