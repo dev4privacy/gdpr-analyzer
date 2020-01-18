@@ -165,6 +165,4 @@ def cookie_evaluate(browsing_time, cookies, target):
     cookie_result['cookies'] = result
     cookie_result = json.dumps(cookie_result, indent=4)
 
-    print(cookie_result)
-
     return cookie_result
