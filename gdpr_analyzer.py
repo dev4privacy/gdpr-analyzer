@@ -36,41 +36,32 @@ class bcolors:
 
 
 def get_content(target):
-    # TODO "with browser" rather than following to use clean session and quit automatically
 
-    # create new profile to pass to splinter
-    profile_name = "/tmp/gdpr-analyzer/gdpr-analyzer.default"
-    gdpr_analyzer_profile = FirefoxProfile(profile=profile_name)  # TODO define profile_pref here rather than after
+    # create a new profile so as not to mix the user's browsing info with that of the analysis
+    profile_conf_name = "/tmp/gdpr-analyzer/gdpr-analyzer.default"
+    FirefoxProfile(profile=profile_conf_name)  # TODO define profile_pref here rather than after
 
-    # debug
-    # print(gdpr_analyzer_profile)
-    # print(gdpr_analyzer_profile.profile)
-
-    # TODO !!! get the name of the repo create in /tmp to check the cookie db !!!
-
-    browser = Browser('firefox', profile=profile_name, timeout=1000, wait_time=200, profile_preferences={
+    # define profile preferences
+    browser = Browser('firefox', profile=profile_conf_name, timeout=1000, wait_time=200, profile_preferences={
         "network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
 
-    browser.visit(target)
+    # navigation run
+    with browser:
+        browser.visit(target)
 
-    # only gives us first party cookies
-    # content_cookies = browser.cookies.all(verbose=True)
+        # only gives us first party cookies
+        # content_cookies = browser.cookies.all(verbose=True)
 
-    # sad trick shot to access cookies database only work for linux because of path
-    profile_files = glob.glob('/tmp/rust_mozprofile*')
-    latest_profile = max(profile_files, key=os.path.getctime)
+        # sad trick shot to access cookies database only work for linux because of path
+        profile_repo = glob.glob('/tmp/rust_mozprofile*')
+        latest_profile_repo = max(profile_repo, key=os.path.getctime)
 
-    # to debug
-    # print(latest_profile)
+        # copy database because we can not access to the one which is temporary create
+        db_source = latest_profile_repo + "/cookies.sqlite"
+        db_destination = "/tmp/gdpr-analyzer/cookies.sqlite"
+        shutil.copyfile(db_source, db_destination)
 
-    # copy database because we can not access to the one which is temporary create
-    db_source = latest_profile + "/cookies.sqlite"
-    db_destination = "/tmp/gdpr-analyzer/cookies.sqlite"
-    shutil.copyfile(db_source, db_destination)
-
-    content_html = browser.html
-
-    browser.quit()
+        content_html = browser.html
 
     # get cookie content from db
     con = sqlite3.connect(db_destination)
@@ -84,11 +75,7 @@ def get_content(target):
 
     con.close()
 
-    # to debug
-    # print(content_cookies)
-
     return content_cookies, content_html
-
 
 
 def cookie(content_cookies, target):
