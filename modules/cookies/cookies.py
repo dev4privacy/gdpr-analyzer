@@ -130,7 +130,9 @@ def calculate_grade(cookie_score):
 
 def cookie_evaluate(browsing_time, cookies, target):
     global_cookie_score = 0
+    result = {}
     cookie_result = {}
+    result['details'] = {}
 
     for cookie in cookies:
         name = cookie[3]
@@ -145,7 +147,7 @@ def cookie_evaluate(browsing_time, cookies, target):
         cookie_score = third_party_point + expiry_point
 
         # add cookie to json
-        cookie_result[name] = {
+        result['details'][name] = {
             'third_party': third_party,
             'expiry': str(expiration_delay),
             'cookie_score': cookie_score
@@ -158,9 +160,10 @@ def cookie_evaluate(browsing_time, cookies, target):
     cookie_grade = calculate_grade(global_cookie_score)
 
     # add cookie grade and score in json
-    cookie_result['grade'] = cookie_grade
-    cookie_result['score'] = global_cookie_score
+    result['grade'] = cookie_grade
+    result['score'] = global_cookie_score
 
+    cookie_result['cookies'] = result
     cookie_result = json.dumps(cookie_result, indent=4)
-
+    #print(cookie_result)
     return cookie_result

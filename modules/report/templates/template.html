@@ -90,48 +90,28 @@
                 </div>
             </div>
         </div>
-        
 
+        <h3>Cookie Details</h3>
 
-        <h3>Expiration delay</h3>
-        Score : {{cookies.expiry.score}}</br>
-        <div class="container protocol">
-            <div class="row">
-                <div class="col protocol_table">
-                    <table>
-                        {% for expiry_info, number in cookies.expiry.info.items() %}
-                            <tr>
-                                <td>{{expiry_info}}</td>
-                                <td>{{number}}</td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="col">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-                </div>
-            </div>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Third Party</th>
+                    <th>Expiry</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
 
-        <h3>Third-party cookies</h3>
-        Score : {{cookies.third_party.score}}</br>
-        <div class="container protocol">
-            <div class="row">
-                <div class="col protocol_table">
-                    <table>
-                        {% for third_party_info, number in cookies.third_party.info.items() %}
-                            <tr>
-                                <td>{{third_party_info}}</td>
-                                <td>{{number}}</td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="col">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
-                </div>
-            </div>
-        </div>
+            {% for cookie_name, details in cookies.details.items() %}
+                <tr>
+                    <td>{{cookie_name}}</td>
+                    <td>{{details.third_party}}</td>
+                    <td>{{details.expiry}}</td>
+                    <td>{{details.cookie_score}}</td>
+                </tr>
+            {% endfor %}
+        </table>
 
     </div>
     {% endif %}
