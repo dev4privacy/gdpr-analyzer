@@ -265,6 +265,7 @@ class TransmissionSecurity:
 
         self.protocol_point = config['protocol_point']
         self.key_point = config['key_point']
+        self.key_point_ec = config['key_point_ec']
         self.cipher_point = config['cipher_point']
         self.certificate_point = config['certificate_point']
         self.bad_rank = config['bad_rank']
@@ -277,10 +278,16 @@ class TransmissionSecurity:
         self.coefficient_certificate = int(config.get('coefficient', 'certificate_point'))
 
     def __key_score(self):
-        for item in self.key_point:
-            if int(self.cert_data.key_size < int(item)):
-                self.key_score = int(self.key_point[item])
-                break
+        if self.cert_data.key_type == "EC":
+            for item in self.key_point_ec:
+                if int(self.cert_data.key_size < int(item)):
+                    self.key_score = int(self.key_point_ec[item])
+                    break
+        else:
+            for item in self.key_point:
+                if int(self.cert_data.key_size < int(item)):
+                    self.key_score = int(self.key_point[item])
+                    break
         
     def __protocol_score(self):
         for key, value in self.protocol_point.items():
@@ -315,8 +322,10 @@ class TransmissionSecurity:
                     if self.weakest_protocol == i:
                         self.global_grade = "F"
                         break
-            elif key == "key":
-                if self.cert_data.key_size < int(value):
+            elif key == "key_score":
+                print(self.key_score)
+                print(int(value))
+                if self.key_score >= int(value):
                     self.global_grade = "F"
             elif key == "cipher":
                 for i in value:
