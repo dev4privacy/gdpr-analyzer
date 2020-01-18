@@ -224,6 +224,47 @@ h3{
     text-align: center;
 }
 
+/* Web Beacon*/
+.webbeacon{
+    padding: 0.4em;
+    border-radius: 0.75em;
+    background-color: #f8f8f8;
+    margin-bottom: 2rem;
+
+     /* These are technically the same, but use both */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+
+    -ms-word-break: break-all;
+    /* This is the dangerous one in WebKit, as it breaks things wherever */
+    word-break: break-all;
+    /* Instead use this non-standard one: */
+    word-break: break-word;
+
+    /* Adds a hyphen where the word breaks, if supported (No Blink) */
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+.webbeacon span{
+    font-weight: 800;
+}
+.webbeacon_target{
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.caption{
+    margin-top: 2rem;
+    font-size: 0.8em;
+    text-align: justify;
+}
+.caption span{
+    font-weight: 800;
+}
+
 
 /* ALWAYS END */
 .green{

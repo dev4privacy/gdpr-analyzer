@@ -90,6 +90,7 @@ def get_content(target):
     return content_cookies, content_html
 
 
+
 def cookie(content_cookies, target):
     result = cookie_evaluate(content_cookies, target)
     return result

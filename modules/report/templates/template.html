@@ -336,34 +336,31 @@
         <div class="container protocol">
             <div class="row">
                 <div class="col protocol_table">
-                    <table>
-                        <thead>
-				            <tr>
-					            <th style="text-align:center;" colspan="4">Web beacon's URL</th>
-				            </tr>
-				            <tr>
-					            <th>Position</th>
-					            <th>Hidden</th>
-					            <th>Size</th>
-					            <th>Blacklist</th>
-				            </tr>
-			            </thead>
-
-                        {% for url in wbMod.url %}
-                            <tr>
-                                <td colspan="4">{{url.url}}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="1">{{url.position}}</td>
-                                <td colspan="1">{{url.hidden}}</td>
-                                <td colspan="1">{{url.size}}</td>
-                                <td colspan="1">{{url.blacklist}}</td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="col">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>
+                    <h3> Details </h3>
+                    {% if wbMod.url|length %}
+                        <div class="webbeacons">
+                            {% for url in wbMod.url %}
+                                <div class="webbeacon">
+                                    <p class="webbeacon_target">wwww.targeet.com</p>
+                                    <p><span>Url : </span>{{url.url}}</p>
+                                    <p class="fault">Fault : 
+                                        {% if url.position == True %}<span>position</span>{% endif %}
+                                        {% if url.hidden == True %}<span>hidden</span>{% endif %}
+                                        {% if url.size == True %}<span>size</span>{% endif %}
+                                        {% if url.blacklist == True %}<span>blacklist</span>{% endif %}
+                                    </p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="caption">
+                            <p><span>Size : </span> The size of the image is to small to be watch by the user (minus 3 pixels), there's a high probability that it's a web beacon</p>
+                            <p><span>Position : </span> The picture is placed outside the field (in the left and top negatives), there's a high probability that it's a web beacon beacause it's uncommon for a developer to use this kind of practice to insert a legitimate image</p>
+                            <p><span>Hidden : </span> The style of the beacon is set to hide the content of the image, there's a high probability that it's a web beacon.</p>
+                            <p><span>Blacklist : </span> The source of the beacon if blacklisted in Host-block file from https://sebsauvage.net/hosts/hosts</p>
+                        </div>
+                    {% else %}
+                        <p>Well, no web beacon detected</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
