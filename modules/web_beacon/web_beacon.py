@@ -404,5 +404,4 @@ def json_parser(web_beacon_score, web_beacon_url):
     result['score'] = web_beacon_score
     result['url'] = web_beacon_url
     web_beacon['web_beacons'] = result
-    web_beacon['web_beacon'] = result
     return json.dumps(web_beacon)

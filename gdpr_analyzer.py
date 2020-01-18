@@ -11,6 +11,7 @@ import requests
 from requests.exceptions import ConnectionError, HTTPError
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+import platform
 
 from mozprofile import FirefoxProfile  # temporary
 import glob  # temporary
@@ -55,7 +56,12 @@ def get_content(target):
         # content_cookies = browser.cookies.all(verbose=True)
 
         # sad trick shot to access cookies database only work for linux because of path
-        profile_repo = glob.glob('/tmp/rust_mozprofile*')
+        paterform = platform.system()
+        if paterform == "Darwin":
+            profile_repo = glob.glob('/var/folders/sd/55wxrvfs1yl4_s59kf0xr0100000gn/T/rust_mozprofile*')
+        else:
+            profile_repo = glob.glob('/tmp/rust_mozprofile*')
+            
         latest_profile_repo = max(profile_repo, key=os.path.getctime)
 
         # copy database because we can not access to the one which is temporary create
@@ -135,6 +141,24 @@ def check_target(target):
         print("{}[-] url OK{}".format(bcolors.GREEN, bcolors.RESET))
         return target_parse
 
+def assess_rank(result):
+    rank = None
+    
+    if "cookies" in result:
+        grade = result["cookies"]["grade"]
+        if rank is None or grade > rank :
+            rank = grade
+    if "web_beacons" in result:
+        grade = result["web_beacons"]["grade"]
+        if rank is None or grade > rank :
+            rank = grade
+    if "security_transmission" in result:
+        grade = result["security_transmission"]["grade"]
+        if rank is None or grade > rank :
+            rank = grade
+
+    return rank
+
 
 def start():
     parser = argparse.ArgumentParser(description='Description')
@@ -172,8 +196,14 @@ def start():
             #result_crypto = '{"security_transmission": {"hostname": "www.deepl.com", "grade": "B", "note": 23, "protocol": {"TLSv1": "YES", "TLSv1_1": "YES", "TLSv1_2": "YES", "TLSv1_3": "NO", "SSLv2": "UNKNOW", "SSLv3": "UNKNOW", "score": 8}, "key": {"score": 1, "size": 2048, "type": "RSA"}, "cipher": {"TLSv1": ["DHE-RSA-AES256-SHA", "ECDHE-RSA-AES256-SHA"], "TLSv1_1": ["DHE-RSA-AES256-SHA", "ECDHE-RSA-AES256-SHA"], "TLSv1_2": ["DHE-RSA-AES256-SHA", "DHE-RSA-AES128-GCM-SHA256", "DHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES256-SHA", "ECDHE-RSA-AES256-SHA384", "ECDHE-RSA-AES128-GCM-SHA256", "ECDHE-RSA-AES256-GCM-SHA384"]}, "certificate": {"score": 4, "type": "UNKNOW", "not_before": "Mon, 24 Jul 2017 00:00:00 ", "not_after": "Thu, 23 Jul 2020 23:59:59 ", "sign_algo": "sha256WithRSAEncryption", "issued_to": "*.deepl.com", "issued_by": "COMODO RSA Domain Validation Secure Server CA"}}}'
             result.update(json.loads(result_crypto))
 
-    result_target = "reports"
 
+    
+    result_info = {}
+    result_info["target"] = target.netloc
+    result_info["grade"] = assess_rank(result)
+    result.update(json.loads(json.dumps(result_info)))
+
+    result_target = "reports"
     if args.report or args.json:
         try:
             if not os.path.exists(result_target):
@@ -187,7 +217,7 @@ def start():
             print("{}[X] Error : No result available{}".format(bcolors.RED, bcolors.RESET))
         else:
             path_report = result_target + "/gdpranalyzer_" + name + "_" + target.netloc + ".pdf"
-            generate_report(target.netloc, name, json.dumps(result), path_report)
+            generate_report(name, json.dumps(result), path_report)
 
     if args.json:
         print("{}[-] Generate the JSON{}".format(bcolors.RESET, bcolors.RESET))

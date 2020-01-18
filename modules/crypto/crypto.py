@@ -241,6 +241,7 @@ class TransmissionSecurity:
         self.url = url
 
         self.weakest_protocol = None
+        self.cipher_vulnerability = None
 
         self.key_score = None
         self.protocol_score = None
@@ -267,6 +268,7 @@ class TransmissionSecurity:
         self.cipher_point = config['cipher_point']
         self.certificate_point = config['certificate_point']
         self.bad_rank = config['bad_rank']
+        self.grade = config['grade']
         
         coefficient = config['coefficient']
         self.coefficient_protocol = int(config.get('coefficient', 'protocol_point'))
@@ -287,11 +289,17 @@ class TransmissionSecurity:
                 self.protocol_score = int(self.protocol_point[self.weakest_protocol])
 
     def __cipher_score(self):
-        self.cipher_score = int("0")
+        for protocol in self.cert_data.cipher_available :
+            for cipher_suite in self.cert_data.cipher_available[protocol]:
+                score = int(self.cipher_point[cipher_suite.security])
+                if self.cipher_score is None or score > self.cipher_score: 
+                    self.cipher_score = score
+                    self.cipher_vulnerability = cipher_suite.security
     
     def __certificate_score(self):
         if self.cert_data.has_expired : 
             self.certificate_score = int(self.certificate_point["expired"])
+            self.global_grade = "F"
         elif self.cert_data.policie == "extended-validation":
             self.certificate_score = int(self.certificate_point[self.cert_data.policie])
         elif self.cert_data.policie == "UNKNOW":
@@ -300,8 +308,29 @@ class TransmissionSecurity:
 
     def __assess_rank(self):
         #TO DO calculate global grade
+
+        for key, value in self.bad_rank.items():
+            if key == "protocol":
+                for i in value:
+                    if self.weakest_protocol == i:
+                        self.global_grade = "F"
+                        break
+            elif key == "key":
+                if self.cert_data.key_size < int(value):
+                    self.global_grade = "F"
+            elif key == "cipher":
+                for i in value:
+                    if self.cipher_vulnerability == i:
+                        self.global_grade = "F"
+                        break
+
         if self.global_grade is None:
-            self.global_grade = "B"
+            for key, value in self.grade.items():
+                if self.global_score < int(value):
+                    self.global_grade = key
+                    break
+            if self.global_grade is None:
+                self.global_grade = "F"
 
     def __assess_score(self):
         self.global_score = None
@@ -321,6 +350,8 @@ class TransmissionSecurity:
         #score
         self.__assess_score()
         self.__assess_rank()
+        print("{}{}{}Score :{} {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.global_score))
+        print("{}{}{}Grade :{} {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.global_grade))
 
     def json_parser(self):
         security_transmission = {}
@@ -339,7 +370,7 @@ class TransmissionSecurity:
 
         #result["cipher"] = self.cert_data.cipher_available
         result["cipher"] = {}
-
+        result["cipher"]["score"] = self.cipher_score
         for protocol in self.cert_data.cipher_available :
             result["cipher"][protocol] = []
             for cipher_suite in self.cert_data.cipher_available[protocol] :
