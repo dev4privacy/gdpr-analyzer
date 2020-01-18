@@ -12,25 +12,16 @@ config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + '/config.ini')
 
 
-def cookie_expiration(cookies):
+def cookie_expiration(browsing_time, cookie):
     """
     calculate the cookies expiry time and define
     the number of cookies per duration step in
     order to give a score
-    :param cookies: list of session cookies
+    :param cookie: list of session cookies
     :return: expiry_score, expiry_info
     """
 
-    expiry_score = 0
-    expiry_info = {}
-
-    unlimited_nb = 0
-    more_thirty_month_nb = 0
-    thirty_month_nb = 0
-    eight_month_nb = 0
-    six_month_nb = 0
-    three_month_nb = 0
-    one_month_nb = 0
+    expiry_point = 0
 
     unlimited_pt = int(config['delay_point']['unlimited'])
     more_thirty_month_pt = int(config['delay_point']['more_thirty_month'])
@@ -40,104 +31,59 @@ def cookie_expiration(cookies):
     three_month_pt = int(config['delay_point']['three_month'])
     one_month_pt = int(config['delay_point']['one_month'])
 
-    # print(cookies)  # debug
+    try:
 
-    for cookie in cookies:
+        expiry = cookie[7]
 
-        # print(cookie)  # debug
+        # TODO round to the top minute ?
+        expiration_delay = timedelta(seconds=expiry - browsing_time)
 
-        try:
-            #expiry = cookie["expiry"]
+        # count the number of cookies in each expiry time range
+        if expiration_delay.days > 394:  # + 13 month
+            expiry_point = more_thirty_month_pt
 
-            expiry = cookie[7]
-            #print(expiry)  # debug
+        elif expiration_delay.days > 240:  # 8 month < delay < 13 month
+            expiry_point += thirty_month_pt
 
-            # calculate the expiry time of cookies
-            now = int(time.time())
+        elif expiration_delay.days > 180:  # 6 month < delay < 8 month
+            expiry_point += eight_month_pt
 
-            # TODO round to the top minute ?
-            expiration_delay = timedelta(seconds=expiry - now)
+        elif expiration_delay.days > 90:  # 3 month < delay < 6 month
+            expiry_point += six_month_pt
 
-            # to debug
-            # print(expiration_delay)
-            # print(cookie)
+        elif expiration_delay.days > 30:  # 1 month < delay < 3 month
+            expiry_point += three_month_pt
 
-            # count the number of cookies in each expiry time range
-            if expiration_delay.days > 394:  # + 13 month
-                more_thirty_month_nb += 1
-                expiry_score += more_thirty_month_pt
+        else:  # - 1 month
+            expiry_point += one_month_pt
 
-            elif expiration_delay.days > 240:  # 8 month < delay < 13 month
-                thirty_month_nb += 1
-                expiry_score += thirty_month_pt
+    except KeyError:  # no expiration
+        expiration_delay = 'unlimited'  # TODO to clean
+        expiry_point += unlimited_pt
 
-            elif expiration_delay.days > 180:  # 6 month < delay < 8 month
-                eight_month_nb += 1
-                expiry_score += eight_month_pt
-
-            elif expiration_delay.days > 90:  # 3 month < delay < 6 month
-                six_month_nb += 1
-                expiry_score += six_month_pt
-
-            elif expiration_delay.days > 30:  # 1 month < delay < 3 month
-                three_month_nb += 1
-                expiry_score += three_month_pt
-
-            else:  # - 1 month
-                one_month_nb += 1
-                expiry_score += one_month_pt
-
-        except KeyError:  # no expiration
-            unlimited_nb += 1
-            expiry_score += unlimited_pt
-
-    # put the counters in the dictionary
-    expiry_info["unlimited"] = unlimited_nb
-    expiry_info["more_thirty_month"] = more_thirty_month_nb
-    expiry_info["thirty_month"] = thirty_month_nb
-    expiry_info["eight_month"] = eight_month_nb
-    expiry_info["six_month"] = six_month_nb
-    expiry_info["three_month"] = three_month_nb
-    expiry_info["one_month"] = one_month_nb
-
-    return expiry_score, expiry_info
+    return expiration_delay, expiry_point
 
 
-def third_party_cookies(cookies, website_url):
+def third_party_cookie(cookie, website_url):
     """
     calculate the number of third party cookies and
     define a score
-    :param cookies: list of session cookies
+    :param cookie: cookie to analyze
     :param website_url: website url to test
     :return: third_party_score, third_party_info
     """
 
-    # https://stackoverflow.com/questions/44764888/how-do-i-get-all-third-party-cookies-with-scrapy-or-other-easier-methods
+    domain = cookie[1]
 
-    third_party_score = 0
-    third_party_info = {}
+    # count the number of domains which correspond to third parties
+    if website_url.find(domain) >= 0:
+        third_party = 'NO'
+        third_party_point = 0
+    else:
+        third_party = 'YES'
+        third_party_point = int(config['third_party']['third_party'])
 
-    third_party_nb = 0
-
-    # print(website_url)  # debug
-
-    for cookie in cookies:
-        # print(cookie)  # debug
-
-        domain = cookie[1]
-        # print(domain) # debug
-
-        # count the number of domains which correspond to third parties
-        if website_url.find(domain) < 0:  # is false useless but better understanding
-            third_party_nb += 1
-            third_party_score += 10  # TODO replace by config file value
-
-    # put the counter in the dictionary
-    third_party_info["number"] = third_party_nb
-
-    print(third_party_score, third_party_info)
-
-    return third_party_score, third_party_info
+    return third_party, third_party_point
 
 
 def cookie_score_calculation(expiry_score, third_party_score):
@@ -182,51 +128,39 @@ def calculate_grade(cookie_score):
     return cookie_grade
 
 
-def json_parser(expiry_score, expiry_info, third_party_score, third_party_info,
-                cookie_grade, cookie_score):
-    """
-    parse the results into json object
-    :param expiry_score: score for expiry time of cookies
-    :param expiry_info: info for expiry time of cookies
-    :param third_party_score: score for third party cookies
-    :param third_party_info: info for third party cookies
-    :param cookie_score: global score for cookies
-    :return: json_cookie
-    """
-
-    expiry_dict = {
-        'score': expiry_score,
-        'info': expiry_info
-    }
-
-    third_party_dict = {
-        'score': third_party_score,
-        'info': third_party_info
-    }
-
-    result = {
-        'grade': cookie_grade,
-        'score': cookie_score,
-        'expiry': expiry_dict,
-        'third_party': third_party_dict,
-    }
-
+def cookie_evaluate(browsing_time, cookies, target):
+    global_cookie_score = 0
     cookie_result = {}
-    cookie_result["cookies"] = result
-    json_cookie = json.dumps(cookie_result, indent=4)
 
-    return json_cookie
+    for cookie in cookies:
+        name = cookie[3]
 
+        # third party analysis
+        third_party, third_party_point = third_party_cookie(cookie, target)
 
-def cookie_evaluate(content_cookies, target):
-    expiry_score, expiry_info = cookie_expiration(content_cookies)
-    # TODO third party
-    third_party_score, third_party_info = third_party_cookies(content_cookies, target)
+        # expiration delay analysis
+        expiration_delay, expiry_point = cookie_expiration(browsing_time, cookie)
 
-    cookie_score = cookie_score_calculation(expiry_score, third_party_score)
-    cookie_grade = calculate_grade(cookie_score)
+        # score for the cookie in the loop
+        cookie_score = third_party_point + expiry_point
 
-    json_cookie = json_parser(expiry_score, expiry_info, third_party_score, third_party_info,
-                              cookie_grade, cookie_score)
+        # add cookie to json
+        cookie_result[name] = {
+            'third_party': third_party,
+            'expiry': str(expiration_delay),
+            'cookie_score': cookie_score
+        }
 
-    return json_cookie
+        # score for all cookies
+        global_cookie_score += cookie_score
+
+    # grade for cookies
+    cookie_grade = calculate_grade(global_cookie_score)
+
+    # add cookie grade and score in json
+    cookie_result['grade'] = cookie_grade
+    cookie_result['score'] = global_cookie_score
+
+    cookie_result = json.dumps(cookie_result, indent=4)
+
+    return cookie_result

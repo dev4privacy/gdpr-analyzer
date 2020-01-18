@@ -16,6 +16,7 @@ from mozprofile import FirefoxProfile  # temporary
 import glob  # temporary
 import sqlite3  # temporary
 import shutil  # temporary
+import time
 
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
@@ -48,6 +49,7 @@ def get_content(target):
     # navigation run
     with browser:
         browser.visit(target)
+        browsing_time = int(time.time())  # TODO return borwsing_time and take it into consideration in the other things
 
         # only gives us first party cookies
         # content_cookies = browser.cookies.all(verbose=True)
@@ -75,11 +77,11 @@ def get_content(target):
 
     con.close()
 
-    return content_cookies, content_html
+    return browsing_time, content_cookies, content_html
 
 
-def cookie(content_cookies, target):
-    result = cookie_evaluate(content_cookies, target)
+def cookie(browsing_time, content_cookies, target):
+    result = cookie_evaluate(browsing_time, content_cookies, target)
     return result
 
 
@@ -95,13 +97,13 @@ def crypto(target):
     return crypto.json_parser()
 
 
-def full(content_cookies, content_html, target):
+def full(browsing_time, content_cookies, content_html, target):
     result_cookie = None
     result_web_beacon = None
     result_crypto = None
     full_result = []
 
-    result_cookie = cookie(content_cookies, target)
+    result_cookie = cookie(browsing_time, content_cookies, target)
     result_web_beacon = web_beacon(content_html)
     result_crypto = crypto(target)
 
@@ -153,17 +155,17 @@ def start():
     target = check_target(args.url)
 
     if args.webbeacon or args.cookie:
-        content_cookies, content_html = get_content(target.geturl())
+        browsing_time, content_cookies, content_html = get_content(target.geturl())
 
     if args.full or (not args.cookie and not args.webbeacon and not args.crypto):
-        content_cookies, content_html = get_content(target.geturl())
-        result = full(content_cookies, content_html, target.netloc)
+        browsing_time, content_cookies, content_html = get_content(target.geturl())
+        result = full(browsing_time, content_cookies, content_html, target.netloc)
     else:
         if args.webbeacon:
             result_web_beacon = web_beacon(content_html)
             result.update(json.loads(result_web_beacon))
         if args.cookie:
-            result_cookie = cookie(content_cookies, target.netloc)
+            result_cookie = cookie(browsing_time, content_cookies, target.netloc)
             result.update(json.loads(result_cookie))
         if args.crypto:
             result_crypto = crypto(target.netloc)
