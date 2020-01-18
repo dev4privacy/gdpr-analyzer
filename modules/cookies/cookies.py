@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.7
 # coding: utf-8
 
-import time
 from datetime import timedelta
 import json
 
@@ -64,7 +63,7 @@ def cookie_expiration(browsing_time, cookie):
     return expiration_delay, expiry_point
 
 
-def third_party_cookie(cookie, website_url):
+def third_party_cookie(cookie_domain, website_url):
     """
     calculate the number of third party cookies and
     define a score
@@ -73,14 +72,12 @@ def third_party_cookie(cookie, website_url):
     :return: third_party_score, third_party_info
     """
 
-    domain = cookie[1]
-
     # count the number of domains which correspond to third parties
-    if website_url.find(domain) >= 0:
-        third_party = 'NO'
+    if website_url.find(cookie_domain) >= 0:
+        third_party = False
         third_party_point = 0
     else:
-        third_party = 'YES'
+        third_party = True
         third_party_point = int(config['third_party']['third_party'])
 
     return third_party, third_party_point
@@ -136,9 +133,10 @@ def cookie_evaluate(browsing_time, cookies, target):
 
     for cookie in cookies:
         name = cookie[3]
+        cookie_domain = cookie[1]
 
         # third party analysis
-        third_party, third_party_point = third_party_cookie(cookie, target)
+        third_party, third_party_point = third_party_cookie(cookie_domain, target)
 
         # expiration delay analysis
         expiration_delay, expiry_point = cookie_expiration(browsing_time, cookie)
@@ -149,6 +147,7 @@ def cookie_evaluate(browsing_time, cookies, target):
         # add cookie to json
         result['details'][name] = {
             'third_party': third_party,
+            'domain': cookie_domain,
             'expiry': str(expiration_delay),
             'cookie_score': cookie_score
         }
@@ -165,5 +164,7 @@ def cookie_evaluate(browsing_time, cookies, target):
 
     cookie_result['cookies'] = result
     cookie_result = json.dumps(cookie_result, indent=4)
-    #print(cookie_result)
+
+    print(cookie_result)
+
     return cookie_result
