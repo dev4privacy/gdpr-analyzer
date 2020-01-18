@@ -39,7 +39,7 @@ def get_content(target):
 
     # create a new profile so as not to mix the user's browsing info with that of the analysis
     profile_conf_name = "/tmp/gdpr-analyzer/gdpr-analyzer.default"
-    FirefoxProfile(profile=profile_conf_name)  # TODO define profile_pref here rather than after
+    FirefoxProfile(profile=profile_conf_name)
 
     # define profile preferences
     browser = Browser('firefox', profile=profile_conf_name, timeout=1000, wait_time=200, profile_preferences={
