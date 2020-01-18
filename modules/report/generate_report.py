@@ -17,7 +17,7 @@ class bcolors:
     RESET = '\033[0m'    
     REVERSE = "\033[;7m"
 
-def generate_report(target, name, result, path):
+def generate_report(name, result, path):
     print("{}[-] Generate the report{}".format(bcolors.RESET, bcolors.RESET))
 
     file_loader = FileSystemLoader(os.path.dirname(__file__)+'/templates')
@@ -44,7 +44,9 @@ def generate_report(target, name, result, path):
 
     generated_date = date.today().strftime("%d/%m/%Y")
 
-    output = tm.render(client_name=name, target=target, generated_date=generated_date, cookies=cookiesMod, scMod = scMod, wbMod = wbMod)
+    output = tm.render(client_name=name, grade=resultDict["grade"], target=resultDict
+    
+    ["target"], generated_date=generated_date, cookies=cookiesMod, scMod = scMod, wbMod = wbMod)
 
     HTML(string=output).write_pdf(path, stylesheets=[os.path.dirname(__file__)+"/templates/style.css",os.path.dirname(__file__)+"/templates/bootstrap-grid.min.css"])
 
