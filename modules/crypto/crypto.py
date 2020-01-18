@@ -323,9 +323,7 @@ class TransmissionSecurity:
                         self.global_grade = "F"
                         break
             elif key == "key_score":
-                print(self.key_score)
-                print(int(value))
-                if self.key_score >= int(value):
+                if self.key_score <= int(value):
                     self.global_grade = "F"
             elif key == "cipher":
                 for i in value:
