@@ -24,7 +24,11 @@
         <div class="header_report">.report</div>
         <div class="header_target">{{target}}</div>
         <div class="header_date">{{generated_date}}</div>
-        <div class="header_score">Score : <span class="bad_score">{{grade}}</span></div>
+        <div class="header_score">Score : 
+            <span {% if "A" == grade %}class="green_a_bg" {% elif "B" == grade %}class="green_b_bg" 
+            {% elif "C" == grade %}class="orange_c_bg" {% elif "D" == grade %}class="red_d_bg" 
+            {% elif "E" == grade %}class="red_e_bg" {% elif "F" == grade %}class="black_f_bg"{% endif %}>{{grade}}</span>
+        </div>
     </div>
 
     <div class="container">
@@ -33,7 +37,11 @@
                 <div class="section_title">Cookie</div>
                 <div class="section_note section_grade">
                     <span class="section_note_title">Grade</span>
-                    <span class="section_note_data">{% if cookies|length %}{{cookies.grade}}{% endif %}</span>
+                    {% if cookies|length %}<span class="section_note_data {% if "A" == cookies.grade %}green_a 
+                    {% elif "B" == cookies.grade %}green_b {% elif "C" == cookies.grade %}range_c 
+                    {% elif "D" == cookies.grade %}red_d {% elif "E" == cookies.grade %}red_e 
+                    {% elif "F" == cookies.grade %}black_f {% endif %}">
+                    {{cookies.grade}}</span>{% endif %}
                 </div>
                 <div class="section_note section_score">
                     <span class="section_note_title">Score</span>
@@ -44,7 +52,11 @@
                 <div class="section_title">Web beacon</div>
                 <div class="section_note section_grade">
                     <span class="section_note_title">Grade</span>
-                    <span class="section_note_data">{% if wbMod|length %}{{wbMod.grade}}{% endif %}</span>
+                    {% if wbMod|length %}<span class="section_note_data {% if "A" == wbMod.grade %}green_a 
+                    {% elif "B" == wbMod.grade %}green_b {% elif "C" == wbMod.grade %}range_c 
+                    {% elif "D" == wbMod.grade %}red_d {% elif "E" == wbMod.grade %}red_e 
+                    {% elif "F" == wbMod.grade %}black_f {% endif %}">
+                    {{wbMod.grade}}</span>{% endif %}
                 </div>
                 <div class="section_note section_score">
                     <span class="section_note_title">Score</span>
@@ -55,7 +67,11 @@
                 <div class="section_title">Transmission security</div>
                 <div class="section_note section_grade">
                     <span class="section_note_title">Grade</span>
-                    <span class="section_note_data">{% if scMod|length %}{{scMod.grade}}{% endif %}</span>
+                    {% if scMod|length %}<span class="section_note_data {% if "A" == scMod.grade %}green_a 
+                    {% elif "B" == scMod.grade %}green_b {% elif "C" == scMod.grade %}range_c 
+                    {% elif "D" == scMod.grade %}red_d {% elif "E" == scMod.grade %}red_e 
+                    {% elif "F" == scMod.grade %}black_f {% endif %}">
+                    {{scMod.grade}}</span>{% endif %}
                 </div>
                 <div class="section_note section_score">
                     <span class="section_note_title">Score</span>
@@ -79,13 +95,17 @@
         <div class="flex-container">
             <div class="grade">
                 <p>Grade</p>
-                <div class="bd-callout red">
+                <div class="bd-callout 
+                {% if "A" == cookies.grade %}green_a_bg {% elif "B" == cookies.grade %}green_b_bg 
+                {% elif "C" == cookies.grade %}range_c_bg {% elif "D" == cookies.grade %}red_d_bg
+                {% elif "E" == cookies.grade %}red_e_bg {% elif "F" == cookies.grade %}black_f_bg {% endif %}" >
                     {{cookies.grade}}
                 </div>
             </div>
+            
             <div class="note">
                 <p>Score</p>
-                <div class="bd-callout green">
+                <div class="bd-callout default_color">
                     {{cookies.score}}
                 </div>
             </div>
@@ -130,13 +150,17 @@
         <div class="flex-container">
             <div class="grade">
                 <p>Grade</p>
-                <div class="bd-callout red">
+                <div class="bd-callout 
+                {% if "A" == scMod.grade %}green_a_bg {% elif "B" == scMod.grade %}green_b_bg 
+                {% elif "C" == scMod.grade %}range_c_bg {% elif "D" == scMod.grade %}red_d_bg
+                {% elif "E" == scMod.grade %}red_e_bg {% elif "F" == scMod.grade %}black_f_bg {% endif %}" >
                     {{scMod.grade}}
                 </div>
             </div>
+            
             <div class="note">
                 <p>Score</p>
-                <div class="bd-callout green">
+                <div class="bd-callout default_color">
                     {{scMod.note}}
                 </div>
             </div>
@@ -300,13 +324,17 @@
         <div class="flex-container">
             <div class="grade">
                 <p>Grade</p>
-                <div class="bd-callout red">
+                <div class="bd-callout 
+                {% if "A" == wbMod.grade %}green_a_bg {% elif "B" == wbMod.grade %}green_b_bg 
+                {% elif "C" == wbMod.grade %}range_c_bg {% elif "D" == wbMod.grade %}red_d_bg
+                {% elif "E" == wbMod.grade %}red_e_bg {% elif "F" == wbMod.grade %}black_f_bg {% endif %}" >
                     {{wbMod.grade}}
                 </div>
             </div>
+            
             <div class="note">
                 <p>Score</p>
-                <div class="bd-callout green">
+                <div class="bd-callout default_color">
                     {{wbMod.score}}
                 </div>
             </div>

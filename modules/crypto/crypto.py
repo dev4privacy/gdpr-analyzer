@@ -59,6 +59,9 @@ class CertData:
 
 
     def __load_cert(self):
+        """ 
+        Recovery the website certificate and its public key
+        """
         conn = ssl.create_connection((self.hostname, self.port_number))
         context = ssl.SSLContext(ssl.PROTOCOL_TLS)
         sock = context.wrap_socket(conn, server_hostname=self.hostname)
@@ -73,6 +76,9 @@ class CertData:
         
 
     def __key_data(self):
+        """ 
+        Recovery information about the certificate key, key size and signature algorithm.
+        """
         self.key_size = self.pubKey.key_size
         self.sign_algo = self.certOpenSSL.get_signature_algorithm()
         self.issued_to = self.certOpenSSL.get_subject().CN
@@ -323,7 +329,7 @@ class TransmissionSecurity:
                         self.global_grade = "F"
                         break
             elif key == "key_score":
-                if self.key_score <= int(value):
+                if self.key_score >= int(value):
                     self.global_grade = "F"
             elif key == "cipher":
                 for i in value:
@@ -338,6 +344,7 @@ class TransmissionSecurity:
                     break
             if self.global_grade is None:
                 self.global_grade = "F"
+                print("F4")
 
     def __assess_score(self):
         self.global_score = None
