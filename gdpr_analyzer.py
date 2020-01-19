@@ -44,8 +44,8 @@ def get_content(target):
     FirefoxProfile(profile=profile_conf_name)
 
     # define profile preferences
-    browser = Browser('firefox', profile=profile_conf_name, timeout=1000, wait_time=200, profile_preferences={
-        "network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
+    browser = Browser('firefox', headless=True, profile=profile_conf_name, timeout=1000, wait_time=200,
+                      profile_preferences={"network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
 
     # navigation run
     with browser:
