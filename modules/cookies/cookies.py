@@ -11,6 +11,18 @@ config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + '/config.ini')
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    CYAN  = "\033[36m"
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    RESET = '\033[0m'
+    REVERSE = "\033[;7m"
+
+
 def cookie_expiration(browsing_time, cookie):
     """
     calculate the cookies expiry time and define
@@ -131,6 +143,9 @@ def cookie_evaluate(browsing_time, cookies, target):
     cookie_result = {}
     result['details'] = {}
 
+    # display cookie title in terminal
+    print(f"{bcolors.UNDERLINE}{bcolors.BOLD}Detected cookie(s):{bcolors.RESET}\n")
+
     for cookie in cookies:
         name = cookie[3]
         cookie_domain = cookie[1]
@@ -155,6 +170,14 @@ def cookie_evaluate(browsing_time, cookies, target):
         # score for all cookies
         global_cookie_score += cookie_score
 
+        # display cookie details in terminal
+        if not third_party:
+            party_output_str = 'first-party'
+        else:
+            party_output_str = 'third-party'
+
+        print(f"\t{bcolors.BOLD}{name}:{bcolors.RESET}\n\t\t{party_output_str}\t{cookie_domain}\t{expiration_delay}")
+
     # grade for cookies
     cookie_grade = calculate_grade(global_cookie_score)
 
@@ -164,5 +187,9 @@ def cookie_evaluate(browsing_time, cookies, target):
 
     cookie_result['cookies'] = result
     cookie_result = json.dumps(cookie_result, indent=4)
+
+    # display cookie score and grade in terminal
+    print(f"\n{bcolors.BOLD}{bcolors.UNDERLINE}Cookie score:{bcolors.RESET} {global_cookie_score}\n"
+          f"{bcolors.BOLD}{bcolors.UNDERLINE}Cookie grade:{bcolors.RESET} {cookie_grade}\n")
 
     return cookie_result
