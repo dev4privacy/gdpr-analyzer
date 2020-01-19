@@ -15,6 +15,17 @@ BL_DOMAIN_URL = "https://sebsauvage.net/hosts/hosts"
 config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + '/config.ini')
 
+class bcolors:
+    HEADER = '\033[95m'
+    CYAN  = "\033[36m"
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    RESET = '\033[0m'
+    REVERSE = "\033[;7m"
+
 
 def find_beacon(content_html):
     """
@@ -33,6 +44,8 @@ def find_beacon(content_html):
     position_nb = 0
     hidden_nb = 0
 
+    # display web beacon title in terminal
+    print(f"{bcolors.UNDERLINE}{bcolors.BOLD}Detected Web beacon(s):{bcolors.RESET}\n")
     bl_list = bl_website()
     if bl_list is False:
         print("No response from the BL website\n")
@@ -148,6 +161,7 @@ def find_beacon(content_html):
                     web_beacon_categories["hidden"] = web_beacon_hidden
                     web_beacon_categories["blacklist"] = web_beacon_blacklist
                     web_beacon_url.append(web_beacon_categories)
+                    print(f"\t{bcolors.BOLD}{src}:{bcolors.RESET}\n\t\tsize : {web_beacon_size}\tposition : {web_beacon_position}\thidden : {web_beacon_hidden}\tblacklist : {web_beacon_blacklist}")
 
     else:
         print("No answer from the web site")
@@ -231,14 +245,20 @@ def find_hidden_element(url, element):
     request = requests.get(url).content.decode("utf-8")
     stylesheet = tinycss.make_parser().parse_stylesheet(request)
     for rule in stylesheet.rules:
-        selector = rule.selector.as_css()
-        dct_style = {}
-        for d in rule.declarations:
-            value = ""
-            for v in d.value:
-                value = value+v.as_css()
-            dct_style[d.name] = value
-        css_dct[selector] = dct_style
+        try:
+            selector = rule.selector.as_css()
+        except AttributeError:
+            for i in rule.rules:
+                stylesheet.rules.append(i)
+                selector = None
+        if selector != None:
+            dct_style = {}
+            for d in rule.declarations:
+                value = ""
+                for v in d.value:
+                    value = value + v.as_css()
+                dct_style[d.name] = value
+            css_dct[selector] = dct_style
     j = json.dumps(css_dct)
     json_data = json.loads(j)
     for json_key, json_val in json_data.items():
@@ -386,6 +406,10 @@ def calculate_grade(web_beacon_score):
         web_beacon_grade = "E"
     else:
         web_beacon_grade = "F"
+
+    # display web beacon score and grade in terminal
+    print(f"\n{bcolors.BOLD}{bcolors.UNDERLINE}Web beacon score:{bcolors.RESET} {web_beacon_score}\n"
+          f"{bcolors.BOLD}{bcolors.UNDERLINE}Web beacon grade:{bcolors.RESET} {web_beacon_grade}\n")
 
     return web_beacon_grade
 
