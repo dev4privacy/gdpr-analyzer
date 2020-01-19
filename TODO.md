@@ -31,9 +31,7 @@
 * **[P0]** add url only and add eatch category matched in True
 
 ## Transmission security
-* **[P0]** Establish the scoring grid for the encryption suites + implement.
 * **[P0]** Make protocol testing functional + find solution for (SSLv2, SSLv3)
-* **[P0]** List F grade conditions by sub-part (e.g. presence of RC4, SSLv2 etc.) + implement.
 * **[P0]** Continue research on the type of certificate (domain verification, self-signed etc.)
 
 ## Report
