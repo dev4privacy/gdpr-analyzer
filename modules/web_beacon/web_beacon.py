@@ -15,9 +15,10 @@ BL_DOMAIN_URL = "https://sebsauvage.net/hosts/hosts"
 config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + '/config.ini')
 
+
 class bcolors:
     HEADER = '\033[95m'
-    CYAN  = "\033[36m"
+    CYAN = "\033[36m"
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
     RED = '\033[91m'
@@ -161,7 +162,8 @@ def find_beacon(content_html):
                     web_beacon_categories["hidden"] = web_beacon_hidden
                     web_beacon_categories["blacklist"] = web_beacon_blacklist
                     web_beacon_url.append(web_beacon_categories)
-                    print(f"\t{bcolors.BOLD}{src}:{bcolors.RESET}\n\t\tsize : {web_beacon_size}\tposition : {web_beacon_position}\thidden : {web_beacon_hidden}\tblacklist : {web_beacon_blacklist}")
+                    print(f"\t{bcolors.BOLD}{src}:{bcolors.RESET}\n\t\tsize : {web_beacon_size}\tposition : "
+                          f"{web_beacon_position}\thidden : {web_beacon_hidden}\tblacklist : {web_beacon_blacklist}")
 
     else:
         print("No answer from the web site")
@@ -251,7 +253,7 @@ def find_hidden_element(url, element):
             for i in rule.rules:
                 stylesheet.rules.append(i)
                 selector = None
-        if selector != None:
+        if selector:
             dct_style = {}
             for d in rule.declarations:
                 value = ""
