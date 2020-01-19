@@ -7,7 +7,7 @@
             @bottom-center{
                 content: "Generate only for personal purpose. Do not publish this report. Generated for {{client_name}}.";
                 font-size: 10px;
-            
+
             }
         }
         @page{ background: rgb(253, 253, 255) } /* Third page */
@@ -26,7 +26,7 @@
         <div class="header_date">{{generated_date}}</div>
         <div class="header_score">Score : <span class="bad_score">{{grade}}</span></div>
     </div>
-    
+
     <div class="container">
         <div class="row">
             <div class="col section section_cookie {% if cookies|length < 1 %}notanalyzed{% endif %}">
@@ -65,7 +65,7 @@
         </div>
     </div>
 
-        
+
     {% if cookies|length %}
     <div class="jump">
         <h2>Cookies</h2>
@@ -141,7 +141,7 @@
                 </div>
             </div>
         </div>
-        
+
         <h3>Enabled SSL/TLS protocol versions</h3>
         Score : {{scMod.protocol.score}}</br>
         <div class="container protocol">
@@ -152,7 +152,7 @@
                             {% if protocol != 'score' %}
                             <tr>
                                 <td>{{protocol}}</td>
-                                <td  
+                                <td
                                     {% if protocol == 'SSLv2' and state == 'NO'%} class="green"{% endif %}
                                     {% if protocol == 'SSLv2' and state == 'YES'%} class="red"{% endif %}
                                     {% if protocol == 'SSLv3' and state == 'NO'%} class="green"{% endif %}
@@ -175,9 +175,9 @@
                         {% for protocol, state in scMod.protocol.items() %}{% if protocol == 'TLSv1_3' and state == 'NO'%}
                         <li>Your server doesn’t support TLS 1.3</li>
                         {% endif %}{% endfor %}
-                    </ol> 
+                    </ol>
                     {% endif %}
-                    
+
                     {% for protocol, state in scMod.protocol.items() %}
                         {% if protocol == 'TLSv1_3' and state == 'NO'%}
                             <h4>What are the benefits of TLS 1.3?</h4>
@@ -223,7 +223,7 @@
                 </div>
             </div>
         </div>
-        
+
 
         <h3> Quality of Key </h3>
         Score : {{scMod.key.score}}</br>
@@ -262,7 +262,7 @@
 
                 {% for cipherSuite in scMod.cipher[protocol] %}
                 {% for cipher, info in cipherSuite.items() %}
-                <tr>                           
+                <tr>
                     {{info.security}}
                     <td {% if info.security == 'insecure'%} class="red"{% endif %}
                         {% if info.security == 'weak'%} class="orange"{% endif %}
@@ -280,7 +280,7 @@
                 {% endfor %}
                 {% endif %}
                 {% endfor %}
-            </table>     
+            </table>
         </div>
     </div>
     {% endif %}
@@ -322,7 +322,7 @@
                                 <div class="webbeacon">
                                     <p class="webbeacon_target">wwww.targeet.com</p>
                                     <p><span>Url : </span>{{url.url}}</p>
-                                    <p class="fault">Fault : 
+                                    <p class="fault">Fault :
                                         {% if url.position == True %}<span>position</span>{% endif %}
                                         {% if url.hidden == True %}<span>hidden</span>{% endif %}
                                         {% if url.size == True %}<span>size</span>{% endif %}
@@ -335,7 +335,7 @@
                             <p><span>Size : </span> The size of the image is to small to be watch by the user (minus 3 pixels), there's a high probability that it's a web beacon</p>
                             <p><span>Position : </span> The picture is placed outside the field (in the left and top negatives), there's a high probability that it's a web beacon beacause it's uncommon for a developer to use this kind of practice to insert a legitimate image</p>
                             <p><span>Hidden : </span> The style of the beacon is set to hide the content of the image, there's a high probability that it's a web beacon.</p>
-                            <p><span>Blacklist : </span> The source of the beacon if blacklisted in Host-block file from https://sebsauvage.net/hosts/hosts</p>
+                            <p><span>Blacklist : </span> The source of the beacon is blacklisted in Host-block file from https://sebsauvage.net/hosts/hosts</p>
                         </div>
                     {% else %}
                         <p>Well, no web beacon detected</p>
