@@ -24,7 +24,7 @@
         <div class="header_report">.report</div>
         <div class="header_target">{{target}}</div>
         <div class="header_date">{{generated_date}}</div>
-        <div class="header_score">Score : 
+        <div class="header_score">Score:
             <span {% if "A" == grade %}class="green_a_bg" {% elif "B" == grade %}class="green_b_bg" 
             {% elif "C" == grade %}class="orange_c_bg" {% elif "D" == grade %}class="red_d_bg" 
             {% elif "E" == grade %}class="red_e_bg" {% elif "F" == grade %}class="black_f_bg"{% endif %}>{{grade}}</span>
@@ -167,7 +167,7 @@
         </div>
 
         <h3>Enabled SSL/TLS protocol versions</h3>
-        Score : {{scMod.protocol.score}}</br>
+        Score: {{scMod.protocol.score}}</br>
         <div class="container protocol">
             <div class="row">
                 <div class="col protocol_table">
@@ -214,7 +214,7 @@
         </div>
 
         <h3>Certificate</h3>
-        Score : {{scMod.certificate.score}}</br>
+        Score: {{scMod.certificate.score}}</br>
         <div class="container certificate">
             <div class="row">
                 <div class="col protocol_table">
@@ -250,13 +250,13 @@
 
 
         <h3> Quality of Key </h3>
-        Score : {{scMod.key.score}}</br>
-        Size : {{scMod.key.size}}</br>
-        Type : {{scMod.key.type}}
+        Score: {{scMod.key.score}}</br>
+        Size: {{scMod.key.size}}</br>
+        Type: {{scMod.key.type}}
 
         <div class="landscape">
             <h3> Cipher details </h3>
-            Score : {{scMod.cipher.score}}
+            Score: {{scMod.cipher.score}}
 
             <table class="ciphersuite">
                 <thead>
@@ -349,8 +349,8 @@
                             {% for url in wbMod.url %}
                                 <div class="webbeacon">
                                     <p class="webbeacon_target">wwww.targeet.com</p>
-                                    <p><span>Url : </span>{{url.url}}</p>
-                                    <p class="fault">Fault :
+                                    <p><span>Url: </span>{{url.url}}</p>
+                                    <p class="fault">characteristics:
                                         {% if url.position == True %}<span>position</span>{% endif %}
                                         {% if url.hidden == True %}<span>hidden</span>{% endif %}
                                         {% if url.size == True %}<span>size</span>{% endif %}
@@ -360,10 +360,10 @@
                             {% endfor %}
                         </div>
                         <div class="caption">
-                            <p><span>Size : </span> The size of the image is to small to be watch by the user (minus 3 pixels), there's a high probability that it's a web beacon</p>
-                            <p><span>Position : </span> The picture is placed outside the field (in the left and top negatives), there's a high probability that it's a web beacon beacause it's uncommon for a developer to use this kind of practice to insert a legitimate image</p>
-                            <p><span>Hidden : </span> The style of the beacon is set to hide the content of the image, there's a high probability that it's a web beacon.</p>
-                            <p><span>Blacklist : </span> The source of the beacon is blacklisted in Host-block file from https://sebsauvage.net/hosts/hosts</p>
+                            <p><span>Size: </span> The size of the image is to small to be watch by the user (minus 3 pixels), there's a high probability that it's a web beacon</p>
+                            <p><span>Position: </span> The picture is placed outside the field (in the left and top negatives), there's a high probability that it's a web beacon beacause it's uncommon for a developer to use this kind of practice to insert a legitimate image</p>
+                            <p><span>Hidden: </span> The style of the beacon is set to hide the content of the image, there's a high probability that it's a web beacon.</p>
+                            <p><span>Blacklist: </span> The source of the beacon is blacklisted in Host-block file from https://sebsauvage.net/hosts/hosts</p>
                         </div>
                     {% else %}
                         <p>Well, no web beacon detected</p>
