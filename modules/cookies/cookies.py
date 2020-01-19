@@ -28,8 +28,9 @@ def cookie_expiration(browsing_time, cookie):
     calculate the cookies expiry time and define
     the number of cookies per duration step in
     order to give a score
-    :param cookie: list of session cookies
-    :return: expiry_score, expiry_info
+    :param browsing_time: cookie submission schedule
+    :param cookie: cookie to analyze
+    :return: expiration_delay, expiry_point
     """
 
     expiry_point = 0
@@ -49,7 +50,7 @@ def cookie_expiration(browsing_time, cookie):
         # TODO round to the top minute ?
         expiration_delay = timedelta(seconds=expiry - browsing_time)
 
-        # count the number of cookies in each expiry time range
+        # define the number of points according to each expiry time range
         if expiration_delay.days > 394:  # + 13 month
             expiry_point = more_thirty_month_pt
 
@@ -69,7 +70,7 @@ def cookie_expiration(browsing_time, cookie):
             expiry_point += one_month_pt
 
     except KeyError:  # no expiration
-        expiration_delay = 'unlimited'  # TODO to clean
+        expiration_delay = 'unlimited'  # TODO to make cleaner
         expiry_point += unlimited_pt
 
     return expiration_delay, expiry_point
@@ -79,12 +80,12 @@ def third_party_cookie(cookie_domain, website_url):
     """
     calculate the number of third party cookies and
     define a score
-    :param cookie: cookie to analyze
-    :param website_url: website url to test
-    :return: third_party_score, third_party_info
+    :param cookie_domain: domain of the server that deposited the cookie
+    :param website_url: url of website to analyze
+    :return: third_party, third_party_point
     """
 
-    # count the number of domains which correspond to third parties
+    # compare the cookie domain to the url of the website we analyze
     if website_url.find(cookie_domain) >= 0:
         third_party = False
         third_party_point = 0
@@ -108,10 +109,10 @@ def cookie_score_calculation(expiry_score, third_party_score):
     return score
 
 
-def calculate_grade(cookie_score):
+def cookie_grade_calculation(cookie_score):
     """
-    calculate the cookies grade for the website
-    :param cookie_score: score for cookies
+    calculate the cookie grade for the website we analyze
+    :param cookie_score: global score for cookies
     :return: cookie_grade
     """
 
@@ -138,6 +139,13 @@ def calculate_grade(cookie_score):
 
 
 def cookie_evaluate(browsing_time, cookies, target):
+    """
+    calculate the cookie grade for the website we analyze
+    :param browsing_time: cookie submission schedule
+    :param cookies: list of cookies
+    :param target: website we want to analyze
+    :return: cookie_result
+    """
     global_cookie_score = 0
     result = {}
     cookie_result = {}
@@ -179,7 +187,7 @@ def cookie_evaluate(browsing_time, cookies, target):
         print(f"\t{bcolors.BOLD}{name}:{bcolors.RESET}\n\t\t{party_output_str}\t{cookie_domain}\t{expiration_delay}")
 
     # grade for cookies
-    cookie_grade = calculate_grade(global_cookie_score)
+    cookie_grade = cookie_grade_calculation(global_cookie_score)
 
     # add cookie grade and score in json
     result['grade'] = cookie_grade
