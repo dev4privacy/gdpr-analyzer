@@ -18,10 +18,8 @@
 
 ## Cookies
 
-* ***[P1]*** Third-party cookies detection
 * **[P1]** Unintentional storage in another browser
 * **[P2]** Check that the website requests authorisation to deposit cookies and that it allows the user to manage what he accepts or does not accept
-* **[P0]** Returning info from found cookies
 
 ## Web beacon
 
