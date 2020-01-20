@@ -59,9 +59,7 @@ class CertData:
 
 
     def __load_cert(self):
-        """ 
-        Recovery the website certificate and its public key
-        """
+        """Recovery the website certificate and its public key"""
         conn = ssl.create_connection((self.hostname, self.port_number))
         context = ssl.SSLContext(ssl.PROTOCOL_TLS)
         sock = context.wrap_socket(conn, server_hostname=self.hostname)
@@ -76,9 +74,7 @@ class CertData:
         
 
     def __key_data(self):
-        """ 
-        Recovery information about the certificate key, key size and signature algorithm.
-        """
+        """ Recovery information about the certificate key, key size and signature algorithm."""
         self.key_size = self.pubKey.key_size
         self.sign_algo = self.certOpenSSL.get_signature_algorithm()
         self.issued_to = self.certOpenSSL.get_subject().CN
@@ -98,12 +94,15 @@ class CertData:
         
 
     def __procotol_is_enable(self, context, protocol):
+        """Return whether the connection with the server via the protocol provided 
+        in parameter is available.
+
+        Keyword arguments:
+        context -- ssl.SSLContex of the connection
+        protocol -- protocol tested
+        """
+
         try:
-            '''
-            conn = ssl.create_connection((self.hostname, self.port_number))
-            sock = context.wrap_socket(conn, server_hostname=self.hostname)
-            sock.do_handshake()
-            '''
             context.check_hostname = False
             context.verify_mode = ssl.CERT_NONE
             conn = ssl.create_connection((self.hostname, self.port_number))
@@ -116,6 +115,14 @@ class CertData:
             return False
     
     def __enum_cipher(self, context, protocol):
+        """Returns the list of encryption suites available on the server for the protocol 
+        provided in parameter.
+
+        Keyword arguments:
+        context -- ssl.SSLContex of the connection
+        protocol -- protocol tested
+        """
+
         print("{}{}\t {}: {}".format(bcolors.RESET, bcolors.BOLD, protocol, bcolors.RESET))
         cipher_enable = []
 
@@ -139,27 +146,19 @@ class CertData:
                     context.set_ciphers(value["openssl_name"])
                     sock = context.wrap_socket(conn, server_hostname=self.hostname)
                     sock.do_handshake()
+
                     cipher_suite = CipherSuite.CipherSuite(key, value["security"])
                     cipher_enable.append(cipher_suite)
                     print("{}\t\t{}{}".format(bcolors.RESET, key, bcolors.RESET))
                 except Exception as e: 
                     pass
-        '''
-        for key, value in cipher_suites.items() :
-            try:
-                conn = ssl.create_connection((self.hostname, self.port_number))
-                context.set_ciphers(key)
-                sock = context.wrap_socket(conn, server_hostname=self.hostname)
-                sock.do_handshake()
-                #cipher_suite = CipherSuite.CipherSuite(cipher_suites[key])
-                cipher_enable.append(cipher_suite)
-            except Exception as e: 
-                pass
-        '''
-
         return cipher_enable
 
     def __protocol_data(self):
+        """Get all available protocols for connection with the server and all applicable 
+        ciphersuites for those available
+        """
+        
         print("{}{}{}Available cipher suite : {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET))
         self.cipher_available = {}
 
@@ -224,6 +223,8 @@ class CertData:
         self.protocol_enabled["SSLv3"] = "UNKNOW"      
     
     def __policie(self):
+        """Get the type of certificate"""
+
         strings = ("Extended Validation","Extended Validated","EV SSL","EV CA")
         oid= ["2.16.840.1.114028.10.1.2", "2.16.840.1.114412.1.3.0.2","2.16.840.1.114412.2.1" ,
             "2.16.578.1.26.1.3.3", "1.3.6.1.4.1.17326.10.14.2.1.2", "1.3.6.1.4.1.17326.10.8.12.1.2", 
@@ -237,6 +238,8 @@ class CertData:
             self.policie = "UNKNOW"
 
     def __verify(self):
+        """Verify if certificate is not expired"""
+
         if self.certificate.not_valid_after < datetime.today():
             self.has_expired = True
         else:
@@ -261,6 +264,7 @@ class TransmissionSecurity:
         self.__load_config()
     
     def __load_config(self):
+        """Load the config file"""
 
         try:
             config = configparser.ConfigParser()
@@ -284,6 +288,7 @@ class TransmissionSecurity:
         self.coefficient_certificate = int(config.get('coefficient', 'certificate_point'))
 
     def __key_score(self):
+        """calculate the score of certificate key"""
         if self.cert_data.key_type == "EC":
             for item in self.key_point_ec:
                 if int(self.cert_data.key_size < int(item)):
@@ -296,12 +301,14 @@ class TransmissionSecurity:
                     break
         
     def __protocol_score(self):
+        """calculate the score of protocol"""
         for key, value in self.protocol_point.items():
             if self.cert_data.protocol_enabled[key] == "YES" and self.weakest_protocol is None:
                 self.weakest_protocol = key
                 self.protocol_score = int(self.protocol_point[self.weakest_protocol])
 
     def __cipher_score(self):
+        """Calculate the score of cipher suite"""
         for protocol in self.cert_data.cipher_available :
             for cipher_suite in self.cert_data.cipher_available[protocol]:
                 score = int(self.cipher_point[cipher_suite.security])
@@ -310,6 +317,7 @@ class TransmissionSecurity:
                     self.cipher_vulnerability = cipher_suite.security
     
     def __certificate_score(self):
+        """Calculate the score of certificat"""
         if self.cert_data.has_expired : 
             self.certificate_score = int(self.certificate_point["expired"])
             self.global_grade = "F"
@@ -320,7 +328,7 @@ class TransmissionSecurity:
 
 
     def __assess_rank(self):
-        #TO DO calculate global grade
+        """calculate the global rank of the module"""
 
         for key, value in self.bad_rank.items():
             if key == "protocol":
@@ -347,6 +355,8 @@ class TransmissionSecurity:
                 print("F4")
 
     def __assess_score(self):
+        """calculate the overall score of the module"""
+
         self.global_score = None
 
         self.global_score = int(self.coefficient_protocol) * self.protocol_score + \
@@ -356,6 +366,8 @@ class TransmissionSecurity:
 
 
     def evaluate(self):
+        """Set score for all parts and assess global module score and rank"""
+
         self.__protocol_score()
         self.__key_score()
         self.__cipher_score()
@@ -368,6 +380,8 @@ class TransmissionSecurity:
         print("{}{}{}Grade :{} {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.global_grade))
 
     def json_parser(self):
+        """Parse in json all connection data"""
+
         security_transmission = {}
         result = {}
         result["hostname"] = self.url
