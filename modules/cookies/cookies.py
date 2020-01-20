@@ -90,6 +90,43 @@ def third_party_cookie(cookie_domain, website_url):
     return third_party, third_party_point
 
 
+def is_http_only(is_http_only_attribute):
+    """
+    check the isHttpOnly attribute of the cookie to define
+    if it is inaccessible to JavaScript's Document.cookie API
+    and is only sent to the server
+    :param is_http_only_attribute: isHttpOnly cookie attribute
+    :return: http_only_cookie, http_only_point
+    """
+
+    if is_http_only_attribute:
+        http_only_cookie = True
+        http_only_point = 0
+    else:
+        http_only_cookie = False
+        http_only_point = int(config['cookie_attributes']['isHttpOnly'])
+
+    return http_only_cookie, http_only_point
+
+
+def is_secure(is_secure_attribute):
+    """
+    check the isSecure attribute of the cookie to define
+    if it is secure (encrypted request over the HTTPS protocol)
+    :param is_secure_attribute: isSecure cookie attribute
+    :return: secure_cookie, secure_point
+    """
+
+    if is_secure_attribute:
+        secure_cookie = True
+        secure_point = 0
+    else:
+        secure_cookie = False
+        secure_point = int(config['cookie_attributes']['isSecure'])
+
+    return secure_cookie, secure_point
+
+
 def cookie_score_calculation(expiry_score, third_party_score):
     """
     calculate global score for cookies
@@ -150,8 +187,10 @@ def cookie_evaluate(cookies, target):
     for cookie in cookies:
         name = cookie[3]
         cookie_domain = cookie[1]
-        cookie_creation_time = cookie[9] // 1000000
         cookie_expiry = cookie[7]
+        cookie_creation_time = cookie[9] // 1000000
+        is_secure_attribute = cookie[10]
+        is_http_only_attribute = cookie[11]
 
         # third party analysis
         third_party, third_party_point = third_party_cookie(cookie_domain, target)
@@ -159,14 +198,20 @@ def cookie_evaluate(cookies, target):
         # expiration delay analysis
         expiration_delay, expiry_point = cookie_expiration(cookie_creation_time, cookie_expiry)
 
+        # other attributes analysis
+        secure_cookie, secure_point = is_secure(is_secure_attribute)
+        http_only_cookie, http_only_point = is_http_only(is_http_only_attribute)
+
         # score for the cookie in the loop
-        cookie_score = third_party_point + expiry_point
+        cookie_score = third_party_point + expiry_point + secure_point + http_only_point
 
         # add cookie to json
         result['details'][name] = {
             'third_party': third_party,
             'domain': cookie_domain,
             'expiry': str(expiration_delay),
+            'isSecure': secure_cookie,
+            'isHttpOnly': http_only_cookie,
             'cookie_score': cookie_score
         }
 
@@ -179,7 +224,8 @@ def cookie_evaluate(cookies, target):
         else:
             party_output_str = 'third-party'
 
-        print(f"\t{bcolors.BOLD}{name}:{bcolors.RESET}\n\t\t{party_output_str}\t{cookie_domain}\t{expiration_delay}")
+        print(f"\t{bcolors.BOLD}{name}:{bcolors.RESET}\n\t\t{party_output_str}\t{cookie_domain}\t{expiration_delay}\t"
+              f"{secure_cookie}\t{http_only_cookie}")
 
     # grade for cookies
     cookie_grade = cookie_grade_calculation(global_cookie_score)
