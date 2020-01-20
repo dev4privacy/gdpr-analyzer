@@ -321,7 +321,7 @@
         Size: {{scMod.key.size}}</br>
         Type: {{scMod.key.type}}
 
-        <div class="landscape">
+        <div class="landscape protocol_table">
             <h3> Cipher details </h3>
             Score: {{scMod.cipher.score}}
 
@@ -354,7 +354,6 @@
                 {% for cipherSuite in scMod.cipher[protocol] %}
                 {% for cipher, info in cipherSuite.items() %}
                 <tr>
-                    {{info.security}}
                     <td {% if info.security == 'insecure'%} class="red"{% endif %}
                         {% if info.security == 'weak'%} class="orange"{% endif %}
                         {% if info.security == 'recommended'%} class="green"{% endif %}

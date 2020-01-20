@@ -320,3 +320,9 @@ h3{
 .black_f_bg{
     background-color: #000;
 }
+
+th{
+    background-color: rgba(226,227,228,.6);
+    border: 2px solid rgba(226,227,228,.6);
+    border-collapse:collapse;
+}
