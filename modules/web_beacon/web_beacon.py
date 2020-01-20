@@ -6,6 +6,7 @@ import re
 import tinycss
 import configparser
 import os
+from urllib.parse import urlparse
 
 MDL_URL = "http://www.malwaredomainlist.com/mdlcsv.php"
 MD_DOMAIN_URl = "http://www.malware-domains.com/files/justdomains.zip"
@@ -156,7 +157,14 @@ def find_beacon(content_html):
                                 # TODO size in CSS
 
                 if web_beacon_position or web_beacon_size or web_beacon_blacklist or web_beacon_hidden:
+                    
+                    if not (src.startswith('//') or src.startswith('http://') or src.startswith('https://')):
+                        target_parse = urlparse('//' + src, 'https')
+                    else:
+                        target_parse = urlparse(src, 'https')
+
                     web_beacon_categories["url"] = src
+                    web_beacon_categories["target"] = target_parse.netloc
                     web_beacon_categories["position"] = web_beacon_position
                     web_beacon_categories["size"] = web_beacon_size
                     web_beacon_categories["hidden"] = web_beacon_hidden

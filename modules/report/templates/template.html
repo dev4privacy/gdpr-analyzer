@@ -112,27 +112,94 @@
         </div>
 
         <h3>Cookie Details</h3>
+        {% if cookies.details|length %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Third Party</th>
+                        <th>Expiry</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Third Party</th>
-                    <th>Expiry</th>
-                    <th>Score</th>
-                </tr>
-            </thead>
+                {% for cookie_name, details in cookies.details.items() %}
+                    <tr>
+                        <td>{{cookie_name}}</td>
+                        <td>{{details.third_party}}</td>
+                        <td>{{details.expiry}}</td>
+                        <td>{{details.cookie_score}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>Well, no cookie detected</p>
+        {% endif %}
+    </div>
+    {% endif %}
 
-            {% for cookie_name, details in cookies.details.items() %}
-                <tr>
-                    <td>{{cookie_name}}</td>
-                    <td>{{details.third_party}}</td>
-                    <td>{{details.expiry}}</td>
-                    <td>{{details.cookie_score}}</td>
-                </tr>
-            {% endfor %}
-        </table>
+    {% if wbMod|length %}
+    <div class="jump">
+        <h2> Web beacons </h2>
+        <div class="description">
+            <p>
+                In this part, we analyze the web beacons. These are small images found on some web pages that can be used
+                to alert other websites to your presence. The score is calculated by taking into account the criteria
+                for detecting a potential web beacon. These criteria are their presence in a black list, their small
+                size, their position on the web page or the fact that they are voluntarily hidden. A grade from A to F
+                is defined according to the score obtained.
+            </p>
+        </div>
+        <div class="flex-container">
+            <div class="grade">
+                <p>Grade</p>
+                <div class="bd-callout 
+                {% if "A" == wbMod.grade %}green_a_bg {% elif "B" == wbMod.grade %}green_b_bg 
+                {% elif "C" == wbMod.grade %}range_c_bg {% elif "D" == wbMod.grade %}red_d_bg
+                {% elif "E" == wbMod.grade %}red_e_bg {% elif "F" == wbMod.grade %}black_f_bg {% endif %}" >
+                    {{wbMod.grade}}
+                </div>
+            </div>
+            
+            <div class="note">
+                <p>Score</p>
+                <div class="bd-callout default_color">
+                    {{wbMod.score}}
+                </div>
+            </div>
+        </div>
 
+        <div class="container protocol">
+            <div class="row">
+                <div class="col protocol_table">
+                    <h3> Details </h3>
+                    {% if wbMod.url|length %}
+                        <div class="webbeacons">
+                            {% for url in wbMod.url %}
+                                <div class="webbeacon">
+                                    <p class="webbeacon_target">{{url.target}}</p>
+                                    <p><span>Url : </span>{{url.url}}</p>
+                                    <p class="fault">Characteristics :
+                                        {% if url.position == True %}<span>position</span>{% endif %}
+                                        {% if url.hidden == True %}<span>hidden</span>{% endif %}
+                                        {% if url.size == True %}<span>size</span>{% endif %}
+                                        {% if url.blacklist == True %}<span>blacklist</span>{% endif %}
+                                    </p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="caption">
+                            <p><span>Size : </span> The size of the image is to small to be watch by the user (minus 3 pixels), there's a high probability that it's a web beacon</p>
+                            <p><span>Position : </span> The picture is placed outside the field (in the left and top negatives), there's a high probability that it's a web beacon beacause it's uncommon for a developer to use this kind of practice to insert a legitimate image</p>
+                            <p><span>Hidden : </span> The style of the beacon is set to hide the content of the image, there's a high probability that it's a web beacon.</p>
+                            <p><span>Blacklist : </span> The source of the beacon is blacklisted in Host-block file from https://sebsauvage.net/hosts/hosts</p>
+                        </div>
+                    {% else %}
+                        <p>Well, no web beacon detected</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
     {% endif %}
 
@@ -308,71 +375,5 @@
         </div>
     </div>
     {% endif %}
-
-    {% if wbMod|length %}
-    <div class="jump">
-        <h2> Web beacons </h2>
-        <div class="description">
-            <p>
-                In this part, we analyze the web beacons. These are small images found on some web pages that can be used
-                to alert other websites to your presence. The score is calculated by taking into account the criteria
-                for detecting a potential web beacon. These criteria are their presence in a black list, their small
-                size, their position on the web page or the fact that they are voluntarily hidden. A grade from A to F
-                is defined according to the score obtained.
-            </p>
-        </div>
-        <div class="flex-container">
-            <div class="grade">
-                <p>Grade</p>
-                <div class="bd-callout 
-                {% if "A" == wbMod.grade %}green_a_bg {% elif "B" == wbMod.grade %}green_b_bg 
-                {% elif "C" == wbMod.grade %}range_c_bg {% elif "D" == wbMod.grade %}red_d_bg
-                {% elif "E" == wbMod.grade %}red_e_bg {% elif "F" == wbMod.grade %}black_f_bg {% endif %}" >
-                    {{wbMod.grade}}
-                </div>
-            </div>
-            
-            <div class="note">
-                <p>Score</p>
-                <div class="bd-callout default_color">
-                    {{wbMod.score}}
-                </div>
-            </div>
-        </div>
-
-        <div class="container protocol">
-            <div class="row">
-                <div class="col protocol_table">
-                    <h3> Details </h3>
-                    {% if wbMod.url|length %}
-                        <div class="webbeacons">
-                            {% for url in wbMod.url %}
-                                <div class="webbeacon">
-                                    <p class="webbeacon_target">wwww.targeet.com</p>
-                                    <p><span>Url: </span>{{url.url}}</p>
-                                    <p class="fault">characteristics:
-                                        {% if url.position == True %}<span>position</span>{% endif %}
-                                        {% if url.hidden == True %}<span>hidden</span>{% endif %}
-                                        {% if url.size == True %}<span>size</span>{% endif %}
-                                        {% if url.blacklist == True %}<span>blacklist</span>{% endif %}
-                                    </p>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <div class="caption">
-                            <p><span>Size: </span> The size of the image is to small to be watch by the user (minus 3 pixels), there's a high probability that it's a web beacon</p>
-                            <p><span>Position: </span> The picture is placed outside the field (in the left and top negatives), there's a high probability that it's a web beacon beacause it's uncommon for a developer to use this kind of practice to insert a legitimate image</p>
-                            <p><span>Hidden: </span> The style of the beacon is set to hide the content of the image, there's a high probability that it's a web beacon.</p>
-                            <p><span>Blacklist: </span> The source of the beacon is blacklisted in Host-block file from https://sebsauvage.net/hosts/hosts</p>
-                        </div>
-                    {% else %}
-                        <p>Well, no web beacon detected</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
 </body>
 </html>
