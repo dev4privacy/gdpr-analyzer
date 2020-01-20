@@ -37,9 +37,19 @@ class bcolors:
     RESET = '\033[0m'
     REVERSE = "\033[;7m"
 
-
+def banner():
+    print("""%s
+    
+\t  ____ ____  ____  ____                      _                    
+\t / ___|  _ \|  _ \|  _ \    __ _ _ __   __ _| |_   _ _______ _ __ 
+\t| |  _| | | | |_) | |_) |  / _` | '_ \ / _` | | | | |_  / _ \ '__|
+\t| |_| | |_| |  __/|  _ <  | (_| | | | | (_| | | |_| |/ /  __/ |   
+\t \____|____/|_|   |_| \_\  \__,_|_| |_|\__,_|_|\__, /___\___|_|   
+\t                                               |___/  
+%s""" % (bcolors.CYAN, bcolors.RESET))
+    
 def get_content(target):
-
+    print("{}[-] Retrieving website content {}".format(bcolors.RESET, bcolors.RESET))
     # create a new profile so as not to mix the user's browsing info with that of the analysis
     profile_conf_name = "/tmp/gdpr-analyzer/gdpr-analyzer.default"
     FirefoxProfile(profile=profile_conf_name)
@@ -84,21 +94,26 @@ def get_content(target):
 
     con.close()
 
+    print("{}[-] Website content obtained {}".format(bcolors.GREEN, bcolors.RESET))
+
     return browsing_time, content_cookies, content_html
 
 
 def cookie(browsing_time, content_cookies, target):
+    print("{}[-] Checking cookies {}".format(bcolors.CYAN, bcolors.RESET))
     result = cookie_evaluate(browsing_time, content_cookies, target)
     return result
 
 
 def web_beacon(content_html):
+    print("{}[-] Checking web beacon{}".format(bcolors.CYAN, bcolors.RESET))
     beacon_score, beacon_info = find_beacon(content_html)
     result = json_parser(beacon_score, beacon_info)
     return result
 
 
 def crypto(target):
+    print("{}[-] Checking transmission security {}".format(bcolors.CYAN, bcolors.RESET))
     crypto = TransmissionSecurity(target)
     crypto.evaluate()
     return crypto.json_parser()
@@ -162,6 +177,7 @@ def assess_rank(result):
 
 
 def start():
+    banner()
     parser = argparse.ArgumentParser(description='Description')
 
     parser.add_argument('url', help='Target URL')

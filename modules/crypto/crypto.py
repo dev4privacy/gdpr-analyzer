@@ -51,10 +51,9 @@ class CertData:
 
         self.__load_cert()
         self.__key_data()
-        self.__protocol_data()
-        self.__policie()
         self.__verify()
-
+        self.__policie()
+        self.__protocol_data()
 
     def __load_cert(self):
         """Recovery the website certificate and its public key"""
@@ -89,7 +88,11 @@ class CertData:
         elif isinstance(self.pubKey, asymmetric.ed448.Ed448PublicKey):
             self.key_type = "ED448"
 
-        
+        print("{}{}Key type:{} {}".format(bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.key_type))
+        print("{}{}Key size:{} {}".format(bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.key_size))
+        print("{}{}Issued to:{} {}".format(bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.issued_to))
+        print("{}{}Issued by:{} {}".format(bcolors.UNDERLINE
+        , bcolors.BOLD, bcolors.RESET, self.issued_by))
 
     def __procotol_is_enable(self, context, protocol):
         """Return whether the connection with the server via the protocol provided 
@@ -157,7 +160,7 @@ class CertData:
         ciphersuites for those available
         """
         
-        print("{}{}{}Available cipher suite : {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET))
+        print("{}{}{}Protocol and cipher suite available : {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET))
         self.cipher_available = {}
 
         '''
@@ -234,6 +237,8 @@ class CertData:
             self.policie = "extended-validation"
         else:
             self.policie = "UNKNOW"
+
+        print("{}{}Policie:{} {}".format(bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.policie))
 
     def __verify(self):
         """Verify if certificate is not expired"""
@@ -374,8 +379,8 @@ class TransmissionSecurity:
         #score
         self.__assess_score()
         self.__assess_rank()
-        print("{}{}{}Score :{} {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.global_score))
-        print("{}{}{}Grade :{} {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.global_grade))
+        print("\n{}{}{}Score :{} {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.global_score))
+        print("{}{}{}Grade :{} {}\n".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.global_grade))
 
     def json_parser(self):
         """Parse in json all connection data"""
