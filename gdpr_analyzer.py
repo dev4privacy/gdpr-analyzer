@@ -100,20 +100,20 @@ def get_content(target):
 
 
 def cookie(browsing_time, content_cookies, target):
-    print("{}[-] Checking cookies {}".format(bcolors.CYAN, bcolors.RESET))
+    print("{}[-] Checking cookies {}\n".format(bcolors.CYAN, bcolors.RESET))
     result = cookie_evaluate(browsing_time, content_cookies, target)
     return result
 
 
 def web_beacon(content_html):
-    print("{}[-] Checking web beacon{}".format(bcolors.CYAN, bcolors.RESET))
+    print("{}[-] Checking web beacon{}\n".format(bcolors.CYAN, bcolors.RESET))
     beacon_score, beacon_info = find_beacon(content_html)
     result = json_parser(beacon_score, beacon_info)
     return result
 
 
 def crypto(target):
-    print("{}[-] Checking transmission security {}".format(bcolors.CYAN, bcolors.RESET))
+    print("{}[-] Checking transmission security {}\n".format(bcolors.CYAN, bcolors.RESET))
     crypto = TransmissionSecurity(target)
     crypto.evaluate()
     return crypto.json_parser()
@@ -173,7 +173,7 @@ def assess_rank(result):
         if rank is None or grade > rank :
             rank = grade
 
-    print("\n{}{}{}WEBSITE GRADE :{} {}\n".format(bcolors.RED, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, rank))
+    print("\n{}{}{}WEBSITE GRADE :{} {}\n".format(bcolors.CYAN, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, rank))
 
     return rank
 

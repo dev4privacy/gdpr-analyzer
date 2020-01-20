@@ -27,6 +27,9 @@ h3{
     font-size: 1.2rem;
     text-transform: uppercase;
 }
+.text_center{
+    text-align: center;
+}
 
 /* HEADER */
 .header{
@@ -77,6 +80,9 @@ h3{
 .logo img{
     width: 150px;
     height: 150px;
+}
+.score_part{
+    margin-bottom: 1em;
 }
 
 /* RECAP */
@@ -163,9 +169,6 @@ h3{
     border-radius: .25em;
     color: #fff;
 }
-.note.bd-callout{
-
-}
 .green{
     color:#2ecc71;
 }
@@ -182,13 +185,6 @@ h3{
     border-collapse:collapse;
     font-size: 0.8rem;
     font-weight: 700;
-}
-.protocol_table table tr{
-    border-bottom: 2px solid rgba(226,227,228,.6);
-}
-.protocol_table table tr:first-of-type {
-    border-top: 2px solid 
-    rgba(226,227,228,.6);
 }
 .protocol_table table td{
     padding: 0 10px;
@@ -216,6 +212,17 @@ h3{
     text-align: center;
 }
 
+/* Cookie */
+
+.cookie_table{
+    width: 100%;
+}
+.cookie_table th{
+    text-align: center;
+}
+.td_third_party, .td_cookie_score{
+    text-align: center;
+}
 /* Web Beacon*/
 .webbeacon{
     padding: 0.4em;
@@ -258,7 +265,7 @@ h3{
 }
 
 
-/* ALWAYS END */
+/* COLOR */
 .green{
     color:#2ecc71;
 }
@@ -321,8 +328,40 @@ h3{
     background-color: #000;
 }
 
+
+/* TABLE */
+table {border-collapse: collapse;}
+table, tr, td {
+    border: none;
+}
 th{
-    background-color: rgba(226,227,228,.6);
-    border: 2px solid rgba(226,227,228,.6);
-    border-collapse:collapse;
+    color:#fff;;
+    background:#6f77aa;
+    text-align:center;
+}
+
+tr:nth-child(2n+1) td {
+    background:#EBEBEB;
+}
+td {
+    padding: 0.5em;
+    background:#FFFFFF;
+}
+
+.ciphersuite:nth-child(4n-1) td {
+    background: #EBEBEB ;
+}
+.ciphersuite:nth-child(4n+1) td {
+    background: #fff ;
+}
+.protocol_cs td{
+    background-color: #858ECC !important;
+    color: #fff;
+}
+.ciphersuite_table{
+    width: 100%;
+}
+.ciphersuite_table th{
+    padding: 0.5em 0;
+    font-weight: 800;
 }

@@ -160,7 +160,7 @@ class CertData:
         ciphersuites for those available
         """
         
-        print("{}{}{}Protocol and cipher suite available : {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET))
+        print("{}{}{}Protocol and cipher suite available :{}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET))
         self.cipher_available = {}
 
         '''
