@@ -34,7 +34,6 @@ def cookie_expiration(browsing_time, cookie):
 
     expiry_point = 0
 
-    unlimited_pt = int(config['delay_point']['unlimited'])
     more_thirty_month_pt = int(config['delay_point']['more_thirty_month'])
     thirty_month_pt = int(config['delay_point']['thirty_month'])
     eight_month_pt = int(config['delay_point']['eight_month'])
@@ -68,9 +67,8 @@ def cookie_expiration(browsing_time, cookie):
         else:  # - 1 month
             expiry_point += one_month_pt
 
-    except KeyError:  # no expiration
-        expiration_delay = 'unlimited'  # TODO to make cleaner
-        expiry_point += unlimited_pt
+    except KeyError:  # no value for expiry field in database
+        expiration_delay = 'session cookie'
 
     return expiration_delay, expiry_point
 
