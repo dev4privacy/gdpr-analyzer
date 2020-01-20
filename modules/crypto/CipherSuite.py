@@ -1,9 +1,9 @@
-from enum import Enum
-
-import json
+#!/usr/bin/env python3.7
+# coding: utf-8
 
 CIPHER_MODE_LIST = ["CBC", "GCM", "CCM", "EDE"]
 MAC_TYPE_LIST = ["SHA", "SHA256", "SHA384", "MD5", "POLY1305", "IMIT"]
+
 
 class CipherSuite:
 

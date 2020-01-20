@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.7
+# coding: utf-8
 
 from jinja2 import Environment, FileSystemLoader
 from weasyprint import HTML
