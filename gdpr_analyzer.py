@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.7
+# coding: utf-8
 
 from platform import python_version
 import sys
@@ -13,10 +14,10 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 import platform
 
-from mozprofile import FirefoxProfile  # temporary
-import glob  # temporary
-import sqlite3  # temporary
-import shutil  # temporary
+from mozprofile import FirefoxProfile
+import glob
+import sqlite3
+import shutil
 import time
 
 from modules.crypto.crypto import TransmissionSecurity

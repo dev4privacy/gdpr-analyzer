@@ -1,5 +1,7 @@
+#!/usr/bin/env python3.7
+# coding: utf-8
+
 from bs4 import BeautifulSoup
-import mimetypes
 import requests
 import json
 import re

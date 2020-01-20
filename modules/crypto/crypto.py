@@ -1,22 +1,20 @@
+#!/usr/bin/env python3.7
+# coding: utf-8
+
 from datetime import datetime
 import json
 import configparser
 from OpenSSL import crypto
-
-import cryptography
 from cryptography.hazmat.primitives import asymmetric
-from cryptography.hazmat.backends import default_backend
 import ssl
 import os
-
-from modules.crypto import const
 from modules.crypto import CipherSuite
-
-from ssl import PROTOCOL_TLSv1_2
 
 config = configparser.ConfigParser()
 config.optionxform = lambda option: option
 config.read('config.ini')
+
+
 class bcolors:
     HEADER = '\033[95m'
     CYAN  = "\033[36m"
