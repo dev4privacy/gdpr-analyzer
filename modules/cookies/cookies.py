@@ -22,13 +22,13 @@ class bcolors:
     REVERSE = "\033[;7m"
 
 
-def cookie_expiration(browsing_time, cookie):
+def cookie_expiration(cookie_creation_time, cookie_expiry):
     """
     calculate the cookies expiry time and define
     the number of cookies per duration step in
     order to give a score
-    :param browsing_time: cookie submission schedule
-    :param cookie: cookie to analyze
+    :param cookie_creation_time: time of cookie creation
+    :param cookie_expiry: cookie expiry time
     :return: expiration_delay, expiry_point
     """
 
@@ -43,10 +43,7 @@ def cookie_expiration(browsing_time, cookie):
 
     try:
 
-        expiry = cookie[7]
-
-        # TODO round to the top minute ?
-        expiration_delay = timedelta(seconds=expiry - browsing_time)
+        expiration_delay = timedelta(seconds=cookie_expiry - cookie_creation_time)
 
         # define the number of points according to each expiry time range
         if expiration_delay.days > 394:  # + 13 month
@@ -135,10 +132,9 @@ def cookie_grade_calculation(cookie_score):
     return cookie_grade
 
 
-def cookie_evaluate(browsing_time, cookies, target):
+def cookie_evaluate(cookies, target):
     """
     calculate the cookie grade for the website we analyze
-    :param browsing_time: cookie submission schedule
     :param cookies: list of cookies
     :param target: website we want to analyze
     :return: cookie_result
@@ -154,12 +150,14 @@ def cookie_evaluate(browsing_time, cookies, target):
     for cookie in cookies:
         name = cookie[3]
         cookie_domain = cookie[1]
+        cookie_creation_time = cookie[9] // 1000000
+        cookie_expiry = cookie[7]
 
         # third party analysis
         third_party, third_party_point = third_party_cookie(cookie_domain, target)
 
         # expiration delay analysis
-        expiration_delay, expiry_point = cookie_expiration(browsing_time, cookie)
+        expiration_delay, expiry_point = cookie_expiration(cookie_creation_time, cookie_expiry)
 
         # score for the cookie in the loop
         cookie_score = third_party_point + expiry_point
