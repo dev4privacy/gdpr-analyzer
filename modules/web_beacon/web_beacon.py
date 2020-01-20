@@ -420,8 +420,8 @@ def calculate_grade(web_beacon_score):
         web_beacon_grade = "F"
 
     # display web beacon score and grade in terminal
-    print(f"\n{bcolors.BOLD}{bcolors.UNDERLINE}Web beacon score:{bcolors.RESET} {web_beacon_score}\n"
-          f"{bcolors.BOLD}{bcolors.UNDERLINE}Web beacon grade:{bcolors.RESET} {web_beacon_grade}\n")
+    print("\n{}{}Web beacon score:{} {}".format(bcolors.BOLD, bcolors.UNDERLINE, bcolors.RESET, web_beacon_score))
+    print("{}{}Web beacon grade:{} {}\n".format(bcolors.BOLD,bcolors.UNDERLINE,bcolors.RESET,web_beacon_grade))
 
     return web_beacon_grade
 
