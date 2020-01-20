@@ -173,6 +173,8 @@ def assess_rank(result):
         if rank is None or grade > rank :
             rank = grade
 
+    print("\n{}{}{}WEBSITE GRADE :{} {}\n".format(bcolors.RED, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, rank))
+
     return rank
 
 
