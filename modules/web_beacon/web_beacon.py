@@ -365,7 +365,7 @@ def bl_website():
     # TODO replace when the website is up
     # f = open("utils/hosts.txt", "r") # TODO put absolute path
     # hosts = f.read()
-    if site.status_code is 200:
+    if site.status_code == 200:
         hosts = site.text
         a = "# Blocked domains:\n"
         begin = hosts.find(a) + len(a)
