@@ -224,8 +224,18 @@ def cookie_evaluate(cookies, target):
         else:
             party_output_str = 'third-party'
 
+        if secure_cookie:
+            is_secure_output_str = 'isSecure'
+        else:
+            is_secure_output_str = 'notSecure'
+
+        if http_only_cookie:
+            is_http_only_output_str = 'isHttpOnly'
+        else:
+            is_http_only_output_str = 'notHttpOnly'
+
         print(f"\t{bcolors.BOLD}{name}:{bcolors.RESET}\n\t\t{party_output_str}\t{cookie_domain}\t{expiration_delay}\t"
-              f"{secure_cookie}\t{http_only_cookie}")
+              f"{is_secure_output_str}\t{is_http_only_output_str}")
 
     # grade for cookies
     cookie_grade = cookie_grade_calculation(global_cookie_score)
