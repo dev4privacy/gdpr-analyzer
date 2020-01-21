@@ -28,7 +28,7 @@ gdpr_analyzer requires the following tools :
 * Firefox ≥ 60 (https://www.mozilla.org/en/firefox/new/)
 * geckodriver ≥ v0.26.0 (https://github.com/mozilla/geckodriver)
 
-Also depends on the following python modules `bs4`, `argparse`, `mimetypes`, `requests`, `splinter`, `tinycss`, `platform`, `Jinja2`
+Also depends on the following python modules `splinter`, `requests`, `mozprofile`, `pyopenssl`, `jinja2`, `weasyprint`, `bs4`, `tinycss`
 
 These dependencies can be installed using the requirements file:
 * Installation on Windows :
