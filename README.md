@@ -31,7 +31,6 @@ GDPR Analyzer requires the following tools:
 Also depends on the following python modules: `splinter`, `requests`, `mozprofile`, `pyopenssl`, `jinja2`, `weasyprint`, `bs4`, `tinycss`
 
 These dependencies can be installed using the requirements file:
-```
 * Installation on Linux:
 ```bash
 sudo pip install -r requirements.txt
@@ -75,9 +74,3 @@ It is not necessarily complete.
 
 ## License
 GDPR Analyzer is licensed under the [GNU GPL v3.0](LICENSE.md).
-
-## Authors
-* Antoine Rebeyrol
-* Antoine Rebstock
-* Benjamin Supiot
-* Benoît Demas
