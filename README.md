@@ -1,10 +1,10 @@
 # GDPR Analyzer
 
 ## About
-This tool allows the analysis of a website's compliance with the GDPR.
-The purpose of the project is to use publicly available site data (source code) to write a nominal report and assign a compliance score. A scoring grid can be generated to understand the score obtained.
+This tool allows the analysis of a website to check its compliance with the GDPR.
+The purpose of the project is to use publicly available website data (source code), its interactions with the web browser and the security of the transmission between the client and the server that hosts it in order to write a nominal report and assign a compliance score. A scoring grid can be generated to understand the score obtained.
 
-The tool is not intended to cover the entire GDPR. As stated above, only publicly available information will be analysed. As a result, not all information can be studied and the report can only rarely be exhaustive as to the use of data and the storage and protection methods put in place by the website owner.
+The tool is not intended to cover the entire GDPR. As stated above, only publicly available information will be analyzed. As a result, not all information can be studied and the report can only rarely be exhaustive as to the use of data and the storage and protection methods put in place by the website owner.
 
 ## Screenshot
 ### Help
@@ -19,63 +19,65 @@ git clone https://git.scyde.fr/major-g9/gdpr_analyzer.git
 ```
 
 ## Recommended Python version
-gdpr_analyzer currently supports *Python 3.7+*
+GDPR Analyzer currently supports *Python 3.7+*
 
 ## Dependencies
 
-gdpr_analyzer requires the following tools :
+GDPR Analyzer requires the following tools:
 * OpenSSL ≥ 1.1.1 (https://www.openssl.org)
 * Firefox ≥ 60 (https://www.mozilla.org/en/firefox/new/)
 * geckodriver ≥ v0.26.0 (https://github.com/mozilla/geckodriver)
 
-Also depends on the following python modules `splinter`, `requests`, `mozprofile`, `pyopenssl`, `jinja2`, `weasyprint`, `bs4`, `tinycss`
+Also depends on the following python modules: `splinter`, `requests`, `mozprofile`, `pyopenssl`, `jinja2`, `weasyprint`, `bs4`, `tinycss`
 
 These dependencies can be installed using the requirements file:
-* Installation on Windows :
 ```
-c:\python37\python.exe -m pip install -r requirements.txt
-```
-* Installation on Linux :
+* Installation on Linux:
 ```bash
 sudo pip install -r requirements.txt
 ```
 
 Alternatively, each module can be installed independently.
+
 ## Usage
 
 Short Form    | Long Form     | Description
 ------------- | ------------- |-------------
 -f            | --full        | Get Full Analysis
--c            | --cookie      | Analyse the cookies and generate the score
+-c            | --cookie      | Analyze the cookies and generate the score
 -w            | --webbeacon   | Search the presence of web beacon and generate the score
--t            | --crypto      | Analyse the security of the connection with the website and generate the score
+-t            | --crypto      | Analyze the security of the connection with the website and generate the score
 -r            | --report      | Generate a pdf report
 -j            | --json        | Export the result in json
 
 ## Examples
-To use all analysis options :
+To use all analysis options:
 
-`python gdpr_analyzer.py -f example.com ownername`
+`python gdpr_analyzer.py -f example.com yourname`
 
-To search the presence of web beacon and generate a pdf report :
+To search the presence of web beacons and generate a pdf report:
 
-`python gdpr_analyzer.py -w -r example.com ownername`
+`python gdpr_analyzer.py -w -r example.com yourname`
 
-To analyse the security of the connection with the website and export the result in json :
+To analyze the security of the connection with the website and export the result in a json file:
 
-`python gdpr_analyzer.py -t -j example.com ownername`
+`python gdpr_analyzer.py -t -j example.com yourname`
 
 ## Disclaimer
-Accept any responsability or liability for the use of this anlysis tool. The usage of the product do not imply the responsibility of the **gdpr_analyzer** project.
+You accept all responsibility for the use of this anlysis tool. Its use does not imply the responsibility of the project developers.
 
-The purpose of this tool is to provide an evaluation grid defined with our own criteria. However, if errors are brought to our attention it will be our care to correct them. Anyhow, the **gdpr_analyzer** project engage  any  responsibility  for the usage of the generated report.
+The purpose of this tool is to provide an evaluation grid (defined with our own criteria). However, if errors are brought to our attention it will be our care to correct them. Anyhow, the developers of the GDPR Analyzer project does not engage any responsibility for the usage of the generated report.
 
-It is not necessarily  complete,  accurate  and  updated.
-
-It is our goal to minimise disruption caused by technical errors and we invite, therefore, the consumers to take all the possible preventive actions to avoid the problem. This disclaimer is not intended to avoid the obligations of the national laws, nor to exclude its liability for matters that may not be excluded under that law.
-
-## License
-gdpr_analyzer is licensed under the [GNU GPL v3.0](LICENSE.md).
+It is not necessarily complete.
 
 ## Version
-**Current version is 0.1**
+**Curent version is 0.1**
+
+## License
+GDPR Analyzer is licensed under the [GNU GPL v3.0](LICENSE.md).
+
+## Authors
+* Antoine Rebeyrol
+* Antoine Rebstock
+* Benjamin Supiot
+* Benoît Demas
