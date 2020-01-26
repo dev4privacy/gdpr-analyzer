@@ -1,4 +1,5 @@
-#Authors
+Authors
+=======
 
 * __[Antoine Rebeyrol](https://twitter.com/r3baix)__
 
@@ -8,7 +9,7 @@
 
     Antoine is one of the creators of the software. His main task was to manage the retrieval and analysis of cookies.
 
-* __[Benjamin Supiot]__
+* __Benjamin Supiot__
 
     Benjamin is one of the creators of the software. His main task was to manage the generation of the report.
 
