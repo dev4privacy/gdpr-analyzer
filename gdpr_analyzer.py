@@ -18,7 +18,6 @@ from mozprofile import FirefoxProfile
 import glob
 import sqlite3
 import shutil
-import time
 
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
@@ -36,6 +35,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'
     REVERSE = "\033[;7m"
+
 
 def banner():
     """
@@ -67,7 +67,7 @@ def get_content(target):
 
     # define profile preferences
     browser = Browser('firefox', headless=True, profile=profile_conf_name, timeout=1000, wait_time=200,
-                      profile_preferences={"network.cookie.cookieBehavior": 0})  # not to block third cookies and trackers
+                      profile_preferences={"network.cookie.cookieBehavior": 0})
 
     # navigation run
     with browser:
@@ -150,7 +150,7 @@ def crypto(target):
 
 def full(content_cookies, content_html, target):
     """
-    Starts each process (cookies, web beacon and transmission security)
+    Starts each process (cookie, web beacon and transmission security)
     :param content_cookies: list of cookies
     :param content_html: the html content of the target site
     :param target: the target site
@@ -200,6 +200,7 @@ def check_target(target):
         print("{}[-] url OK{}".format(bcolors.GREEN, bcolors.RESET))
         return target_parse
 
+
 def assess_rank(result):
     """
     Assess the global rank of the site
@@ -235,17 +236,17 @@ def start():
     banner()
     parser = argparse.ArgumentParser(description='Description')
 
-    parser.add_argument('url', help='Target URL')
-    parser.add_argument('name', help='Owner name')
-    parser.add_argument('-f', '--full', help='Get Full Analysis, Test All Available Options', action='store_true')
-    parser.add_argument('-c', '--cookie', help=' Analyse the cookies and generate the score', action='store_true')
-    parser.add_argument('-w', '--webbeacon', help='Check for the presence of web beacon', action='store_true')
-    parser.add_argument('-t', '--crypto', help='Evaluate the transmision security', action='store_true')
-    parser.add_argument('-r', '--report', help=' Generate a pdf report', action='store_true')
-    parser.add_argument('-j', '--json', help='Export the result in json', action='store_true')
+    parser.add_argument('url', help='target URL')
+    parser.add_argument('yourname', help="report owner's name")
+    parser.add_argument('-f', '--full', help='get full analysis, test all available options', action='store_true')
+    parser.add_argument('-c', '--cookie', help='analyse the cookies and generate the score', action='store_true')
+    parser.add_argument('-w', '--webbeacon', help='check for the presence of web beacons', action='store_true')
+    parser.add_argument('-t', '--crypto', help='evaluate the transmission security', action='store_true')
+    parser.add_argument('-r', '--report', help='generate a pdf report', action='store_true')
+    parser.add_argument('-j', '--json', help='export the result in a json file', action='store_true')
 
     args = parser.parse_args()
-    name = args.name
+    name = args.yourname
     result = {}
 
     target = check_target(args.url)
@@ -265,11 +266,8 @@ def start():
             result.update(json.loads(result_cookie))
         if args.crypto:
             result_crypto = crypto(target.netloc)
-            #result_crypto = '{"security_transmission": {"hostname": "www.deepl.com", "grade": "B", "note": 23, "protocol": {"TLSv1": "YES", "TLSv1_1": "YES", "TLSv1_2": "YES", "TLSv1_3": "NO", "SSLv2": "UNKNOW", "SSLv3": "UNKNOW", "score": 8}, "key": {"score": 1, "size": 2048, "type": "RSA"}, "cipher": {"TLSv1": ["DHE-RSA-AES256-SHA", "ECDHE-RSA-AES256-SHA"], "TLSv1_1": ["DHE-RSA-AES256-SHA", "ECDHE-RSA-AES256-SHA"], "TLSv1_2": ["DHE-RSA-AES256-SHA", "DHE-RSA-AES128-GCM-SHA256", "DHE-RSA-AES256-GCM-SHA384", "ECDHE-RSA-AES256-SHA", "ECDHE-RSA-AES256-SHA384", "ECDHE-RSA-AES128-GCM-SHA256", "ECDHE-RSA-AES256-GCM-SHA384"]}, "certificate": {"score": 4, "type": "UNKNOW", "not_before": "Mon, 24 Jul 2017 00:00:00 ", "not_after": "Thu, 23 Jul 2020 23:59:59 ", "sign_algo": "sha256WithRSAEncryption", "issued_to": "*.deepl.com", "issued_by": "COMODO RSA Domain Validation Secure Server CA"}}}'
             result.update(json.loads(result_crypto))
 
-
-    
     result_info = {}
     result_info["target"] = target.netloc
     result_info["grade"] = assess_rank(result)
