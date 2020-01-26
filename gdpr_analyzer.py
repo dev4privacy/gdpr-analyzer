@@ -1,7 +1,5 @@
 #!/usr/bin/env python3.7
 # coding: utf-8
-
-from platform import python_version
 import sys
 import os
 import argparse
@@ -79,7 +77,7 @@ def get_content(target):
         # sad trick shot to access cookies database only work for linux because of path
         paterform = platform.system()
         if paterform == "Darwin":
-            profile_repo = glob.glob('/var/folders/sd/55wxrvfs1yl4_s59kf0xr0100000gn/T/rust_mozprofile*')
+            profile_repo = glob.glob('/var/folders/sd/*/T/rust_mozprofile*')
         else:
             profile_repo = glob.glob('/tmp/rust_mozprofile*')
             
@@ -280,7 +278,7 @@ def start():
                 os.mkdir(result_target)
         except OSError:
             print("{}Error : The folder '{}'(to save result) not exist and failed to create{}".format(bcolors.RED,
-                                                                                                      folder_target,
+                                                                                                      result_target,
                                                                                                       bcolors.RESET))
     if args.report:
         if result is None:
@@ -299,19 +297,8 @@ def start():
                 json.dump(result, outfile)
             print("{}[-] JSON generated, it is stored in {}{}".format(bcolors.GREEN, path_json, bcolors.RESET))
 
-
-'''
-def entry_point():
-    try:
-        start()
-    except KeyboardInterrupt:
-        print('\n\n\033[93m[!] ctrl+c detected from user, quitting.\n\n \033[0m')
-    except Exception as e:
-        print(e)
-'''
-
 if __name__ == '__main__':
-    if python_version()[0:3] < '3.7':
+    if platform.python_version()[0:3] < '3.7':
         print('{}[!] Make sure you have Python 3.7+ installed, quitting.{}'.format(bcolors.YELLOW, bcolors.RESET))
         sys.exit(1)
 
