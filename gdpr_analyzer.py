@@ -38,6 +38,10 @@ class bcolors:
     REVERSE = "\033[;7m"
 
 def banner():
+    """
+    Print the tool's banner
+    """
+
     print("""%s
     
 \t  ____ ____  ____  ____                      _                    
@@ -50,6 +54,12 @@ def banner():
 
 
 def get_content(target):
+    """
+    Get html, css and cookies from the target site
+    :param target: the target site
+    :return: content_cookies, content_html
+    """
+
     print("{}[-] Retrieving website content {}".format(bcolors.RESET, bcolors.RESET))
     # create a new profile so as not to mix the user's browsing info with that of the analysis
     profile_conf_name = "/tmp/gdpr-analyzer/gdpr-analyzer.default"
@@ -100,12 +110,25 @@ def get_content(target):
 
 
 def cookie(content_cookies, target):
+    """
+    Starts the cookies process
+    :param content_cookies: list of cookies
+    :param target: the target site
+    :return: result
+    """
+
     print("{}[-] Checking cookies {}\n".format(bcolors.CYAN, bcolors.RESET))
     result = cookie_evaluate(content_cookies, target)
     return result
 
 
 def web_beacon(content_html):
+    """
+    Starts the web beacons process
+    :param content_html: html content
+    :return: result
+    """
+
     print("{}[-] Checking web beacon{}\n".format(bcolors.CYAN, bcolors.RESET))
     beacon_score, beacon_info = find_beacon(content_html)
     result = json_parser(beacon_score, beacon_info)
@@ -113,6 +136,12 @@ def web_beacon(content_html):
 
 
 def crypto(target):
+    """
+    Starts the transmission security process
+    :param target: the target site
+    :return: result
+    """
+
     print("{}[-] Checking transmission security {}\n".format(bcolors.CYAN, bcolors.RESET))
     crypto = TransmissionSecurity(target)
     crypto.evaluate()
@@ -120,6 +149,14 @@ def crypto(target):
 
 
 def full(content_cookies, content_html, target):
+    """
+    Starts each process (cookies, web beacon and transmission security)
+    :param content_cookies: list of cookies
+    :param content_html: the html content of the target site
+    :param target: the target site
+    :return: full_result
+    """
+
     result_cookie = None
     result_web_beacon = None
     result_crypto = None
@@ -136,6 +173,12 @@ def full(content_cookies, content_html, target):
 
 
 def check_target(target):
+    """
+    Check if the URL is valid and if the target site is online
+    :param target: the target site
+    :return: target_parse
+    """
+
     print("{}[-] Checking the url{}".format(bcolors.RESET, bcolors.RESET))
     if not (target.startswith('//') or target.startswith('http://') or target.startswith('https://')):
         target_parse = urlparse('//' + target, 'https')
@@ -158,6 +201,12 @@ def check_target(target):
         return target_parse
 
 def assess_rank(result):
+    """
+    Assess the global rank of the site
+    :param result: Concatenation of the result of each module
+    :return: rank
+    """
+
     rank = None
     
     if "cookies" in result:
@@ -179,6 +228,10 @@ def assess_rank(result):
 
 
 def start():
+    """
+    Parse arguments and starts the web site analysis
+    """
+
     banner()
     parser = argparse.ArgumentParser(description='Description')
 
