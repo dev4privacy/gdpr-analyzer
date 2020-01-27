@@ -22,6 +22,10 @@ class CipherSuite:
 
 
     def __parse_cipher_suite_name(self):
+        """
+        Parse the cipher suite string
+        """
+
         cipher_suite_fields = self.name.split("WITH")
         cipher_suite_exch_auth_protocol = cipher_suite_fields[0].replace("SHA_","").split("_")
         del cipher_suite_exch_auth_protocol[-1]
@@ -114,6 +118,9 @@ class CipherSuite:
 
 
     def json_parser(self) :
+        """
+        Format the cipher suite informations in json
+        """
         cipher_suite_json = {}
         result = {}
         cipher_suite_json["key_exch_protocol"] = self.key_exch_protocol
