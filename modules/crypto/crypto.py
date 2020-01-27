@@ -15,9 +15,9 @@ config.optionxform = lambda option: option
 config.read('config.ini')
 
 
-class bcolors:
+class Bcolors:
     HEADER = '\033[95m'
-    CYAN  = "\033[36m"
+    CYAN = "\033[36m"
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
     RED = '\033[91m'
@@ -25,6 +25,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'    
     REVERSE = "\033[;7m"
+
 
 class CertData:
 
@@ -68,8 +69,6 @@ class CertData:
 
         self.pubKey = self.certificate.public_key()
 
-        
-
     def __key_data(self):
         """ Recovery information about the certificate key, key size and signature algorithm."""
         self.key_size = self.pubKey.key_size
@@ -88,11 +87,10 @@ class CertData:
         elif isinstance(self.pubKey, asymmetric.ed448.Ed448PublicKey):
             self.key_type = "ED448"
 
-        print("{}{}Key type:{} {}".format(bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.key_type))
-        print("{}{}Key size:{} {}".format(bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.key_size))
-        print("{}{}Issued to:{} {}".format(bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.issued_to))
-        print("{}{}Issued by:{} {}".format(bcolors.UNDERLINE
-        , bcolors.BOLD, bcolors.RESET, self.issued_by))
+        print("{}{}Key type:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.key_type))
+        print("{}{}Key size:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.key_size))
+        print("{}{}Issued to:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.issued_to))
+        print("{}{}Issued by:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.issued_by))
 
     def __procotol_is_enable(self, context, protocol):
         """Return whether the connection with the server via the protocol provided 
@@ -124,7 +122,7 @@ class CertData:
         protocol -- protocol tested
         """
 
-        print("{}{}\t {}: {}".format(bcolors.RESET, bcolors.BOLD, protocol, bcolors.RESET))
+        print("{}{}\t {}: {}".format(Bcolors.RESET, Bcolors.BOLD, protocol, Bcolors.RESET))
         cipher_enable = []
 
         if protocol == "TLSv1_3":
@@ -140,8 +138,8 @@ class CertData:
             with open(os.path.dirname(__file__) + '/cipher_suite_tls_v10.json') as json_file:
                 data = json.load(json_file)
 
-        for i in data['ciphersuites'] :
-            for key, value in i.items() :
+        for i in data['ciphersuites']:
+            for key, value in i.items():
                 try:
                     conn = ssl.create_connection((self.hostname, self.port_number))
                     context.set_ciphers(value["openssl_name"])
@@ -150,7 +148,7 @@ class CertData:
 
                     cipher_suite = CipherSuite.CipherSuite(key, value["security"])
                     cipher_enable.append(cipher_suite)
-                    print("{}\t\t{}{}".format(bcolors.RESET, key, bcolors.RESET))
+                    print("{}\t\t{}{}".format(Bcolors.RESET, key, Bcolors.RESET))
                 except Exception as e: 
                     pass
         return cipher_enable
@@ -160,7 +158,8 @@ class CertData:
         ciphersuites for those available
         """
         
-        print("{}{}{}Protocol and cipher suite available :{}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET))
+        print("{}{}{}Protocol and cipher suite available:{}".format(Bcolors.RESET, Bcolors.UNDERLINE, Bcolors.BOLD,
+                                                                     Bcolors.RESET))
         self.cipher_available = {}
 
         '''
@@ -226,10 +225,9 @@ class CertData:
     def __policie(self):
         """Get the type of certificate"""
 
-        strings = ("Extended Validation","Extended Validated","EV SSL","EV CA")
-        oid= ["2.16.840.1.114028.10.1.2", "2.16.840.1.114412.1.3.0.2","2.16.840.1.114412.2.1" ,
-            "2.16.578.1.26.1.3.3", "1.3.6.1.4.1.17326.10.14.2.1.2", "1.3.6.1.4.1.17326.10.8.12.1.2", 
-            "1.3.6.1.4.1.13177.10.1.3.10"]
+        strings = ("Extended Validation", "Extended Validated", "EV SSL", "EV CA")
+        oid = ["2.16.840.1.114028.10.1.2", "2.16.840.1.114412.1.3.0.2", "2.16.840.1.114412.2.1", "2.16.578.1.26.1.3.3",
+               "1.3.6.1.4.1.17326.10.14.2.1.2", "1.3.6.1.4.1.17326.10.8.12.1.2", "1.3.6.1.4.1.13177.10.1.3.10"]
 
         if any(x in self.certificate.signature_algorithm_oid.dotted_string for x in oid):
             self.policie = "extended-validation"
@@ -238,7 +236,7 @@ class CertData:
         else:
             self.policie = "UNKNOW"
 
-        print("{}{}Policie:{} {}".format(bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.policie))
+        print("{}{}Policie:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.policie))
 
     def __verify(self):
         """Verify if certificate is not expired"""
@@ -247,6 +245,7 @@ class CertData:
             self.has_expired = True
         else:
             self.has_expired = False
+
 
 class TransmissionSecurity:
     def __init__(self, url): 
@@ -271,7 +270,7 @@ class TransmissionSecurity:
 
         try:
             config = configparser.ConfigParser()
-            config.optionxform=str
+            config.optionxform = str
             config.read(os.path.dirname(__file__) + '/config.ini')
         except configparser.Error:
             return
@@ -287,7 +286,7 @@ class TransmissionSecurity:
         coefficient = config['coefficient']
         self.coefficient_protocol = int(config.get('coefficient', 'protocol_point'))
         self.coefficient_key = int(config.get('coefficient', 'key_point'))
-        self.coefficient_cipher =int(config.get('coefficient', 'cipher_point'))
+        self.coefficient_cipher = int(config.get('coefficient', 'cipher_point'))
         self.coefficient_certificate = int(config.get('coefficient', 'certificate_point'))
 
     def __key_score(self):
@@ -312,7 +311,7 @@ class TransmissionSecurity:
 
     def __cipher_score(self):
         """Calculate the score of cipher suite"""
-        for protocol in self.cert_data.cipher_available :
+        for protocol in self.cert_data.cipher_available:
             for cipher_suite in self.cert_data.cipher_available[protocol]:
                 score = int(self.cipher_point[cipher_suite.security])
                 if self.cipher_score is None or score > self.cipher_score: 
@@ -321,14 +320,13 @@ class TransmissionSecurity:
     
     def __certificate_score(self):
         """Calculate the score of certificat"""
-        if self.cert_data.has_expired : 
+        if self.cert_data.has_expired:
             self.certificate_score = int(self.certificate_point["expired"])
             self.global_grade = "F"
         elif self.cert_data.policie == "extended-validation":
             self.certificate_score = int(self.certificate_point[self.cert_data.policie])
         elif self.cert_data.policie == "UNKNOW":
             self.certificate_score = int(self.certificate_point["domain-validated"])
-
 
     def __assess_rank(self):
         """calculate the global rank of the module"""
@@ -367,7 +365,6 @@ class TransmissionSecurity:
                             int(self.coefficient_cipher) * self.cipher_score + \
                             int(self.coefficient_certificate) * self.certificate_score
 
-
     def evaluate(self):
         """Set score for all parts and assess global module score and rank"""
 
@@ -376,11 +373,13 @@ class TransmissionSecurity:
         self.__cipher_score()
         self.__certificate_score()
 
-        #score
+        # score
         self.__assess_score()
         self.__assess_rank()
-        print("\n{}{}{}Score :{} {}".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.global_score))
-        print("{}{}{}Grade :{} {}\n".format(bcolors.RESET, bcolors.UNDERLINE, bcolors.BOLD, bcolors.RESET, self.global_grade))
+        print("\n{}{}{}Score:{} {}".format(Bcolors.RESET, Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET,
+                                            self.global_score))
+        print("{}{}{}Grade:{} {}\n".format(Bcolors.RESET, Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET,
+                                            self.global_grade))
 
     def json_parser(self):
         """Parse in json all connection data"""
@@ -399,19 +398,21 @@ class TransmissionSecurity:
         result["key"]["size"] = self.cert_data.key_size
         result["key"]["type"] = self.cert_data.key_type
 
-        #result["cipher"] = self.cert_data.cipher_available
+        # result["cipher"] = self.cert_data.cipher_available
         result["cipher"] = {}
         result["cipher"]["score"] = self.cipher_score
-        for protocol in self.cert_data.cipher_available :
+        for protocol in self.cert_data.cipher_available:
             result["cipher"][protocol] = []
-            for cipher_suite in self.cert_data.cipher_available[protocol] :
+            for cipher_suite in self.cert_data.cipher_available[protocol]:
                 result["cipher"][protocol].append(cipher_suite.json_parser())
 
         result["certificate"] = {}
         result["certificate"]["score"] = self.certificate_score
         result["certificate"]["type"] = self.cert_data.policie
-        result["certificate"]["not_before"] = self.cert_data.certificate.not_valid_before.strftime("%a, %d %b %Y %H:%M:%S %Z")
-        result["certificate"]["not_after"] = self.cert_data.certificate.not_valid_after.strftime("%a, %d %b %Y %H:%M:%S %Z")
+        result["certificate"]["not_before"] = self.cert_data.certificate.not_valid_before.strftime("%a, %d %b %Y "
+                                                                                                   "%H:%M:%S %Z")
+        result["certificate"]["not_after"] = self.cert_data.certificate.not_valid_after.strftime("%a, %d %b %Y "
+                                                                                                 "%H:%M:%S %Z")
 
         result["certificate"]["sign_algo"] = self.cert_data.sign_algo.decode("utf-8") 
         result["certificate"]["issued_to"] = self.cert_data.issued_to

@@ -10,9 +10,9 @@ config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + '/config.ini')
 
 
-class bcolors:
+class Bcolors:
     HEADER = '\033[95m'
-    CYAN  = "\033[36m"
+    CYAN = "\033[36m"
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
     RED = '\033[91m'
@@ -182,7 +182,7 @@ def cookie_evaluate(cookies, target):
     result['details'] = {}
 
     # display cookie title in terminal
-    print(f"{bcolors.UNDERLINE}{bcolors.BOLD}Detected cookie(s):{bcolors.RESET}\n")
+    print(f"{Bcolors.UNDERLINE}{Bcolors.BOLD}Detected cookie(s):{Bcolors.RESET}\n")
 
     for cookie in cookies:
         name = cookie[3]
@@ -234,7 +234,7 @@ def cookie_evaluate(cookies, target):
         else:
             is_http_only_output_str = 'notHttpOnly'
 
-        print(f"\t{bcolors.BOLD}{name}:{bcolors.RESET}\n\t\t{party_output_str}\t{cookie_domain}\t{expiration_delay}\t"
+        print(f"\t{Bcolors.BOLD}{name}:{Bcolors.RESET}\n\t\t{party_output_str}\t{cookie_domain}\t{expiration_delay}\t"
               f"{is_secure_output_str}\t{is_http_only_output_str}")
 
     # grade for cookies
@@ -248,7 +248,7 @@ def cookie_evaluate(cookies, target):
     cookie_result = json.dumps(cookie_result, indent=4)
 
     # display cookie score and grade in terminal
-    print(f"\n{bcolors.BOLD}{bcolors.UNDERLINE}Cookie score:{bcolors.RESET} {global_cookie_score}\n"
-          f"{bcolors.BOLD}{bcolors.UNDERLINE}Cookie grade:{bcolors.RESET} {cookie_grade}\n")
+    print(f"\n{Bcolors.BOLD}{Bcolors.UNDERLINE}Cookie score:{Bcolors.RESET} {global_cookie_score}\n"
+          f"{Bcolors.BOLD}{Bcolors.UNDERLINE}Cookie grade:{Bcolors.RESET} {cookie_grade}\n")
 
     return cookie_result
