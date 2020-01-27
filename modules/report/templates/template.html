@@ -83,7 +83,7 @@
 
 
     {% if cookies|length %}
-    <div class="jump">
+    <div class="jump landscape">
         <h2>Cookies</h2>
         <div class="description">
             <p>
@@ -119,6 +119,8 @@
                         <th>Name</th>
                         <th>Domain</th>
                         <th>Third Party</th>
+                        <th>Http Only</th>
+                        <th>Secure</th>
                         <th>Expiry</th>
                         <th>Score</th>
                     </tr>
@@ -129,6 +131,8 @@
                         <td>{{cookie_name}}</td>
                         <td>{{details.domain}}</td>
                         <td class="td_third_party">{{details.third_party}}</td>
+                        <td>{{details.isHttpOnly}}</td>
+                        <td>{{details.isSecure}}</td>
                         <td>{{details.expiry}}</td>
                         <td class="td_cookie_score">{{details.cookie_score}}</td>
                     </tr>
