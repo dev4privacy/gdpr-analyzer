@@ -71,6 +71,3 @@ It is not necessarily complete.
 
 ## Version
 **Curent version is 0.1**
-
-## License
-GDPR Analyzer is licensed under the [GNU GPL v3.0](LICENSE.md).
