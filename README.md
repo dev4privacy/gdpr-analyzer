@@ -15,7 +15,7 @@ The tool is not intended to cover the entire GDPR. As stated above, only publicl
 
 ## Installation
 ```bash
-git clone https://git.scyde.fr/major-g9/gdpr_analyzer.git
+git clone https://github.com/dev4privacy/gdpr-analyzer.git
 ```
 
 ## Recommended Python version
