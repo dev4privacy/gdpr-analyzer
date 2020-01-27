@@ -1,4 +1,5 @@
 #!/bin/bash
+# You can use this script and modify the bl_website() in modules/web_beacon/web_beacon.py
 full_path=$(realpath $0)
 dir_path=$(dirname $full_path)
 echo "Downloading https://sebsauvage.net/hosts/host"
