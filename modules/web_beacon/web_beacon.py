@@ -19,7 +19,7 @@ config = configparser.ConfigParser()
 config.read(os.path.dirname(__file__) + '/config.ini')
 
 
-class bcolors:
+class Bcolors:
     HEADER = '\033[95m'
     CYAN = "\033[36m"
     GREEN = '\033[92m'
@@ -49,7 +49,7 @@ def find_beacon(content_html):
     hidden_nb = 0
 
     # display web beacon title in terminal
-    print(f"{bcolors.UNDERLINE}{bcolors.BOLD}Detected Web beacon(s):{bcolors.RESET}\n")
+    print(f"{Bcolors.UNDERLINE}{Bcolors.BOLD}Detected Web beacon(s):{Bcolors.RESET}\n")
     bl_list = bl_website()
     if bl_list is False:
         print("No response from the BL website\n")
@@ -172,7 +172,7 @@ def find_beacon(content_html):
                     web_beacon_categories["hidden"] = web_beacon_hidden
                     web_beacon_categories["blacklist"] = web_beacon_blacklist
                     web_beacon_url.append(web_beacon_categories)
-                    print(f"\t{bcolors.BOLD}{src}:{bcolors.RESET}\n\t\tsize : {web_beacon_size}\tposition : "
+                    print(f"\t{Bcolors.BOLD}{src}:{Bcolors.RESET}\n\t\tsize : {web_beacon_size}\tposition : "
                           f"{web_beacon_position}\thidden : {web_beacon_hidden}\tblacklist : {web_beacon_blacklist}")
 
     else:
@@ -420,8 +420,8 @@ def calculate_grade(web_beacon_score):
         web_beacon_grade = "F"
 
     # display web beacon score and grade in terminal
-    print("\n{}{}Web beacon score:{} {}".format(bcolors.BOLD, bcolors.UNDERLINE, bcolors.RESET, web_beacon_score))
-    print("{}{}Web beacon grade:{} {}\n".format(bcolors.BOLD,bcolors.UNDERLINE,bcolors.RESET,web_beacon_grade))
+    print("\n{}{}Web beacon score:{} {}".format(Bcolors.BOLD, Bcolors.UNDERLINE, Bcolors.RESET, web_beacon_score))
+    print("{}{}Web beacon grade:{} {}\n".format(Bcolors.BOLD, Bcolors.UNDERLINE, Bcolors.RESET, web_beacon_grade))
 
     return web_beacon_grade
 
