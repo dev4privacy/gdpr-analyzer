@@ -9,6 +9,7 @@ import tinycss
 import configparser
 import os
 from urllib.parse import urlparse
+from datetime import datetime
 
 MDL_URL = "http://www.malwaredomainlist.com/mdlcsv.php"
 MD_DOMAIN_URl = "http://www.malware-domains.com/files/justdomains.zip"
@@ -159,7 +160,7 @@ def find_beacon(content_html):
                                 # TODO size in CSS
 
                 if web_beacon_position or web_beacon_size or web_beacon_blacklist or web_beacon_hidden:
-                    
+
                     if not (src.startswith('//') or src.startswith('http://') or src.startswith('https://')):
                         target_parse = urlparse('//' + src, 'https')
                     else:
@@ -357,16 +358,43 @@ def find_hidden_style_element(content, element):
 
 
 def bl_website():
+    dateFormat = "%d-%b-%Y (%H:%M:%S.%f)"
     """
     Request BL website et return list of domains
     :return: blacklist domains or None
     """
-    site = requests.get(BL_DOMAIN_URL)
-    # TODO replace when the website is up
-    # f = open("utils/hosts.txt", "r") # TODO put absolute path
-    # hosts = f.read()
-    if site.status_code == 200:
-        hosts = site.text
+    try:
+        f = open("utils/hosts.txt", "r")
+        time = f.readline().rstrip()
+        now = datetime.now()
+        lastDL = datetime.strptime(time,dateFormat)
+        dif = now - lastDL
+        if dif.days > 2 :
+            f.close()
+            site = requests.get(BL_DOMAIN_URL)
+            if site.status_code == 200:
+                hosts = site.text
+                f = open("utils/hosts.txt","w+")
+                actualTime = now.strftime(dateFormat)
+                f.write(actualTime+"\n"+hosts)
+                f.close()
+            else:
+                return False
+        else:
+            hosts = f.read()
+            f.close()
+    except FileNotFoundError:
+        site = requests.get(BL_DOMAIN_URL)
+        if site.status_code == 200:
+            hosts = site.text
+            f = open("utils/hosts.txt","w+")
+            now = datetime.now()
+            actualTime = now.strftime(dateFormat)
+            f.write(actualTime+"\n"+hosts)
+            f.close()
+        else:
+            return False
+
         a = "# Blocked domains:\n"
         begin = hosts.find(a) + len(a)
         end = -48
@@ -374,8 +402,6 @@ def bl_website():
         found = re.sub(r'(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', '', bl)
         bl_domains = found.split("\n ")
         return bl_domains
-    else:
-        return False
 
 
 def check_domains(url, bl_list):
