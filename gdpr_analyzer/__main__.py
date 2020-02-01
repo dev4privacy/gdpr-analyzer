@@ -299,7 +299,7 @@ def start():
             print("{}[-] JSON generated, it is stored in {}{}".format(Bcolors.GREEN, path_json, Bcolors.RESET))
 
 
-if __name__ == '__main__':
+def main():
 
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -308,3 +308,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     start()
+
+
+if __name__ == "__main__":
+    main()
