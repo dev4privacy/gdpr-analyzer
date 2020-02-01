@@ -33,7 +33,7 @@ Also depends on the following python modules: `splinter`, `requests`, `mozprofil
 These dependencies can be installed using the requirements file:
 * Installation on Linux:
 ```bash
-sudo pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Alternatively, each module can be installed independently.
