@@ -8,10 +8,10 @@ The tool is not intended to cover the entire GDPR. As stated above, only publicl
 
 ## Screenshot
 ### Help
-![help](utils/gdpr_analyzer-help.png "help")
+![help](screenshots/gdpr_analyzer-help.png "help")
 
 ### Report
-![report](utils/gdpr_analyzer-report.png "report resume")
+![report](screenshots/gdpr_analyzer-report.png "report resume")
 
 ## Installation
 ```bash
