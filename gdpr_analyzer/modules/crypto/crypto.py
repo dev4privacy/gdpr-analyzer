@@ -8,7 +8,7 @@ from OpenSSL import crypto
 from cryptography.hazmat.primitives import asymmetric
 import ssl
 import os
-from modules.crypto import CipherSuite
+from gdpr_analyzer.modules.crypto import CipherSuite
 
 config = configparser.ConfigParser()
 config.optionxform = lambda option: option

@@ -17,10 +17,10 @@ import glob
 import sqlite3
 import shutil
 
-from modules.crypto.crypto import TransmissionSecurity
-from modules.report.generate_report import generate_report
-from modules.web_beacon.web_beacon import find_beacon, json_parser
-from modules.cookies.cookies import cookie_evaluate
+from gdpr_analyzer.modules.crypto.crypto import TransmissionSecurity
+from gdpr_analyzer.modules.report.generate_report import generate_report
+from gdpr_analyzer.modules.web_beacon.web_beacon import find_beacon, json_parser
+from gdpr_analyzer.modules.cookies.cookies import cookie_evaluate
 
 
 class Bcolors:
