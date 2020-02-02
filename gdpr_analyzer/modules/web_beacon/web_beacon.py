@@ -9,6 +9,7 @@ import tinycss
 import configparser
 import os
 from urllib.parse import urlparse
+from datetime import datetime
 
 MDL_URL = "http://www.malwaredomainlist.com/mdlcsv.php"
 MD_DOMAIN_URl = "http://www.malware-domains.com/files/justdomains.zip"
@@ -158,7 +159,7 @@ def find_beacon(content_html):
                                 # TODO size in CSS
 
                 if web_beacon_position or web_beacon_size or web_beacon_blacklist or web_beacon_hidden:
-                    
+
                     if not (src.startswith('//') or src.startswith('http://') or src.startswith('https://')):
                         target_parse = urlparse('//' + src, 'https')
                     else:
@@ -355,11 +356,13 @@ def find_hidden_style_element(content, element):
     return result
 
 
+
 def get_blacklist():
     """
     Request BL website et return list of domains
     :return: blacklist domains or None
     """
+
     # TODO : cache request
     resp = requests.get(BL_DOMAIN_URL)
     blacklist = []
