@@ -10,6 +10,7 @@ import configparser
 import os
 from urllib.parse import urlparse
 from datetime import datetime
+from sys import platform
 
 MDL_URL = "http://www.malwaredomainlist.com/mdlcsv.php"
 MD_DOMAIN_URl = "http://www.malware-domains.com/files/justdomains.zip"
@@ -362,22 +363,38 @@ def get_blacklist():
     Request BL website et return list of domains
     :return: blacklist domains or None
     """
-
-    # TODO : cache request
-    resp = requests.get(BL_DOMAIN_URL)
+    file = check_os_for_path()
+    try:
+        file_mod_time = datetime.fromtimestamp(os.stat(file).st_mtime)
+        now = datetime.now()
+        delta = now - file_mod_time
+        if delta.seconds > 2 :
+            resp = requests.get(BL_DOMAIN_URL)
+            if resp.status_code == 200:
+                content = resp.text
+                with open(file,"w+") as f:
+                    f.write(content)
+        else:
+            with open(file,"r") as f:
+                content = f.read()
+    except FileNotFoundError:
+        resp = requests.get(BL_DOMAIN_URL)
+        if resp.status_code == 200:
+            content = resp.text
+            with open(file,"w+") as f:
+                f.write(content)
+        else:
+            return None
     blacklist = []
+    s = "# Blocked domains:\n"
+    begin = content.find(s) + len(s)
+    end = content.find("\n#", begin)
 
-    if resp.status_code == 200:
-        content = resp.text
-        s = "# Blocked domains:\n"
-        begin = content.find(s) + len(s)
-        end = content.find("\n#", begin)
+    for line in content[begin:end].split("\n"):
+        host = line.split(" ")
 
-        for line in content[begin:end].split("\n"):
-            host = line.split(" ")
-
-            if len(host) == 2:
-                blacklist.append(host[1])
+        if len(host) == 2:
+            blacklist.append(host[1])
 
     return blacklist
 
@@ -423,6 +440,24 @@ def calculate_grade(web_beacon_score):
     print("{}{}Web beacon grade:{} {}\n".format(Bcolors.BOLD, Bcolors.UNDERLINE, Bcolors.RESET, web_beacon_grade))
 
     return web_beacon_grade
+
+
+def check_os_for_path():
+    """
+    find the OS of the computer et define the path
+    :return: path + file
+    """
+    if "linux" in platform:
+        try:
+            os.mkdir(os.environ['HOME'] + "/.cache")
+        except FileExistsError:
+            pass
+        path = os.environ['HOME'] + "/.cache"
+    elif platform == "darwin":
+        path = "/Library/Caches"
+    elif platform == "win32":
+        path = "%AppData%"
+    return path + "/hosts.txt"
 
 
 def json_parser(web_beacon_score, web_beacon_url):
