@@ -11,11 +11,7 @@ import requests
 from requests.exceptions import ConnectionError, HTTPError
 import urllib3
 import platform
-
-from mozprofile import FirefoxProfile
-import glob
 import sqlite3
-import shutil
 
 from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
@@ -41,7 +37,7 @@ def banner():
     """
 
     print("""%s
-    
+
 \t  ____ ____  ____  ____                      _                    
 \t / ___|  _ \|  _ \|  _ \    __ _ _ __   __ _| |_   _ _______ _ __ 
 \t| |  _| | | | |_) | |_) |  / _` | '_ \ / _` | | | | |_  / _ \ '__|
@@ -59,48 +55,33 @@ def get_content(target):
     """
 
     print("{}[-] Retrieving website content {}".format(Bcolors.RESET, Bcolors.RESET))
-    # create a new profile so as not to mix the user's browsing info with that of the analysis
-    profile_conf_name = "/tmp/gdpr-analyzer/gdpr-analyzer.default"
-    FirefoxProfile(profile=profile_conf_name)
 
-    # define profile preferences
-    browser = Browser('firefox', headless=True, profile=profile_conf_name, timeout=1000, wait_time=200,
+    browser = Browser('firefox', headless=True, timeout=5000, wait_time=200,
                       profile_preferences={"network.cookie.cookieBehavior": 0})
 
-    # navigation run
     with browser:
         browser.visit(target)
 
-        # only gives us first party cookies
+        # We cannot use the following because it doesn't retrieve third party cookies
         # content_cookies = browser.cookies.all(verbose=True)
 
-        # sad trick shot to access cookies database only work for linux because of path
-        paterform = platform.system()
-        if paterform == "Darwin":
-            profile_repo = glob.glob('/var/folders/sd/*/T/rust_mozprofile*')
-        else:
-            profile_repo = glob.glob('/tmp/rust_mozprofile*')
-            
-        latest_profile_repo = max(profile_repo, key=os.path.getctime)
+        # Instead we do it in a hack-ish way :
+        # We retrieve the cookies database from the copy of our Firefox profile made by the geckodriver
+        cookies_db_of_geckodriver = browser.driver.capabilities["moz:profile"] + "/cookies.sqlite"
+        cookies_db_of_firefox = browser.driver.profile.path + "/cookies.sqlite"
 
-        # copy database because we can not access to the one which is temporary create
-        db_source = latest_profile_repo + "/cookies.sqlite"
-        db_destination = "/tmp/gdpr-analyzer/cookies.sqlite"
-        shutil.copyfile(db_source, db_destination)
+        # Copy the database because the original one is locked until the browser object is garbage collected
+        with open(cookies_db_of_geckodriver, "rb") as gecko_db:
+            with open(cookies_db_of_firefox, "wb") as firefox_db:
+                firefox_db.write(gecko_db.read())
+
+        # get cookies from Firefox's profile
+        with sqlite3.connect(cookies_db_of_firefox) as con:
+            cur = con.cursor()
+            cur.execute("SELECT * FROM moz_cookies")
+            content_cookies = cur.fetchall()
 
         content_html = browser.html
-
-    # get cookie content from db
-    con = sqlite3.connect(db_destination)
-    cur = con.cursor()
-    cur.execute("SELECT * FROM moz_cookies")
-    rows = cur.fetchall()
-
-    content_cookies = []
-    for cookie in rows:
-        content_cookies.append(cookie)
-
-    con.close()
 
     print("{}[-] Website content obtained {}".format(Bcolors.GREEN, Bcolors.RESET))
 
@@ -208,7 +189,7 @@ def assess_rank(result):
     """
 
     rank = None
-    
+
     if "cookies" in result:
         grade = result["cookies"]["grade"]
         if rank is None or grade > rank:
