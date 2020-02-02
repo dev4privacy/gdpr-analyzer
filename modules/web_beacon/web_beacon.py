@@ -51,7 +51,7 @@ def find_beacon(content_html):
 
     # display web beacon title in terminal
     print(f"{Bcolors.UNDERLINE}{Bcolors.BOLD}Detected Web beacon(s):{Bcolors.RESET}\n")
-    bl_list = bl_website()
+    bl_list = get_blacklist()
     if bl_list is False:
         print("No response from the BL website\n")
 
@@ -104,15 +104,14 @@ def find_beacon(content_html):
                 except KeyError:
                     class_img = ""
                 # check if the source is blacklisted
-                if src != "" and bl_list is False:
-                    bl_matches = check_domains(src, bl_list)
-                    if bl_matches:
+                if src and bl_list:
+                    if is_domain_blacklisted(src, bl_list):
                         blacklist_nb = blacklist_nb+1
                         web_beacon_blacklist = True
 
                 # check if there are so suspicious words on the fields
                 # check the style field
-                if style != "":
+                if style:
                     find_style = check_style(style)
                     for h in range(len(find_style)):
                         if find_style[h] == "hidden":
@@ -357,67 +356,41 @@ def find_hidden_style_element(content, element):
     return result
 
 
-def bl_website():
-    dateFormat = "%d-%b-%Y (%H:%M:%S.%f)"
+
+def get_blacklist():
     """
     Request BL website et return list of domains
     :return: blacklist domains or None
     """
-    try:
-        f = open("utils/hosts.txt", "r")
-        time = f.readline().rstrip()
-        now = datetime.now()
-        lastDL = datetime.strptime(time,dateFormat)
-        dif = now - lastDL
-        if dif.days > 2 :
-            f.close()
-            site = requests.get(BL_DOMAIN_URL)
-            if site.status_code == 200:
-                hosts = site.text
-                f = open("utils/hosts.txt","w+")
-                actualTime = now.strftime(dateFormat)
-                f.write(actualTime+"\n"+hosts)
-                f.close()
-            else:
-                return False
-        else:
-            hosts = f.read()
-            f.close()
-    except FileNotFoundError:
-        site = requests.get(BL_DOMAIN_URL)
-        if site.status_code == 200:
-            hosts = site.text
-            f = open("utils/hosts.txt","w+")
-            now = datetime.now()
-            actualTime = now.strftime(dateFormat)
-            f.write(actualTime+"\n"+hosts)
-            f.close()
-        else:
-            return False
 
-        a = "# Blocked domains:\n"
-        begin = hosts.find(a) + len(a)
-        end = -48
-        bl = hosts[begin:end]
-        found = re.sub(r'(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})', '', bl)
-        bl_domains = found.split("\n ")
-        return bl_domains
+    # TODO : cache request
+    resp = requests.get(BL_DOMAIN_URL)
+    blacklist = []
+
+    if resp.status_code == 200:
+        content = resp.text
+        s = "# Blocked domains:\n"
+        begin = content.find(s) + len(s)
+        end = content.find("\n#", begin)
+
+        for line in content[begin:end].split("\n"):
+            host = line.split(" ")
+
+            if len(host) == 2:
+                blacklist.append(host[1])
+
+    return blacklist
 
 
-def check_domains(url, bl_list):
+def is_domain_blacklisted(url, bl_list):
     """
     Check suspicious url if it's present on blacklists
-    :param url: url need to check
-    :param bl_list: blacklist domains
-    :return: list of factors elements find
+    :param url: url to check
+    :param bl_list: blacklist of domains
+    :return: True if url is blacklisted False otherwise
     """
-    result = []
-    re_domain = re.search(r"(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]", url)
-    url_domain = re_domain.group()
-    for i in bl_list:
-        if i == url_domain:
-            result.append("blacklist")
-    return result
+
+    return urlparse(url).netloc in bl_list
 
 
 def calculate_grade(web_beacon_score):
