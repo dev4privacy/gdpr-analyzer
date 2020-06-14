@@ -13,10 +13,12 @@ import urllib3
 import platform
 import sqlite3
 
-from modules.crypto.crypto import TransmissionSecurity
+#from modules.crypto.crypto import TransmissionSecurity
 from modules.report.generate_report import generate_report
 from modules.web_beacon.web_beacon import find_beacon, json_parser
 from modules.cookies.cookies import cookie_evaluate
+# TODO: add to test
+from modules.crypto.crypto import crypto_evaluate
 
 
 class Bcolors:
@@ -97,7 +99,7 @@ def cookie(content_cookies, target):
     """
 
     print("{}[-] Checking cookies {}\n".format(Bcolors.CYAN, Bcolors.RESET))
-    result = cookie_evaluate(content_cookies, target)
+    result = cookie_evaluate(content_cookies, target)  # TODO divide into two functions (one to get info, other to calculate)?
     return result
 
 
@@ -122,9 +124,8 @@ def crypto(target):
     """
 
     print("{}[-] Checking transmission security {}\n".format(Bcolors.CYAN, Bcolors.RESET))
-    crypto = TransmissionSecurity(target)
-    crypto.evaluate()
-    return crypto.json_parser()
+    result = crypto_evaluate(target, 443)
+    return result
 
 
 def full(content_cookies, content_html, target):
@@ -148,6 +149,7 @@ def full(content_cookies, content_html, target):
     full_result = json.loads(result_cookie)
     full_result.update(json.loads(result_web_beacon))
     full_result.update(json.loads(result_crypto))
+
     return full_result
 
 

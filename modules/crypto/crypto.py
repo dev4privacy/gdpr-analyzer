@@ -5,14 +5,20 @@ from datetime import datetime
 import json
 import configparser
 from OpenSSL import crypto
-from cryptography.hazmat.primitives import asymmetric
+from cryptography.hazmat.primitives.asymmetric import rsa, dsa, ec, ed25519, ed448
 import ssl
+import socket
 import os
-from modules.crypto import CipherSuite
+
+from modules.crypto import cipher
 
 config = configparser.ConfigParser()
-config.optionxform = lambda option: option
-config.read('config.ini')
+config.read(os.path.dirname(__file__) + '/config.ini')  # TODO make like Benoît
+
+
+# config = configparser.ConfigParser()
+# config.optionxform = lambda option: option
+# config.read('config.ini')
 
 
 class Bcolors:
@@ -23,400 +29,444 @@ class Bcolors:
     RED = '\033[91m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    RESET = '\033[0m'    
+    RESET = '\033[0m'
     REVERSE = "\033[;7m"
 
 
-class CertData:
+def __load_cert(hostname, port_number):  # TODO check this function
+    """Recovery the website certificate and its public key"""
 
-    def __init__(self, url):
-        self.openssl_version = ssl.OPENSSL_VERSION
-        self.protocol_enabled = {}
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
 
-        self.hostname = url
-        self.port_number = 443
+    with socket.create_connection((hostname, port_number)) as sock:
+        with ssl_context.wrap_socket(sock, server_hostname=hostname) as ssock:
+            pem_data = ssl.DER_cert_to_PEM_cert(ssock.getpeercert(True))
 
-        self.key_size = None
-        self.key_type = None
+    cert_openssl = crypto.load_certificate(crypto.FILETYPE_PEM, pem_data.encode())
+    certificate = cert_openssl.to_cryptography()
+    pub_key = certificate.public_key()
 
-        self.policie = None
+    return cert_openssl, pub_key, certificate  # TODO: return cert_openssl useless ?
 
-        self.cert = None
-        self.certOpenSSL = None
-        self.certCrypto = None
-        self.pubKey = None
 
-        self.sign_algo = None
-        self.issued_to = None
-        self.issued_by = None
+def __key_data(cert_openssl, pub_key):
+    """ Recovery information about the certificate key, key size and signature algorithm."""
+    key_size = pub_key.key_size
+    sign_algo = cert_openssl.get_signature_algorithm()
+    issued_to = cert_openssl.get_subject().CN
+    issued_by = cert_openssl.get_issuer().CN
 
-        self.__load_cert()
-        self.__key_data()
-        self.__verify()
-        self.__policie()
-        self.__protocol_data()
+    if isinstance(pub_key, rsa.RSAPublicKey):
+        key_type = "RSA"
+    elif isinstance(pub_key, dsa.DSAPublicKey):
+        key_type = "DSA"
+    elif isinstance(pub_key, ec.EllipticCurvePublicKey):
+        key_type = "EC"
+    elif isinstance(pub_key, ed25519.Ed25519PublicKey):
+        key_type = "ED25519"
+    elif isinstance(pub_key, ed448.Ed448PublicKey):
+        key_type = "ED448"
+    else:  # TODO usefull?
+        key_type = None
 
-    def __load_cert(self):
-        """Recovery the website certificate and its public key"""
-        conn = ssl.create_connection((self.hostname, self.port_number))
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-        sock = context.wrap_socket(conn, server_hostname=self.hostname)
+    print("{}{}Key type:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, key_type))
+    print("{}{}Key size:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, key_size))
+    print("{}{}Issued to:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, issued_to))
+    print("{}{}Issued by:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, issued_by))
 
-        self.pem_data = ssl.DER_cert_to_PEM_cert(sock.getpeercert(True))
-        self.certOpenSSL = crypto.load_certificate(crypto.FILETYPE_PEM, self.pem_data)
-        
-        self.certificate = self.certOpenSSL.to_cryptography()
+    return key_size, sign_algo, issued_to, issued_by, key_type
 
-        self.pubKey = self.certificate.public_key()
 
-    def __key_data(self):
-        """ Recovery information about the certificate key, key size and signature algorithm."""
-        self.key_size = self.pubKey.key_size
-        self.sign_algo = self.certOpenSSL.get_signature_algorithm()
-        self.issued_to = self.certOpenSSL.get_subject().CN
-        self.issued_by = self.certOpenSSL.get_issuer().CN
+def __verify(certificate):
+    """Verify if certificate is not expired"""
 
-        if isinstance(self.pubKey, asymmetric.rsa.RSAPublicKey):
-            self.key_type = "RSA"
-        elif isinstance(self.pubKey, asymmetric.dsa.DSAPublicKey):
-            self.key_type = "DSA"
-        elif isinstance(self.pubKey, asymmetric.ec.EllipticCurvePublicKey):
-            self.key_type = "EC"
-        elif isinstance(self.pubKey, asymmetric.ed25519.Ed25519PublicKey):
-            self.key_type = "ED25519"
-        elif isinstance(self.pubKey, asymmetric.ed448.Ed448PublicKey):
-            self.key_type = "ED448"
+    if certificate.not_valid_after < datetime.today():
+        has_expired = True
+    else:
+        has_expired = False
 
-        print("{}{}Key type:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.key_type))
-        print("{}{}Key size:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.key_size))
-        print("{}{}Issued to:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.issued_to))
-        print("{}{}Issued by:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.issued_by))
+    return has_expired
 
-    def __procotol_is_enable(self, context, protocol):
-        """Return whether the connection with the server via the protocol provided 
-        in parameter is available.
 
-        Keyword arguments:
-        context -- ssl.SSLContex of the connection
-        protocol -- protocol tested
-        """
+def __policie(certificate):  # TODO: check this function
+    """Get the type of certificate"""
 
-        try:
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE
-            conn = ssl.create_connection((self.hostname, self.port_number))
-            sock = context.wrap_socket(conn, server_hostname=self.hostname)
-            sock.do_handshake()
-            if str(sock.version()).replace(".", "_") != protocol:
+    strings = ("Extended Validation", "Extended Validated", "EV SSL", "EV CA")
+    oid = ["2.16.840.1.114028.10.1.2", "2.16.840.1.114412.1.3.0.2", "2.16.840.1.114412.2.1", "2.16.578.1.26.1.3.3",
+           "1.3.6.1.4.1.17326.10.14.2.1.2", "1.3.6.1.4.1.17326.10.8.12.1.2", "1.3.6.1.4.1.13177.10.1.3.10"]
+
+    if any(x in certificate.signature_algorithm_oid.dotted_string for x in oid):
+        policie = "extended-validation"
+    elif any(x in str(certificate.issuer) for x in strings):
+        policie = "extended-validation"
+    else:
+        policie = "UNKNOW"
+
+    print("{}{}Policie:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, policie))
+
+    return policie
+
+
+def __protocol_data(hostname, port):  # TODO: check this function
+    """Get all available protocols for connection with the server and all applicable
+    ciphersuites for those available
+    """
+    protocol_enabled = {}
+    cipher_available = {}
+
+    print("{}{}{}Protocol and cipher suite available:{}".format(Bcolors.RESET, Bcolors.UNDERLINE, Bcolors.BOLD,
+                                                                Bcolors.RESET))
+
+    '''
+    context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+    context.options |= ssl.OP_NO_SSLv3
+    context.options |= ssl.OP_NO_TLSv1
+    context.options |= ssl.OP_NO_TLSv1_1
+    context.options |= ssl.OP_NO_TLSv1_2
+    if __protocol_is_enabled(context, protocol):
+        protocol_enabled[protocol] = "YES"
+        cipher_available[protocol] = __enum_cipher(context)
+    else:
+        protocol_enabled[protocol] = "NO"
+
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    context.options |= ssl.OP_NO_SSLv2
+    context.options |= ssl.OP_NO_TLSv1
+    context.options |= ssl.OP_NO_TLSv1_1
+    context.options |= ssl.OP_NO_TLSv1_2
+    if __protocol_is_enabled(context, protocol):
+        protocol_enabled[protocol] = "YES"
+        cipher_available[protocol] = __enum_cipher(context)
+    else:
+        protocol_enabled[protocol] = "NO"
+    '''
+
+    protocol = "TLSv1"
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+    if __protocol_is_enabled(hostname, port, context, protocol):
+        protocol_enabled[protocol] = "YES"
+        cipher_available[protocol] = __enum_cipher(hostname, port, context, protocol)
+    else:
+        protocol_enabled[protocol] = "NO"
+
+    protocol = "TLSv1_1"
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_1)
+    if __protocol_is_enabled(hostname, port, context, protocol):
+        protocol_enabled[protocol] = "YES"
+        cipher_available[protocol] = __enum_cipher(hostname, port, context, protocol)
+    else:
+        protocol_enabled[protocol] = "NO"
+
+    protocol = "TLSv1_2"
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    if __protocol_is_enabled(hostname, port, context, protocol):
+        protocol_enabled[protocol] = "YES"
+        cipher_available[protocol] = __enum_cipher(hostname, port, context, protocol)
+    else:
+        protocol_enabled[protocol] = "NO"
+
+    protocol = "TLSv1_3"
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    context.options |= ssl.OP_NO_SSLv2 | ssl.OP_NO_SSLv3 | ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1 | ssl.OP_NO_TLSv1_2
+    if __protocol_is_enabled(hostname, port, context, protocol):
+        protocol_enabled[protocol] = "YES"
+        cipher_available[protocol] = __enum_cipher(hostname, port, context, protocol)
+    else:
+        protocol_enabled[protocol] = "NO"
+
+    protocol_enabled["SSLv2"] = "UNKNOW"
+    protocol_enabled["SSLv3"] = "UNKNOW"
+
+    return protocol_enabled, cipher_available
+
+
+def __protocol_is_enabled(hostname, port_number, context, protocol):  # TODO check this function
+    """Return whether the connection with the server via the protocol provided
+    in parameter is available.
+    Keyword arguments:
+    context -- ssl.SSLContex of the connection
+    protocol -- protocol tested
+    """
+
+    # try:
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+
+    with socket.create_connection((hostname, port_number)) as sock:
+        with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+            ssock.do_handshake()
+
+            if str(ssock.version()).replace(".", "_") != protocol:
                 return False
             return True
-        except:
-            return False
-    
-    def __enum_cipher(self, context, protocol):
-        """Returns the list of encryption suites available on the server for the protocol 
-        provided in parameter.
-
-        Keyword arguments:
-        context -- ssl.SSLContex of the connection
-        protocol -- protocol tested
-        """
-
-        print("{}{}\t {}: {}".format(Bcolors.RESET, Bcolors.BOLD, protocol, Bcolors.RESET))
-        cipher_enable = []
-
-        if protocol == "TLSv1_3":
-            with open(os.path.dirname(__file__) + '/cipher_suite_tls_v13.json') as json_file:
-                data = json.load(json_file)
-        elif protocol == "TLSv1_2":
-            with open(os.path.dirname(__file__) + '/cipher_suite_tls_v12.json') as json_file:
-                data = json.load(json_file)
-        elif protocol == "TLSv1_1":
-            with open(os.path.dirname(__file__) + '/cipher_suite_tls_v11.json') as json_file:
-                data = json.load(json_file)
-        elif protocol == "TLSv1":
-            with open(os.path.dirname(__file__) + '/cipher_suite_tls_v10.json') as json_file:
-                data = json.load(json_file)
-
-        for i in data['ciphersuites']:
-            for key, value in i.items():
-                try:
-                    conn = ssl.create_connection((self.hostname, self.port_number))
-                    context.set_ciphers(value["openssl_name"])
-                    sock = context.wrap_socket(conn, server_hostname=self.hostname)
-                    sock.do_handshake()
-
-                    cipher_suite = CipherSuite.CipherSuite(key, value["security"])
-                    cipher_enable.append(cipher_suite)
-                    print("{}\t\t{}{}".format(Bcolors.RESET, key, Bcolors.RESET))
-                except Exception as e: 
-                    pass
-        return cipher_enable
-
-    def __protocol_data(self):
-        """Get all available protocols for connection with the server and all applicable 
-        ciphersuites for those available
-        """
-        
-        print("{}{}{}Protocol and cipher suite available:{}".format(Bcolors.RESET, Bcolors.UNDERLINE, Bcolors.BOLD,
-                                                                     Bcolors.RESET))
-        self.cipher_available = {}
-
-        '''
-        context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-        context.options |= ssl.OP_NO_SSLv3
-        context.options |= ssl.OP_NO_TLSv1
-        context.options |= ssl.OP_NO_TLSv1_1
-        context.options |= ssl.OP_NO_TLSv1_2
-        if self.__procotol_is_enable(context, protocol):
-            self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context)
-        else:
-            self.protocol_enabled[protocol] = "NO"
-        
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-        context.options |= ssl.OP_NO_SSLv2
-        context.options |= ssl.OP_NO_TLSv1
-        context.options |= ssl.OP_NO_TLSv1_1
-        context.options |= ssl.OP_NO_TLSv1_2
-        if self.__procotol_is_enable(context, protocol):
-            self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context)
-        else:
-            self.protocol_enabled[protocol] = "NO"
-        '''
-
-        protocol = "TLSv1"
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        if self.__procotol_is_enable(context, protocol):
-            self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context, protocol)
-        else:
-            self.protocol_enabled[protocol] = "NO"
-        
-        protocol = "TLSv1_1"
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_1)
-        if self.__procotol_is_enable(context, protocol):
-            self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context, protocol)
-        else:
-            self.protocol_enabled[protocol] = "NO"
-
-        protocol = "TLSv1_2"
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        if self.__procotol_is_enable(context, protocol):
-            self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context, protocol)
-        else:
-            self.protocol_enabled[protocol] = "NO"
-            
-        protocol = "TLSv1_3"
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-        context.options |= ssl.OP_NO_SSLv2 | ssl.OP_NO_SSLv3 | ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1 | ssl.OP_NO_TLSv1_2
-        if self.__procotol_is_enable(context, protocol):
-            self.protocol_enabled[protocol] = "YES"
-            self.cipher_available[protocol] = self.__enum_cipher(context, protocol)
-        else:
-            self.protocol_enabled[protocol] = "NO"    
-
-        self.protocol_enabled["SSLv2"] = "UNKNOW"      
-        self.protocol_enabled["SSLv3"] = "UNKNOW"      
-    
-    def __policie(self):
-        """Get the type of certificate"""
-
-        strings = ("Extended Validation", "Extended Validated", "EV SSL", "EV CA")
-        oid = ["2.16.840.1.114028.10.1.2", "2.16.840.1.114412.1.3.0.2", "2.16.840.1.114412.2.1", "2.16.578.1.26.1.3.3",
-               "1.3.6.1.4.1.17326.10.14.2.1.2", "1.3.6.1.4.1.17326.10.8.12.1.2", "1.3.6.1.4.1.13177.10.1.3.10"]
-
-        if any(x in self.certificate.signature_algorithm_oid.dotted_string for x in oid):
-            self.policie = "extended-validation"
-        elif any(x in str(self.certificate.issuer) for x in strings):
-            self.policie = "extended-validation"
-        else:
-            self.policie = "UNKNOW"
-
-        print("{}{}Policie:{} {}".format(Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET, self.policie))
-
-    def __verify(self):
-        """Verify if certificate is not expired"""
-
-        if self.certificate.not_valid_after < datetime.today():
-            self.has_expired = True
-        else:
-            self.has_expired = False
+    # except:  # TODO type of exception ? FOR TLSv3? but why?
+    #    return False
 
 
-class TransmissionSecurity:
-    def __init__(self, url): 
-        self.url = url
+def __enum_cipher(hostname, port_number, context, protocol):
+    """Returns the list of encryption suites available on the server for the protocol
+    provided in parameter.
+    Keyword arguments:
+    context -- ssl.SSLContex of the connection
+    protocol -- protocol tested
+    """
 
-        self.weakest_protocol = None
-        self.cipher_vulnerability = None
+    print("{}{}\t {}: {}".format(Bcolors.RESET, Bcolors.BOLD, protocol, Bcolors.RESET))
+    cipher_enabled = []
 
-        self.key_score = None
-        self.protocol_score = None
-        self.certificate_score = None
-        self.cipher_score = None
+    # TODO https://ciphersuite.info/api/cs/ [make cron using API?]
+    with open(os.path.dirname(__file__) + '/cipher_suite_tls.json') as json_file:
+        ciphersuites_json = json.load(json_file)
 
-        self.global_score = None
-        self.global_grade = None
+    for ciphersuite in ciphersuites_json['ciphersuites']:
+        for ciphersuite_name, ciphersuite_charac in ciphersuite.items():
+            try:
+                # TODO they don't all have openssl_name / why? / Is this which prevent the connection?
+                context.set_ciphers(ciphersuite_charac["openssl_name"])
 
-        self.cert_data = CertData(url)
-        self.__load_config()
-    
-    def __load_config(self):
-        """Load the config file"""
+                with socket.create_connection((hostname, port_number)) as sock:
+                    with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+                        ssock.do_handshake()
 
-        try:
-            config = configparser.ConfigParser()
-            config.optionxform = str
-            config.read(os.path.dirname(__file__) + '/config.ini')
-        except configparser.Error:
-            return
+                        # TODO clean POO here
+                        auth_protocol, key_exch_protocol, cipher_type, cipher_key_size, cipher_mode, mac_type, \
+                        mac_size, security = cipher.__parse_cipher_suite_name(ciphersuite_charac)
+                        cipher_suite = (
+                        ciphersuite_name, auth_protocol, key_exch_protocol, cipher_type, cipher_key_size, cipher_mode,
+                        mac_type, mac_size, security)
 
-        self.protocol_point = config['protocol_point']
-        self.key_point = config['key_point']
-        self.key_point_ec = config['key_point_ec']
-        self.cipher_point = config['cipher_point']
-        self.certificate_point = config['certificate_point']
-        self.bad_rank = config['bad_rank']
-        self.grade = config['grade']
-        
-        coefficient = config['coefficient']
-        self.coefficient_protocol = int(config.get('coefficient', 'protocol_point'))
-        self.coefficient_key = int(config.get('coefficient', 'key_point'))
-        self.coefficient_cipher = int(config.get('coefficient', 'cipher_point'))
-        self.coefficient_certificate = int(config.get('coefficient', 'certificate_point'))
+                        cipher_enabled.append(cipher_suite)
 
-    def __key_score(self):
-        """calculate the score of certificate key"""
-        if self.cert_data.key_type == "EC":
-            for item in self.key_point_ec:
-                if int(self.cert_data.key_size < int(item)):
-                    self.key_score = int(self.key_point_ec[item])
-                    break
-        else:
-            for item in self.key_point:
-                if int(self.cert_data.key_size < int(item)):
-                    self.key_score = int(self.key_point[item])
-                    break
-        
-    def __protocol_score(self):
-        """calculate the score of protocol"""
-        for key, value in self.protocol_point.items():
-            if self.cert_data.protocol_enabled[key] == "YES" and self.weakest_protocol is None:
-                self.weakest_protocol = key
-                self.protocol_score = int(self.protocol_point[self.weakest_protocol])
+                        print("{}\t\t{}{}".format(Bcolors.RESET, ciphersuite_name, Bcolors.RESET))
 
-    def __cipher_score(self):
-        """Calculate the score of cipher suite"""
-        for protocol in self.cert_data.cipher_available:
-            for cipher_suite in self.cert_data.cipher_available[protocol]:
-                score = int(self.cipher_point[cipher_suite.security])
-                if self.cipher_score is None or score > self.cipher_score: 
-                    self.cipher_score = score
-                    self.cipher_vulnerability = cipher_suite.security
-    
-    def __certificate_score(self):
-        """Calculate the score of certificat"""
-        if self.cert_data.has_expired:
-            self.certificate_score = int(self.certificate_point["expired"])
-            self.global_grade = "F"
-        elif self.cert_data.policie == "extended-validation":
-            self.certificate_score = int(self.certificate_point[self.cert_data.policie])
-        elif self.cert_data.policie == "UNKNOW":
-            self.certificate_score = int(self.certificate_point["domain-validated"])
+            except Exception as e:  # if handshake not work because ssock
+                pass
+    return cipher_enabled
 
-    def __assess_rank(self):
-        """calculate the global rank of the module"""
 
-        for key, value in self.bad_rank.items():
-            if key == "protocol":
-                for i in value:
-                    if self.weakest_protocol == i:
-                        self.global_grade = "F"
-                        break
-            elif key == "key_score":
-                if self.key_score >= int(value):
-                    self.global_grade = "F"
-            elif key == "cipher":
-                for i in value:
-                    if self.cipher_vulnerability == i:
-                        self.global_grade = "F"
-                        break
+#    for i in data['ciphersuites']:
+#        for key, value in i.items():
+#            try:
+#                context.set_ciphers(value["openssl_name"])
 
-        if self.global_grade is None:
-            for key, value in self.grade.items():
-                if self.global_score < int(value):
-                    self.global_grade = key
-                    break
-            if self.global_grade is None:
-                self.global_grade = "F"
-                print("F4")
+#                with socket.create_connection((hostname, port_number)) as sock:
+#                    with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+#                        ssock.do_handshake()
 
-    def __assess_score(self):
-        """calculate the overall score of the module"""
+#                cipher_suite = CipherSuite.CipherSuite(key, value["security"])
+#                cipher_enabled.append(cipher_suite)
+#                print("{}\t\t{}{}".format(Bcolors.RESET, key, Bcolors.RESET))
 
-        self.global_score = None
+#            except Exception as e:
+#                pass
+#    return cipher_enabled
 
-        self.global_score = int(self.coefficient_protocol) * self.protocol_score + \
-                            int(self.coefficient_key) * self.key_score + \
-                            int(self.coefficient_cipher) * self.cipher_score + \
-                            int(self.coefficient_certificate) * self.certificate_score
+def __protocol_score(protocol_point, protocol_enabled):
+    """calculate the score of protocol"""
+    # for protocol, point in protocol_point.items():
+    #    if protocol_enabled[protocol] == "YES":  # and self.weakest_protocol is None:  # TODO
+    #        weakest_protocol = protocol
+    #        protocol_score = int(protocol_point[weakest_protocol])
 
-    def evaluate(self):
-        """Set score for all parts and assess global module score and rank"""
+    # TODO: clean strings / scroll list?
+    if protocol_enabled["SSLv2"] == "YES":
+        weakest_protocol = "SSLv2"
+        protocol_score = int(protocol_point[weakest_protocol])
+    elif protocol_enabled["SSLv3"] == "YES":
+        weakest_protocol = "SSLv3"
+        protocol_score = int(protocol_point[weakest_protocol])
+    elif protocol_enabled["TLSv1"] == "YES":
+        weakest_protocol = "TLSv1"
+        protocol_score = int(protocol_point[weakest_protocol])
+    elif protocol_enabled["TLSv1_1"] == "YES":
+        weakest_protocol = "TLSv1_1"
+        protocol_score = int(protocol_point[weakest_protocol])
+    elif protocol_enabled["TLSv1_2"] == "YES":
+        weakest_protocol = "TLSv1_2"
+        protocol_score = int(protocol_point[weakest_protocol])
+    else:  # protocol_enabled["TLSv1_3"] == "YES":
+        weakest_protocol = "TLSv1_3"
+        protocol_score = int(protocol_point[weakest_protocol])
 
-        self.__protocol_score()
-        self.__key_score()
-        self.__cipher_score()
-        self.__certificate_score()
+    return protocol_score, weakest_protocol
 
-        # score
-        self.__assess_score()
-        self.__assess_rank()
-        print("\n{}{}{}Score:{} {}".format(Bcolors.RESET, Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET,
-                                            self.global_score))
-        print("{}{}{}Grade:{} {}\n".format(Bcolors.RESET, Bcolors.UNDERLINE, Bcolors.BOLD, Bcolors.RESET,
-                                            self.global_grade))
 
-    def json_parser(self):
-        """Parse in json all connection data"""
+def __key_score(key_type, key_point, key_point_ec, key_size):
+    """calculate the score of certificate key"""
 
-        security_transmission = {}
-        result = {}
-        result["hostname"] = self.url
-        result["grade"] = self.global_grade
-        result["note"] = self.global_score
+    # TODO: config file point attribution not very clear regarding the if condition
+    if key_type == "EC":
+        key_score = next((key_point_ec[size] for size in key_point_ec if key_size < int(size)), None)
 
-        result["protocol"] = self.cert_data.protocol_enabled
-        result["protocol"]["score"] = self.protocol_score
+    else:  # if key_type == "?"
+        key_score = next((key_point[size] for size in key_point if key_size < int(size)), None)
 
-        result["key"] = {}
-        result["key"]["score"] = self.key_score
-        result["key"]["size"] = self.cert_data.key_size
-        result["key"]["type"] = self.cert_data.key_type
+    if type(key_score) == str:
+        key_score = int(key_score)
 
-        # result["cipher"] = self.cert_data.cipher_available
-        result["cipher"] = {}
-        result["cipher"]["score"] = self.cipher_score
-        for protocol in self.cert_data.cipher_available:
-            result["cipher"][protocol] = []
-            for cipher_suite in self.cert_data.cipher_available[protocol]:
-                result["cipher"][protocol].append(cipher_suite.json_parser())
+    return key_score
 
-        result["certificate"] = {}
-        result["certificate"]["score"] = self.certificate_score
-        result["certificate"]["type"] = self.cert_data.policie
-        result["certificate"]["not_before"] = self.cert_data.certificate.not_valid_before.strftime("%a, %d %b %Y "
-                                                                                                   "%H:%M:%S %Z")
-        result["certificate"]["not_after"] = self.cert_data.certificate.not_valid_after.strftime("%a, %d %b %Y "
-                                                                                                 "%H:%M:%S %Z")
 
-        result["certificate"]["sign_algo"] = self.cert_data.sign_algo.decode("utf-8") 
-        result["certificate"]["issued_to"] = self.cert_data.issued_to
-        result["certificate"]["issued_by"] = self.cert_data.issued_by
+def __cipher_score(cipher_available, cipher_point):
+    """Calculate the score of cipher suite"""
+    cipher_score = 0
+    cipher_vulnerability = ""
 
-        security_transmission["security_transmission"] = result
-        return json.dumps(security_transmission)
+    for protocol in cipher_available:
+        for cipher_suite in cipher_available[protocol]:
+            score = int(cipher_point[cipher_suite[8]])
+            if score > cipher_score:
+                cipher_score = score
+                cipher_vulnerability = cipher_suite[8]
+
+    return cipher_score, cipher_vulnerability
+
+
+def __certificate_score(has_expired, policie, certificate_point):  # TODO function not finished
+    """Calculate the score of certificat"""
+    if has_expired:
+        certificate_score = int(certificate_point["expired"])
+    elif policie == "extended-validation":
+        certificate_score = int(certificate_point[policie])
+    else:  # elif policie == "UNKNOW"
+        certificate_score = int(certificate_point["domain-validated"])
+
+    return certificate_score
+
+
+def __assess_score(coefficient_protocol, coefficient_key, coefficient_cipher, coefficient_certificate, protocol_score,
+                   key_score, cipher_score, certificate_score):
+    """calculate the overall score of the module"""
+
+    global_score = int(coefficient_protocol) * protocol_score + \
+                   int(coefficient_key) * key_score + \
+                   int(coefficient_cipher) * cipher_score + \
+                   int(coefficient_certificate) * certificate_score
+
+    return global_score
+
+
+def __assess_rank(bad_rank, weakest_protocol, key_score, cipher_vulnerability, has_expired, global_score,
+                  grade):  # TODO function to clean
+    """calculate the global rank of the module"""
+
+    global_grade = ""
+
+    for key, value in bad_rank.items():
+        if key == "protocol":
+            for protocol in value:
+                if weakest_protocol == protocol:
+                    global_grade = "F"
+        elif key == "key_score":
+            if key_score >= int(value):
+                global_grade = "F"
+        elif key == "cipher":
+            for vulnerability in value:
+                if cipher_vulnerability == vulnerability:
+                    global_grade = "F"
+        elif has_expired is True:  # TODO: take into consideration other cert possibilities
+            global_grade = "F"
+
+    if global_grade != "F":
+        print(global_score)
+        for letter, score in grade.items():
+            if global_score < int(score):
+                global_grade = letter
+                break
+
+        if global_grade == "":
+            global_grade = "F"
+
+    return global_grade
+
+
+def json_parser(url, global_grade, global_score, protocol_enabled, protocol_score, key_score, key_size, key_type,
+                cipher_score, cipher_available, certificate_score, policie, certificate, sign_algo, issued_to,
+                issued_by):
+    """Parse in json all connection data"""
+    security_transmission = {}
+    result = {}
+
+    result["hostname"] = url
+    result["grade"] = global_grade
+    result["note"] = global_score
+
+    result["protocol"] = protocol_enabled
+    result["protocol"]["score"] = protocol_score
+
+    result["key"] = {}
+    result["key"]["score"] = key_score
+    result["key"]["size"] = key_size
+    result["key"]["type"] = key_type
+
+    # result["cipher"] = cipher_available
+    result["cipher"] = {}
+    result["cipher"]["score"] = cipher_score
+
+    for protocol in cipher_available:
+        result["cipher"][protocol] = []
+        for cipher_suite in cipher_available[protocol]:
+            result["cipher"][protocol].append(cipher.json_parser(cipher_suite))
+
+    result["certificate"] = {}
+    result["certificate"]["score"] = certificate_score
+    result["certificate"]["type"] = policie
+    result["certificate"]["not_before"] = certificate.not_valid_before.strftime("%a, %d %b %Y "
+                                                                                "%H:%M:%S %Z")
+    result["certificate"]["not_after"] = certificate.not_valid_after.strftime("%a, %d %b %Y "
+                                                                              "%H:%M:%S %Z")
+
+    result["certificate"]["sign_algo"] = sign_algo.decode("utf-8")
+    result["certificate"]["issued_to"] = issued_to
+    result["certificate"]["issued_by"] = issued_by
+
+    security_transmission["security_transmission"] = result
+
+    return json.dumps(security_transmission)
+
+
+def crypto_evaluate(hostname, port):
+    # TODO class CertData (useless?)
+    # openssl_version = ssl.OPENSSL_VERSION
+
+    # main1
+    # TODO class CertData & Tansmission security
+    cert_openssl, pub_key, certificate = __load_cert(hostname, port)
+    key_size, sign_algo, issued_to, issued_by, key_type = __key_data(cert_openssl, pub_key)
+    has_expired = __verify(certificate)
+    policie = __policie(certificate)
+    protocol_enabled, cipher_available = __protocol_data(hostname, port)
+
+    # TODO problem with TLSv3: display all
+
+    # main2
+    # TODO Evaluate (function with score needed defined at beginning)
+    protocol_point = config['protocol_point']
+    key_point = config['key_point']
+    key_point_ec = config['key_point_ec']
+    cipher_point = config['cipher_point']
+    certificate_point = config['certificate_point']
+    bad_rank = config['bad_rank']
+    grade = config['grade']
+
+    coefficient = config['coefficient']
+    coefficient_protocol = int(config.get('coefficient', 'protocol_point'))
+    coefficient_key = int(config.get('coefficient', 'key_point'))
+    coefficient_cipher = int(config.get('coefficient', 'cipher_point'))
+    coefficient_certificate = int(config.get('coefficient', 'certificate_point'))
+
+    protocol_score, weakest_protocol = __protocol_score(protocol_point, protocol_enabled)
+    key_score = __key_score(key_type, key_point, key_point_ec, key_size)
+    cipher_score, cipher_vulnerability = __cipher_score(cipher_available, cipher_point)
+    certificate_score = __certificate_score(has_expired, policie, certificate_point)
+    # score
+    global_score = __assess_score(coefficient_protocol, coefficient_key, coefficient_cipher, coefficient_certificate,
+                                  protocol_score, key_score, cipher_score, certificate_score)
+
+    rank = __assess_rank(bad_rank, weakest_protocol, key_score, cipher_vulnerability, has_expired, global_score, grade)
+
+    crypto_result = json_parser(hostname, rank, global_score, protocol_enabled, protocol_score, key_score, key_size,
+                                key_type, cipher_score, cipher_available, certificate_score, policie, certificate,
+                                sign_algo, issued_to, issued_by)
+
+    return crypto_result
