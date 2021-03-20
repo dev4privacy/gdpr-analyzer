@@ -11,7 +11,7 @@ cssselect2==0.2.2
 defusedxml==0.6.0
 html5lib==1.0.1
 idna==2.8
-Jinja2==2.10.3
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 mozfile==2.1.0
 mozlog==5.0
