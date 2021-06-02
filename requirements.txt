@@ -28,5 +28,5 @@ soupsieve==1.9.5
 splinter==0.13.0
 tinycss==0.4
 tinycss2==1.0.2
-urllib3==1.25.7
+urllib3==1.26.5
 WeasyPrint==51
