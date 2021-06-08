@@ -17,7 +17,7 @@ mozfile==2.1.0
 mozlog==5.0
 mozprofile==2.4.0
 mozterm==1.0.0
-Pillow==7.0.0
+Pillow==8.2.0
 pycparser==2.19
 pyOpenSSL==19.1.0
 Pyphen==0.9.5
